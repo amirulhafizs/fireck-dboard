@@ -1,0 +1,185 @@
+var bcrypt = require("bcryptjs");
+var admin = require("firebase-admin");
+var jwt = require("jsonwebtoken");
+const { v4 } = require("uuid");
+
+const collectionName = "CollectionTypesReservedCollection";
+
+if (admin.apps.length === 0) {
+  const firebaseCredentials = {
+    project_id: process.env["firebase_project_id"],
+    private_key_id: process.env["firebase_private_key_id"],
+    private_key: process.env["firebase_private_key"],
+    client_email: process.env["firebase_client_email"],
+    client_id: process.env["firebase_client_id"],
+    auth_uri: process.env["firebase_auth_uri"],
+    token_uri: process.env["firebase_token_uri"],
+    auth_provider_x509_cert_url: process.env["firebase_auth_provider_x509_cert_url"],
+    client_x509_cert_url: process.env["firebase_client_x509_cert_url"],
+  };
+
+  admin.initializeApp({
+    credential: admin.credential.cert(firebaseCredentials),
+    storageBucket: `${process.env["firebase_project_id"]}.appspot.com`,
+  });
+}
+
+const db = admin.firestore();
+
+const doAllow = async (user, permission) => {
+  let allow = false;
+  if (user.role === "super-admin") {
+    allow = true;
+  } else {
+    const res = await db.collection("AdminRoles").where("id", "==", user.role).get();
+    const role = res.docs.length ? res.docs[0].data() : null;
+    if (role) {
+      if (role.manageCollectionTypes.includes(permission)) {
+        allow = true;
+      }
+    }
+  }
+  return allow;
+};
+
+const getCollectionTypes = async (user) => {
+  const allow = await doAllow(user, "find");
+  if (allow) {
+    const snap = await db.collection(collectionName).get();
+    const types = snap ? snap.docs.map((x) => x.data()) : [];
+    return types;
+  } else {
+    return { error: "Forbidden" };
+  }
+};
+
+const createCollectionType = async (user, type) => {
+  const allow = await doAllow(user, "create");
+  if (allow) {
+    const docRef = db.collection(collectionName).doc();
+
+    const roles = (await db.collection("RolesReservedCollection").get()).docs.map((x) => x.data());
+
+    roles.forEach((r) => {
+      db.collection("RolesReservedCollection")
+        .doc(r.docId)
+        .update({
+          permissions: {
+            ...r.permissions,
+            [docRef.id]: r.defaultPermissions,
+          },
+        });
+    });
+
+    return docRef.set({ ...type, docId: docRef.id, size: 0 });
+  } else {
+    return { error: "Forbidden" };
+  }
+};
+
+async function deleteCollection(collectionPath, batchSize) {
+  const collectionRef = db.collection(collectionPath);
+  const query = collectionRef.orderBy("__name__").limit(batchSize);
+
+  return new Promise((resolve, reject) => {
+    deleteQueryBatch(db, query, resolve).catch(reject);
+  });
+}
+
+async function deleteQueryBatch(db, query, resolve) {
+  const snapshot = await query.get();
+
+  const batchSize = snapshot.size;
+  if (batchSize === 0) {
+    // When there are no documents left, we are done
+    resolve();
+    return;
+  }
+
+  // Delete documents in a batch
+  const batch = db.batch();
+  snapshot.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+  });
+  await batch.commit();
+
+  // Recurse on the next process tick, to avoid
+  // exploding the stack.
+  process.nextTick(() => {
+    deleteQueryBatch(db, query, resolve);
+  });
+}
+
+const deleteCollectionType = async (user, collectionTypeDocId) => {
+  try {
+    const allow = await doAllow(user, "delete");
+    if (allow) {
+      const promises = [];
+      promises.push(db.collection(collectionName).doc(collectionTypeDocId).delete());
+      promises.push(deleteCollection(collectionTypeDocId, 20));
+      return Promise.all(promises);
+    } else {
+      return { error: "Forbidden" };
+    }
+  } catch (error) {
+    return { error };
+  }
+};
+
+const updateCollectionType = async (user, id, type) => {
+  const allow = await doAllow(user, "update");
+  if (allow) {
+    return db.collection(collectionName).doc(id).update(type);
+  } else {
+    return { error: "Forbidden" };
+  }
+};
+
+const handler = async (event) => {
+  try {
+    const path = event.path.replace("/private/collectionTypes", "");
+    const method = event.httpMethod;
+    const authHead = event.headers.authorization;
+    const token =
+      authHead && authHead.startsWith("Bearer ") ? authHead.replace("Bearer ", "") : null;
+
+    if (!token) {
+      return {
+        statusCode: 403,
+        body: JSON.stringify({ error: "Forbidden" }),
+      };
+    } else {
+      const user = jwt.verify(token, process.env["APP_SECRET"]);
+      let response;
+      switch (method) {
+        case "GET":
+          response = await getCollectionTypes(user);
+          break;
+        case "POST": {
+          const body = JSON.parse(event.body);
+          response = await createCollectionType(user, body);
+          break;
+        }
+        case "PUT": {
+          const body = JSON.parse(event.body);
+          response = await updateCollectionType(user, path.replace("/", ""), body);
+          break;
+        }
+        case "DELETE": {
+          response = await deleteCollectionType(user, path.replace("/", ""));
+          break;
+        }
+      }
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify(response),
+      };
+    }
+  } catch (error) {
+    console.log(error.toString());
+    return { statusCode: 500, body: error.toString() };
+  }
+};
+
+module.exports = { handler };
