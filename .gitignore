@@ -24,8 +24,6 @@ docs.html
 # vs code
 .vscode
 
-
-
 # misc
 .DS_Store
 .env.local
