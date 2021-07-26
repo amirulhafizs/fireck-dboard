@@ -77,7 +77,7 @@ const handler = async (event) => {
       body: JSON.stringify({ path }),
     };
   } catch (error) {
-    return { statusCode: 500, body: error.toString() };
+    return { statusCode: 200, body: { error: error.toString() } };
   }
 };
 

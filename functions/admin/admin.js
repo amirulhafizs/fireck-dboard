@@ -15,8 +15,6 @@ const firebaseCredentials = {
   client_x509_cert_url: process.env["firebase_client_x509_cert_url"],
 };
 
-console.log("APPS LENGTH IS " + admin.apps.length);
-
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(firebaseCredentials),
@@ -94,11 +92,14 @@ async function addWebApp(displayName) {
 
     const config = await getAppConfig(foundAppId, accessToken);
     if (!config.error) {
-      db.collection("AppReservedCollection").doc("config").set(config);
+      await db.collection("AppReservedCollection").doc("config").set(config);
     }
     return config;
   } catch (err) {
-    return { error: err["message"] };
+    return {
+      error:
+        "It seems that firestore is not enabled. If you have enabled it, wait few minutes and try again.",
+    };
   }
 }
 
@@ -108,14 +109,20 @@ const isSuperAdminCreated = async () => {
     const res = await db.collection(collectionName).where("role", "==", "super-admin").get();
     return res.docs.length > 0;
   } catch (error) {
-    return { error };
+    return {
+      error:
+        "It seems that firestore is not enabled. If you have enabled it, wait few minutes and try again.",
+    };
   }
 };
 
 const setInitialDatabaseMetadata = () => {
   try {
     const db = admin.firestore();
-    db.collection("FilesReservedCollection").doc("metadata").set({ size: 0 });
+    db.collection("FilesReservedCollection")
+      .doc("metadata")
+      .set({ size: 0 })
+      .catch((error) => console.log(error));
     db.collection("RolesReservedCollection")
       .doc("public")
       .set({
@@ -123,7 +130,8 @@ const setInitialDatabaseMetadata = () => {
         docId: "public",
         permissions: {},
         defaultPermissions: ["count", "find", "find one"],
-      });
+      })
+      .catch((error) => console.log(error));
     db.collection("RolesReservedCollection")
       .doc("authenticated")
       .set({
@@ -131,10 +139,12 @@ const setInitialDatabaseMetadata = () => {
         docId: "authenticated",
         permissions: {},
         defaultPermissions: ["count", "create", "find", "find one"],
-      });
+      })
+      .catch((error) => console.log(error));
     db.collection("AppReservedCollection")
       .doc("appearance")
-      .set({ logo: "", colors: ["#4C9394", "#19393B", "#23F3F3", "#1DCCCC"] });
+      .set({ logo: "", colors: ["#4C9394", "#19393B", "#23F3F3", "#1DCCCC"] })
+      .catch((error) => console.log(error));
   } catch (error) {
     console.log(error);
   }
@@ -163,13 +173,12 @@ const createSuperAdmin = async (superAdmin) => {
       return { error: alreadyExists.error };
     }
     if (alreadyExists) {
-      return { error: "super admin already exists" };
+      return { error: "Super admin already exists" };
     }
 
     delete superAdmin["confirmationPassword"];
     setInitialDatabaseMetadata();
-    const config = await addWebApp(`Fireck-${Date.now()}`);
-    return db
+    const res = await db
       .collection(collectionName)
       .add({
         ...superAdmin,
@@ -179,10 +188,13 @@ const createSuperAdmin = async (superAdmin) => {
       .then(async () => {
         return login(superAdmin.email, superAdmin.password);
       })
-      .then((res) => ({ ...res, firebaseConfig: config }))
-      .catch((error) => ({ error }));
+      .then((res) => ({ ...res }));
+    return res;
   } catch (error) {
-    return { error };
+    return {
+      error:
+        "It seems that firestore is not enabled. If you have enabled it, wait few minutes and try again.",
+    };
   }
 };
 
@@ -203,7 +215,10 @@ const login = async (email, password) => {
       return { error: "authentication error" };
     }
   } catch (error) {
-    return { error };
+    return {
+      error:
+        "It seems that firestore is not enabled. If you have enabled it, wait few minutes and try again.",
+    };
   }
 };
 
@@ -274,8 +289,8 @@ const handler = async (event) => {
         response = await login(body.email, body.password);
         break;
       }
-      case "completeApp": {
-        response = await completeApp();
+      case "createApp": {
+        response = await addWebApp(`Fireck-${Date.now()}`);
         break;
       }
       case "testFirestore":

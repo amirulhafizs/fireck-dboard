@@ -43,6 +43,7 @@
     "react-markdown-editor-lite": "^1.2.4",
     "react-redux": "^7.2.4",
     "react-router-dom": "^5.2.0",
+    "react-router-navigation-prompt": "^1.8.14",
     "react-scripts": "4.0.3",
     "redux": "^4.1.0",
     "rich-markdown-editor": "^11.8.2",
