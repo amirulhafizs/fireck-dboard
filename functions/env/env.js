@@ -1,8 +1,12 @@
 const handler = async (event) => {
   try {
-    const keys = ["firebase_project_id", "SITE_ID", "apiFreezeTime"];
-    const env = keys.reduce((a, b) => ({ ...a, [b]: process.env[b] }), {});
-    console.log("env", env);
+    const firebaseAdminCredential = process.env.FIREBASE_ADMIN_CREDENTIAL
+      ? JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIAL)
+      : { project_id: undefined };
+    const env = {};
+    env.project_id = firebaseAdminCredential.project_id;
+    env.SITE_ID = process.env.SITE_ID;
+    env.STRIPE = process.env.STRIPE_SECRET_KEY ? true : false;
     return {
       statusCode: 200,
       body: JSON.stringify({ ...env }),

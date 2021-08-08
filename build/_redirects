@@ -1,3 +1,4 @@
+/api/payments* /.netlify/functions/payments 200!
 /api/* /.netlify/functions/handle 200!
 /private/* /.netlify/functions/:splat 200!
 /private/*/:func /.netlify/functions/:splat 200!
