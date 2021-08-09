@@ -148,7 +148,7 @@ const getFirst = (collection: string, where: Where) => {
     .then((res) => (res.docs.length ? res.docs[0].data() : null));
 };
 
-const findOne = async (user: User, collectionId: string, docId: string) => {
+const findOne = async (user: User, collectionId: string, docId: string, populateRef: boolean) => {
   try {
     const collectionType = (await getFirst("CollectionTypesReservedCollection", [
       "id",
@@ -159,7 +159,9 @@ const findOne = async (user: User, collectionId: string, docId: string) => {
     if (await doAllow(user, collectionType.docId, "find one")) {
       let snapshot = await db.collection(collectionType.docId).doc(docId).get();
 
-      const relationFields = collectionType.fields.filter((x) => x.type === "relation");
+      const relationFields = populateRef
+        ? collectionType.fields.filter((x) => x.type === "relation")
+        : [];
 
       return !snapshot.exists
         ? null
@@ -421,7 +423,7 @@ const handler: Handler = async (event) => {
           if (paths[1] === "type") {
             response = await getType(user, paths[0]);
           } else {
-            response = await findOne(user, paths[0], paths[1]);
+            response = await findOne(user, paths[0], paths[1], populateRef);
           }
         } else {
           response = await find(
