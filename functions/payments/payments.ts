@@ -93,6 +93,7 @@ const handler: Handler = async (event) => {
       const chargeId = signature.split("/").slice(-1)[0];
       response = await updateCharge(chargeId, body, stripeApp);
     }
+
     return {
       statusCode: 200,
       body: JSON.stringify(response, undefined, 2),

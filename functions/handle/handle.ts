@@ -24,6 +24,18 @@ type OrderBy = [string, ("asc" | "desc")?];
 
 type Permission = "find" | "find one" | "create" | "update" | "delete" | "count";
 
+interface CollectionType {
+  id: string;
+  name: string;
+  fields: Array<FieldType>;
+  draftable: boolean;
+  single: boolean;
+  docId: string;
+  size: number;
+  lastIndex: number;
+  displayDocIdOnTable: boolean;
+}
+
 type FieldType = {
   id: string;
   type: FieldInputType;
@@ -159,7 +171,7 @@ const populateRelationFields = async (relationFields: FieldType[], obj: Object) 
             .collection(relField.relatedCollectionTypeDocId)
             .doc(obj[relField.id])
             .get()
-            .then((res) => res.data())
+            .then((res) => ({ fieldId: relField.id, data: res.data() }))
         );
       }
     } else {
@@ -175,12 +187,12 @@ const populateRelationFields = async (relationFields: FieldType[], obj: Object) 
           );
         });
       }
-
-      promises.push(Promise.all(innerPromises));
+      promises.push(Promise.all(innerPromises).then((data) => ({ fieldId: relField.id, data })));
     }
   });
-  (await Promise.all(promises)).forEach((data, i) => {
-    obj[relationFields[i].id] = data;
+
+  (await Promise.all(promises)).forEach((data) => {
+    obj[data.fieldId] = data.data;
   });
   return obj;
 };
@@ -198,11 +210,11 @@ const find = async (
   populateRef: boolean
 ) => {
   try {
-    let collectionType = await getFirst("CollectionTypesReservedCollection", [
+    let collectionType = (await getFirst("CollectionTypesReservedCollection", [
       "id",
       "==",
       collectionId,
-    ]);
+    ])) as CollectionType;
 
     if (await doAllow(user, collectionType.docId, "find")) {
       if (collectionType.single) {
@@ -223,16 +235,24 @@ const find = async (
         collectionType.docId
       ) as FirebaseFirestore.Query<FirebaseFirestore.DocumentData>;
 
-      const parseIfNumber = (str) => {
-        return /^-?\d+$/.test(str) ? +str : str;
+      const parseMeBaby = (fieldId: string, value: any) => {
+        const field = collectionType.fields.find((x) => x.id === fieldId);
+        if (!field) return value;
+        if (field.type === "boolean") {
+          return value === "true" ? true : false;
+        }
+        if (field.type === "number") {
+          return +value;
+        }
+        return value;
       };
 
       where.forEach((x) => {
         let [arg1, arg2, ...rest] = x;
         let arg3 =
           rest.length > 1 || ["not in", "in", "array-contains-any"].includes(arg2)
-            ? rest.map((x) => parseIfNumber(x))
-            : parseIfNumber(rest[0]);
+            ? rest.map((x) => parseMeBaby(arg1, x))
+            : parseMeBaby(arg1, rest[0]);
 
         currentRef = currentRef.where(arg1, arg2 as WhereFilterOp, arg3);
       });
@@ -241,20 +261,23 @@ const find = async (
         currentRef = currentRef.orderBy(...x);
       });
 
-      if (startAt) {
-        currentRef = currentRef.startAt(parseIfNumber(startAt));
-      }
+      if (orderBy.length) {
+        const fieldId = orderBy[0][0];
+        if (startAt) {
+          currentRef = currentRef.startAt(parseMeBaby(fieldId, startAt));
+        }
 
-      if (startAfter) {
-        currentRef = currentRef.startAfter(parseIfNumber(startAfter));
-      }
+        if (startAfter) {
+          currentRef = currentRef.startAfter(parseMeBaby(fieldId, startAfter));
+        }
 
-      if (endAt) {
-        currentRef = currentRef.endAt(parseIfNumber(endAt));
-      }
+        if (endAt) {
+          currentRef = currentRef.endAt(parseMeBaby(fieldId, endAt));
+        }
 
-      if (endBefore) {
-        currentRef = currentRef.endBefore(parseIfNumber(endBefore));
+        if (endBefore) {
+          currentRef = currentRef.endBefore(parseMeBaby(fieldId, endBefore));
+        }
       }
 
       currentRef = currentRef.limit(limit);
