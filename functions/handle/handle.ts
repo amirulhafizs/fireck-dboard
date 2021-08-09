@@ -22,7 +22,7 @@ type Where = [string, WhereFilterOp, any];
 
 type OrderBy = [string, ("asc" | "desc")?];
 
-type Permission = "find" | "find one" | "create" | "update" | "delete" | "count";
+type Permission = "find" | "find one" | "create" | "update" | "delete" | "count" | "type";
 
 interface CollectionType {
   id: string;
@@ -379,6 +379,23 @@ const update = async (user: User, collectionId: string, docId: string, data: Obj
   }
 };
 
+const getType = async (user: User, collectionId: string) => {
+  try {
+    const collectionType = await getFirst("CollectionTypesReservedCollection", [
+      "id",
+      "==",
+      collectionId,
+    ]);
+    if (await doAllow(user, collectionType.docId, "type")) {
+      return collectionType;
+    } else {
+      return { error: "Forbidden" };
+    }
+  } catch (error) {
+    return { error: error.toString() };
+  }
+};
+
 const handler: Handler = async (event) => {
   try {
     const authHead = event.headers.authorization;
@@ -401,7 +418,11 @@ const handler: Handler = async (event) => {
         const populateRef = params.populateRef === "false" ? false : true;
 
         if (paths.length === 2) {
-          response = await findOne(user, paths[0], paths[1]);
+          if (paths[1] === "type") {
+            response = await getType(user, paths[0]);
+          } else {
+            response = await findOne(user, paths[0], paths[1]);
+          }
         } else {
           response = await find(
             user,
