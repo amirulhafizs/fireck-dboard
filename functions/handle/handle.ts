@@ -85,6 +85,42 @@ if (admin.apps.length === 0) {
 
 const db = admin.firestore();
 
+const populateRelationFields = async (relationFields: FieldType[], obj: Object) => {
+  const promises = [];
+  relationFields.forEach((relField) => {
+    if (relField.relationOneToOne) {
+      if (obj[relField.id]) {
+        promises.push(
+          db
+            .collection(relField.relatedCollectionTypeDocId)
+            .doc(obj[relField.id])
+            .get()
+            .then((res) => ({ fieldId: relField.id, data: res.data() }))
+        );
+      }
+    } else {
+      const innerPromises = [];
+      if (obj[relField.id]) {
+        obj[relField.id].forEach((docId) => {
+          innerPromises.push(
+            db
+              .collection(relField.relatedCollectionTypeDocId)
+              .doc(docId)
+              .get()
+              .then((res) => res.data())
+          );
+        });
+      }
+      promises.push(Promise.all(innerPromises).then((data) => ({ fieldId: relField.id, data })));
+    }
+  });
+
+  (await Promise.all(promises)).forEach((data) => {
+    obj[data.fieldId] = data.data;
+  });
+  return obj;
+};
+
 const doAllow = async (user: User, collectionName: string, permission: Permission) => {
   let allow = false;
   if (user.role === "super-admin") {
@@ -114,16 +150,22 @@ const getFirst = (collection: string, where: Where) => {
 
 const findOne = async (user: User, collectionId: string, docId: string) => {
   try {
-    const collectionType = await getFirst("CollectionTypesReservedCollection", [
+    const collectionType = (await getFirst("CollectionTypesReservedCollection", [
       "id",
       "==",
       collectionId,
-    ]);
+    ])) as CollectionType;
 
     if (await doAllow(user, collectionType.docId, "find one")) {
       let snapshot = await db.collection(collectionType.docId).doc(docId).get();
 
-      return !snapshot.exists ? null : snapshot.data();
+      const relationFields = collectionType.fields.filter((x) => x.type === "relation");
+
+      return !snapshot.exists
+        ? null
+        : relationFields.length
+        ? populateRelationFields(relationFields, snapshot.data())
+        : snapshot.data();
     } else {
       return { error: "Forbidden" };
     }
@@ -159,42 +201,6 @@ const _delete = async (user: User, collectionId: string, docId: string) => {
   } catch (error) {
     return { error };
   }
-};
-
-const populateRelationFields = async (relationFields: FieldType[], obj: Object) => {
-  const promises = [];
-  relationFields.forEach((relField) => {
-    if (relField.relationOneToOne) {
-      if (obj[relField.id]) {
-        promises.push(
-          db
-            .collection(relField.relatedCollectionTypeDocId)
-            .doc(obj[relField.id])
-            .get()
-            .then((res) => ({ fieldId: relField.id, data: res.data() }))
-        );
-      }
-    } else {
-      const innerPromises = [];
-      if (obj[relField.id]) {
-        obj[relField.id].forEach((docId) => {
-          innerPromises.push(
-            db
-              .collection(relField.relatedCollectionTypeDocId)
-              .doc(docId)
-              .get()
-              .then((res) => res.data())
-          );
-        });
-      }
-      promises.push(Promise.all(innerPromises).then((data) => ({ fieldId: relField.id, data })));
-    }
-  });
-
-  (await Promise.all(promises)).forEach((data) => {
-    obj[data.fieldId] = data.data;
-  });
-  return obj;
 };
 
 const find = async (
