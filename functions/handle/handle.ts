@@ -319,7 +319,11 @@ const find = async (
 
       currentRef = currentRef.limit(limit);
 
+      console.log("cur ref", currentRef);
+
       const snapshot = await currentRef.get();
+
+      console.log(snapshot.docs);
 
       if (snapshot.empty) {
         return [];
@@ -333,13 +337,16 @@ const find = async (
           const populatedData = await populateRelationFields(relationFields, doc.data());
           results.push(populatedData);
         }
+
         return results;
       }
+      console.log(snapshot);
       return snapshot.docs.map((x) => x.data());
     } else {
       return { error: "Forbidden" };
     }
   } catch (error) {
+    console.log("error was", error);
     return { error: error.toString() };
   }
 };
@@ -368,6 +375,7 @@ const isValid: { [key in FieldInputType]: (a: any, type: FieldType) => boolean }
 };
 
 const validateObj = (fields: FieldType[], obj: Object) => {
+  console.log("validate was");
   const newObj = JSON.parse(JSON.stringify(obj));
   Object.keys(obj).forEach((key) => {
     const field = fields.find((x) => x.id === key);

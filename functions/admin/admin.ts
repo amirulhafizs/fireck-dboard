@@ -17,21 +17,24 @@ if (admin.apps.length === 0) {
 
 const reservedCollectionName = "AdminUsersReservedCollection";
 
+const getFirebaseCredentials = () => {
+  return process.env["FIREBASE_ADMIN_CREDENTIAL"]
+    ? JSON.parse(process.env["FIREBASE_ADMIN_CREDENTIAL"])
+    : null;
+};
+
 const getAppConfig = (appId: string, accessToken: string) => {
+  const credentials = JSON.parse(process.env["FIREBASE_ADMIN_CREDENTIAL"]);
   return nodeFetch(
-    `https://firebase.googleapis.com/v1beta1/projects/${process.env["firebase_project_id"]}/webApps/${appId}/config`,
+    `https://firebase.googleapis.com/v1beta1/projects/${credentials["project_id"]}/webApps/${appId}/config`,
     {
       headers: {
         Authorization: "Bearer " + accessToken,
       },
     }
-  ).then((x) => x.json());
-};
-
-const getFirebaseCredentials = () => {
-  return process.env["FIREBASE_ADMIN_CREDENTIAL"]
-    ? JSON.parse(process.env["FIREBASE_ADMIN_CREDENTIAL"])
-    : null;
+  )
+    .then((x) => x.json())
+    .catch((error) => ({ error }));
 };
 
 function getAccessToken() {
@@ -56,11 +59,11 @@ async function addWebApp(displayName) {
   const db = admin.firestore();
   try {
     const accessToken = await getAccessToken();
+    const credentials = JSON.parse(process.env["FIREBASE_ADMIN_CREDENTIAL"]);
+    console.log("credentials", credentials);
     if (!accessToken) return;
     const uri =
-      "https://firebase.googleapis.com/v1beta1/projects/" +
-      process.env["firebase_project_id"] +
-      "/webApps";
+      "https://firebase.googleapis.com/v1beta1/projects/" + credentials["project_id"] + "/webApps";
     const options = {
       method: "POST",
       headers: {
@@ -87,6 +90,7 @@ async function addWebApp(displayName) {
     }
     return config;
   } catch (err) {
+    console.log("error app create", err);
     return {
       error:
         "It seems that firestore is not enabled. If you have enabled it, wait few minutes and try again.",
