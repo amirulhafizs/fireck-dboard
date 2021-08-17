@@ -278,6 +278,20 @@ const testAuthentication = async () => {
   }
 };
 
+const getLastDeployment = async () => {
+  const db = admin.firestore();
+  const snapshot = await db.collection("AppReservedCollection").doc("deployment").get();
+  return snapshot.exists ? snapshot.data() : null;
+};
+
+const setDeployment = async () => {
+  const db = admin.firestore();
+  return db
+    .collection("AppReservedCollection")
+    .doc("deployment")
+    .set({ date: new Date().toJSON() });
+};
+
 const handler = async (event) => {
   try {
     const path = event.path.replace("/private/admin/", "");
@@ -314,6 +328,16 @@ const handler = async (event) => {
       case "updateAppearance": {
         const body = JSON.parse(event.body);
         response = await updateAppearance(body);
+        break;
+      }
+
+      case "getDeployment": {
+        response = await getLastDeployment();
+        break;
+      }
+
+      case "setDeployment": {
+        response = await setDeployment();
         break;
       }
     }
