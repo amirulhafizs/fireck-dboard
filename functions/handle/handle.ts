@@ -128,15 +128,18 @@ const populateRelationFields = async (relationFields: FieldType[], obj: Object) 
   return obj;
 };
 
-const callWebhook = (url: string, method: HttpMethod, token: string, body?: any) => {
-  if (url) {
-    nodeFetch(url, {
-      method: method,
-      headers: {
-        Authorization: token ? `Bearer ${token}` : undefined,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    }).catch((error) => console.log(error));
+const callWebhook = (collectionType: CollectionType, token: string, body?: any) => {
+  if (collectionType.webhooks) {
+    const { url, method } = collectionType.webhooks["find"];
+    if (url) {
+      nodeFetch(url, {
+        method: method,
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+        body: body ? JSON.stringify(body) : undefined,
+      }).catch((error) => console.log(error));
+    }
   }
 };
 
@@ -175,8 +178,7 @@ const findOne = async (user: User, collectionId: string, docId: string, populate
       collectionId,
     ])) as CollectionType;
 
-    const webhook = collectionType.webhooks["find one"];
-    callWebhook(webhook.url, webhook.method, user.token);
+    callWebhook(collectionType, user.token);
 
     if (await doAllow(user, collectionType.docId, "find one")) {
       let snapshot = await db.collection(collectionType.docId).doc(docId).get();
@@ -201,14 +203,13 @@ const findOne = async (user: User, collectionId: string, docId: string, populate
 
 const _delete = async (user: User, collectionId: string, docId: string) => {
   try {
-    const collectionType = await getFirst("CollectionTypesReservedCollection", [
+    const collectionType = (await getFirst("CollectionTypesReservedCollection", [
       "id",
       "==",
       collectionId,
-    ]);
+    ])) as CollectionType;
 
-    const webhook = collectionType.webhooks["delete"];
-    callWebhook(webhook.url, webhook.method, user.token);
+    callWebhook(collectionType, user.token);
 
     if (await doAllow(user, collectionType.docId, "delete")) {
       const promises = [];
@@ -250,8 +251,7 @@ const find = async (
       collectionId,
     ])) as CollectionType;
 
-    const webhook = collectionType.webhooks["find"];
-    callWebhook(webhook.url, webhook.method, user.token);
+    callWebhook(collectionType, user.token);
 
     if (await doAllow(user, collectionType.docId, "find")) {
       if (collectionType.single) {
@@ -399,8 +399,7 @@ const create = async (user: User, collectionId: string, data: Object) => {
       collectionId,
     ])) as CollectionType;
 
-    const webhook = collectionType.webhooks["create"];
-    callWebhook(webhook.url, webhook.method, user.token, data);
+    callWebhook(collectionType, user.token, data);
 
     if (await doAllow(user, collectionType.docId, "create")) {
       const nowDate = new Date().toJSON();
@@ -456,14 +455,13 @@ const create = async (user: User, collectionId: string, data: Object) => {
 
 const update = async (user: User, collectionId: string, docId: string, data: Object) => {
   try {
-    const collectionType = await getFirst("CollectionTypesReservedCollection", [
+    const collectionType = (await getFirst("CollectionTypesReservedCollection", [
       "id",
       "==",
       collectionId,
-    ]);
+    ])) as CollectionType;
 
-    const webhook = collectionType.webhooks["update"];
-    callWebhook(webhook.url, webhook.method, user.token, data);
+    callWebhook(collectionType, user.token, data);
 
     if (await doAllow(user, collectionType.docId, "update")) {
       if (collectionType.single) {
