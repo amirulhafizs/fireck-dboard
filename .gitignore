@@ -13,7 +13,6 @@ src
 public
 tailwind.config.js
 tsconfig.json
-netlify.toml
 log.json
 craco.config.js
 docs.html
