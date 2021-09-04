@@ -1,0 +1,2 @@
+(this["webpackJsonpfirebase-cms1"]=this["webpackJsonpfirebase-cms1"]||[]).push([[20],{913:function(t,e,s){"use strict";s.r(e);var c=s(0),a=s.n(c),n=s(66),i=s(13),o=s(24),u=s(1);e.default=function(){var t=Object(o.k)();return a.a.useEffect((function(){var e=window.location.hash;e&&Object(n.e)(e,(function(e){i.b.dispatch({type:"SET_NETLIFY_ACCESS_TOKEN",payload:e}),t.push("/")}))}),[t]),Object(u.jsx)("div",{})}}}]);
+//# sourceMappingURL=20.4a78a9cb.chunk.js.map

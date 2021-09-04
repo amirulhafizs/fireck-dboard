@@ -143,14 +143,6 @@ const setInitialDatabaseMetadata = () => {
       .doc("appearance")
       .set({ logo: "", colors: ["#4C9394", "#19393B", "#23F3F3", "#1DCCCC"] })
       .catch((error) => console.log(error));
-    db.collection("IntegrationsReservedCollection")
-      .doc("payments")
-      .set({ installed: false, stripe_secret_key: "" })
-      .catch((error) => console.log(error));
-    db.collection("IntegrationsReservedCollection")
-      .doc("emails")
-      .set({ installed: false, email: "", password: "" })
-      .catch((error) => console.log(error));
   } catch (error) {
     console.log(error);
   }

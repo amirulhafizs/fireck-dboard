@@ -61,7 +61,8 @@ const createCollectionType = async (user, type) => {
         });
     });
 
-    return docRef.set({ ...type, docId: docRef.id, size: 0 });
+    await docRef.set({ ...type, docId: docRef.id, size: 0 });
+    return (await docRef.get()).data();
   } else {
     return { error: "Forbidden" };
   }
@@ -119,7 +120,9 @@ const deleteCollectionType = async (user, collectionTypeDocId) => {
 const updateCollectionType = async (user, id, type) => {
   const allow = await doAllow(user, "update");
   if (allow) {
-    return db.collection(collectionName).doc(id).update(type);
+    const docRef = db.collection(collectionName).doc(id);
+    await docRef.update(type);
+    return (await docRef.get()).data();
   } else {
     return { error: "Forbidden" };
   }
