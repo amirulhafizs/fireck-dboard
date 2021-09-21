@@ -3,6 +3,75 @@ import admin from "firebase-admin";
 import jwt from "jsonwebtoken";
 import nodeFetch from "node-fetch";
 
+type WhereFilterOp =
+  | "<"
+  | "<="
+  | "=="
+  | "!="
+  | ">="
+  | ">"
+  | "array-contains"
+  | "in"
+  | "array-contains-any"
+  | "not-in";
+
+interface User {
+  role: string;
+  token?: string;
+}
+
+type Where = [string, WhereFilterOp, any];
+
+type OrderBy = [string, ("asc" | "desc")?];
+
+type Permission = "find" | "find one" | "create" | "update" | "delete" | "count" | "type";
+
+type CmsEvent = "find" | "find one" | "create" | "update" | "delete";
+
+type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
+interface CollectionType {
+  id: string;
+  name: string;
+  fields: Array<FieldType>;
+  draftable: boolean;
+  single: boolean;
+  docId: string;
+  size: number;
+  lastIndex: number;
+  displayDocIdOnTable: boolean;
+  webhooks: { [key in CmsEvent]: { method: HttpMethod; url: string } };
+}
+
+type FieldType = {
+  id: string;
+  type: FieldInputType;
+  enumOptions: string[];
+  mediaSingle: boolean;
+  relatedCollectionTypeDocId: string;
+  relationOneToOne: boolean;
+  displayOnTable: boolean;
+  stringLong: boolean;
+  collectionFields: FieldType[];
+  documentFields: FieldType[];
+};
+
+type FieldInputType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "array"
+  | "map"
+  | "rich-text"
+  | "media"
+  | "date"
+  | "enum"
+  | "password"
+  | "relation"
+  | "json"
+  | "collection"
+  | "document";
+
 if (admin.apps.length === 0) {
   try {
     const credentials = JSON.parse(process.env["FIREBASE_ADMIN_CREDENTIAL"]);
@@ -114,35 +183,78 @@ const isSuperAdminCreated = async () => {
   }
 };
 
-const setInitialDatabaseMetadata = () => {
+const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
   try {
-    const colTypesColName = "CollectionTypesReservedCollection";
+    const filesColName = "FilesReservedCollection";
+    const rolesColName = "RolesReservedCollection";
+
+    const filesColType: Partial<CollectionType> = {
+      id: filesColName,
+      name: filesColName,
+      fields: [
+        { id: "name", type: "string" },
+        { id: "url", type: "string" },
+        { id: "size", type: "number" },
+        { id: "storagePath", type: "string" },
+      ] as FieldType[],
+    };
+
+    nodeFetch(apiUrl + "/private/collectionTypes", {
+      method: "POST",
+      body: JSON.stringify(filesColType),
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    });
+
+    const rolesColType: Partial<CollectionType> = {
+      id: rolesColName,
+      name: rolesColName,
+      fields: [
+        { id: "docId", type: "string" },
+        { id: "name", type: "string" },
+        { id: "permissions", type: "map" },
+        { id: "defaultPermissions", type: "array" },
+      ] as FieldType[],
+    };
+
+    const res = await nodeFetch(apiUrl + "/private/collectionTypes", {
+      method: "POST",
+      body: JSON.stringify(rolesColType),
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    });
+    console.log("Create Role Col Type", res);
 
     const db = admin.firestore();
 
-    const filesDocRef = db.collection(colTypesColName).doc();
-    db.collection("FilesReservedCollection")
-      .doc("metadata")
-      .set({ size: 0 })
-      .catch((error) => console.log(error));
-    db.collection("RolesReservedCollection")
-      .doc("public")
-      .set({
+    nodeFetch(apiUrl + "/api/RolesReservedCollection", {
+      method: "POST",
+      body: JSON.stringify({
         name: "public",
         docId: "public",
         permissions: {},
         defaultPermissions: ["count", "find", "find one"],
-      })
-      .catch((error) => console.log(error));
-    db.collection("RolesReservedCollection")
-      .doc("authenticated")
-      .set({
+      }),
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    });
+
+    nodeFetch(apiUrl + "/api/RolesReservedCollection", {
+      method: "POST",
+      body: JSON.stringify({
         name: "authenticated",
         docId: "authenticated",
         permissions: {},
         defaultPermissions: ["count", "create", "find", "find one"],
-      })
-      .catch((error) => console.log(error));
+      }),
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    });
+
     db.collection("AppReservedCollection")
       .doc("appearance")
       .set({ logo: "", colors: ["#4C9394", "#19393B", "#23F3F3", "#1DCCCC"] })
@@ -167,7 +279,7 @@ const createFirebaseToken = () => {
   });
 };
 
-const createSuperAdmin = async (superAdmin) => {
+const createSuperAdmin = async (superAdmin, apiUrl: string) => {
   try {
     const db = admin.firestore();
     const alreadyExists = await isSuperAdminCreated();
@@ -180,7 +292,7 @@ const createSuperAdmin = async (superAdmin) => {
     }
 
     delete superAdmin["confirmationPassword"];
-    setInitialDatabaseMetadata();
+
     const res = await db
       .collection(reservedCollectionName)
       .add({
@@ -191,7 +303,10 @@ const createSuperAdmin = async (superAdmin) => {
       .then(async () => {
         return login(superAdmin.email, superAdmin.password);
       })
-      .then((res) => ({ ...res }));
+      .then((res) => {
+        setInitialDatabaseMetadata(apiUrl, res.token);
+        return { ...res };
+      });
     return res;
   } catch (error) {
     return {
@@ -289,6 +404,10 @@ const setDeployment = async () => {
 };
 
 const handler = async (event) => {
+  const host = event.headers.host;
+  const protocol = host.startsWith("localhost") ? "http" : "https";
+  const apiUrl = `${protocol}://${host}`;
+
   try {
     const path = event.path.replace("/private/admin/", "");
     let response;
@@ -298,7 +417,7 @@ const handler = async (event) => {
         break;
       case "createSuperAdmin": {
         const body = JSON.parse(event.body);
-        response = await createSuperAdmin(body);
+        response = await createSuperAdmin(body, apiUrl);
         break;
       }
       case "login": {

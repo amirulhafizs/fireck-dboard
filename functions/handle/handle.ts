@@ -216,7 +216,7 @@ const _delete = async (user: User, collectionId: string, docId: string) => {
 
       promises.push(
         db
-          .collection("CollectionTypesReserverdCollection")
+          .collection("CollectionTypesReservedCollection")
           .doc(collectionType.docId)
           .update({
             size: admin.firestore.FieldValue.increment(-1),
