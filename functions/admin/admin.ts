@@ -116,7 +116,11 @@ const isSuperAdminCreated = async () => {
 
 const setInitialDatabaseMetadata = () => {
   try {
+    const colTypesColName = "CollectionTypesReservedCollection";
+
     const db = admin.firestore();
+
+    const filesDocRef = db.collection(colTypesColName).doc();
     db.collection("FilesReservedCollection")
       .doc("metadata")
       .set({ size: 0 })
