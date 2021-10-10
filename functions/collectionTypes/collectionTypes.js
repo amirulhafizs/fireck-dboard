@@ -61,7 +61,18 @@ const createCollectionType = async (user, type) => {
         });
     });
 
-    await docRef.set({ ...type, docId: docRef.id, size: 0 });
+    let mandatoryFields = [
+      { id: "createdAt", type: "date", displayOnTable: true, isDefault: true },
+      { id: "modifiedAt", type: "date", displayOnTable: true, isDefault: true },
+      { id: "docId", type: "string", displayOnTable: true, isDefault: true },
+    ];
+
+    await docRef.set({
+      ...type,
+      fields: [...type.fields, ...mandatoryFields],
+      docId: docRef.id,
+      size: 0,
+    });
     return (await docRef.get()).data();
   } else {
     return { error: "Forbidden" };

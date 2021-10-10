@@ -66,11 +66,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
     id: "",
     single: false,
     draftable: true,
-    fields: [
-      { id: "createdAt", type: "date", displayOnTable: true, isDefault: true },
-      { id: "modifiedAt", type: "date", displayOnTable: true, isDefault: true },
-      { id: "docId", type: "string", displayOnTable: true, isDefault: true },
-    ],
+    fields: [],
     size: 0,
     lastIndex: 0,
     docId: "",

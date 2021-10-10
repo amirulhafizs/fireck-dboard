@@ -225,7 +225,6 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
         Authorization: `Bearer ${jwtToken}`,
       },
     });
-    console.log("Create Role Col Type", res);
 
     const db = admin.firestore();
 

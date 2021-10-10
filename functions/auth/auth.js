@@ -34,7 +34,7 @@ const localRegister = async (email, password, subscribeEmails) => {
     .then(() => ({ success: true }));
 };
 
-const localLogin = (email, password) => {
+const localLogin = async (email, password) => {
   const user = await getFirst("users", ["email", "==", email]);
   if (!user) return { error: "User does not exist" };
   if (bcrypt.compareSync(password, user.password)) {

@@ -21,3 +21,9 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
+
+declare const window: any;
+
+if (window.Cypress) {
+  window.store = store;
+}

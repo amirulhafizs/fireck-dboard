@@ -45,7 +45,7 @@ export interface CollectionType {
   docId: string;
   size: number;
   lastIndex: number;
-  webhooks: Webhooks;
+  webhooks?: Webhooks;
 }
 
 const getAuthHeader = () => {

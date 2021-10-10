@@ -37,6 +37,7 @@ const ActionsBar: React.FC<ActionsBarProps> = ({
       </div>
       {docs.map((x, i) => (
         <div
+          key={x.docId}
           className={classNames(
             "h-48px bg-white",
             { "bg-gray-300": hoveredRow === i },
