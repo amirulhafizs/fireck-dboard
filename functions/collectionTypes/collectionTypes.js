@@ -70,7 +70,7 @@ const createCollectionType = async (user, type) => {
     await docRef.set({
       ...type,
       fields: [...type.fields, ...mandatoryFields],
-      docId: docRef.id,
+      docId: type.docId || docRef.id,
       size: 0,
     });
     return (await docRef.get()).data();

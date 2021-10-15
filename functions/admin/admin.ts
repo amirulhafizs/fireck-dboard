@@ -190,6 +190,7 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
 
     const filesColType: Partial<CollectionType> = {
       id: filesColName,
+      docId: filesColName,
       name: filesColName,
       fields: [
         { id: "name", type: "string" },
@@ -209,6 +210,7 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
 
     const rolesColType: Partial<CollectionType> = {
       id: rolesColName,
+      docId: rolesColName,
       name: rolesColName,
       fields: [
         { id: "docId", type: "string" },
