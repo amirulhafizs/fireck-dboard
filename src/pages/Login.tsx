@@ -36,15 +36,15 @@ const Login: React.FC<LoginProps> = ({ firebase }) => {
     }),
   });
   return (
-    <div className="fixed left-0 top-0 w-full h-full flex overflow-auto p-sm-12 p-7 bg-blue-400">
-      <img alt="" src={logo || Logo} width={135} className="absolute left-6 top-6"></img>
-      <div className="m-auto max-w-430px w-full md:py-10 py-16">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-12 text-sm">
+    <div className="fixed left-0 top-0 w-full h-full flex overflow-auto p-sm-12 p-7 bg-fireck-1">
+      <img alt="" src={logo || Logo} className="absolute left-6 top-6"></img>
+      <div style={{ maxWidth: 380 }} className="m-auto w-full md:py-10 py-16">
+        <form onSubmit={handleSubmit} className="border-2 border-white rounded-lg p-9 text-sm">
           <div className="text-center mb-7">
-            <div className="mb-2 text-2xl font-medium">Login</div>
+            <div className="mb-2 text-27px font-medium text-white">Login</div>
           </div>
           <div className="mb-7">
-            <div className="mb-2">Email</div>
+            <div className="mb-2 text-white">Email</div>
             <Input
               name="email"
               value={values.email}
@@ -53,7 +53,7 @@ const Login: React.FC<LoginProps> = ({ firebase }) => {
             ></Input>
           </div>
           <div className="mb-9">
-            <div className="mb-2">Password</div>
+            <div className="mb-2 text-white">Password</div>
             <Input
               type="password"
               name="password"
@@ -62,7 +62,7 @@ const Login: React.FC<LoginProps> = ({ firebase }) => {
               error={submitCount > 0 && errors.password ? errors.password : false}
             ></Input>
           </div>
-          <Button type="submit" className="bg-orange-300 hover:bg-orange-301 w-full">
+          <Button type="submit" className="bg-fireck-4 hover:bg-fireck-4-hover w-full h-34px">
             Login
           </Button>
         </form>

@@ -38,7 +38,7 @@ const Select: React.FC<SelectProps> = ({
         spellCheck={false}
       >
         {options.map((x, i) => (
-          <option key={"opt-" + i} value={x.value}>
+          <option data-testid={`select-option-${x.value}`} key={"opt-" + i} value={x.value}>
             {x.label}
           </option>
         ))}

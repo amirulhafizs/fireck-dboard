@@ -1,10 +1,11 @@
 import NotesIcon from "@material-ui/icons/Notes";
+import Wrapper from "./Wrapper";
 
 const Media: React.FC = () => {
   return (
-    <div className="w-42px rounded h-28px bg-blue-300 text-white text-center leading-28px text-xs font-medium">
+    <Wrapper>
       <NotesIcon fontSize="inherit" className="text-base"></NotesIcon>
-    </div>
+    </Wrapper>
   );
 };
 

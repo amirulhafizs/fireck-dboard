@@ -6,9 +6,11 @@ import SpecifyFieldDetails, { SpecifyFieldDetailsProps } from "./SpecifyFieldDet
 export const getCollectionField = async ({
   editableField,
   existingFieldNames,
+  zLevel,
 }: {
   editableField?: FieldType;
   existingFieldNames?: string[];
+  zLevel: number;
 }) => {
   let res = editableField
     ? editableField.type
@@ -26,6 +28,7 @@ export const getCollectionField = async ({
       fieldType,
       editableField,
       existingFieldNames,
+      zLevel,
     },
   });
   if (typeof res1 === "boolean") return null;

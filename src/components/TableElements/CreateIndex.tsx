@@ -17,14 +17,14 @@ const CreateIndexModal: React.FC<CreateIndexModalProps> = ({ proceed, url }) => 
         <div className="flex justify-between">
           <Button
             noMinWidth
-            className="bg-blue-300 hover:bg-blue-400 text-white"
+            className="bg-blue-300 hover:bg-blue-400 text-white h-28px"
             onClick={() => proceed(false)}
           >
             Later
           </Button>
           <Button
             noMinWidth
-            className="bg-orange-300 hover:bg-orange-301"
+            className="bg-fireck-4 hover:bg-fireck-4-hover h-28px"
             onClick={() => {
               window.open(url, "_blank");
               proceed(false);

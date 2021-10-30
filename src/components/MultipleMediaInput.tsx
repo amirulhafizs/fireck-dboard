@@ -9,6 +9,7 @@ import { callComponent } from "api/callComponent";
 import SelectMedia, { SelectMediaProps } from "pages/Media/SelectMedia";
 import ReorderSelectedFiles from "components/ReorderSelectedFiles";
 import Modal from "@material-ui/core/Modal";
+import { ReactComponent as MediaIcon } from "assets/media.svg";
 
 export interface MediaInputProps {
   selectedFiles: string[];
@@ -32,11 +33,11 @@ const MediaInput: React.FC<MediaInputProps> = ({ selectedFiles, setSelectedFiles
   };
 
   return (
-    <div className="h-208px bg-blue-300 rounded relative">
+    <div className="h-208px border-2 border-white rounded-md relative">
       {!selectedFiles.length ? (
         <div className="flex w-full h-full cursor-pointer relative z-10" onClick={selectFiles}>
           <div className="m-auto flex items-center text-white">
-            <PhotoLibrary className="text-39px mr-3" fontSize="inherit"></PhotoLibrary>
+            <MediaIcon className="text-39px mr-3" fontSize="inherit"></MediaIcon>
             <div>Upload multiple files</div>
           </div>
         </div>

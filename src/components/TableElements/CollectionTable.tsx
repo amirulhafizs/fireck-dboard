@@ -9,28 +9,30 @@ import { useHistory } from "react-router-dom";
 import { confirm } from "components/Confirm";
 import store from "store";
 import AddFilter from "./AddFilter";
-import { createIndex } from "./CreateIndex";
-import { useNotify } from "components/NotificationsProvider";
 import Button from "components/Button";
 import { configureView } from "components/TableViewConfig";
 import SimpleBar from "simplebar-react";
-import SelectBar from "./SelectBar";
-import ActionsBar from "./ActionsBar";
 import classNames from "classnames";
+import useFetch from "hooks/useFetch";
+import { InView } from "react-intersection-observer";
+import Checkbox from "@material-ui/core/Checkbox";
 
 export interface TableProps {
   collectionType: CollectionType;
-  onSelect?: (a: Document[]) => void;
+  onPick?: (a: Document[]) => void;
   blackList?: string[];
   singleSelect?: boolean;
 }
 
+export type FilterType = { fieldId: string; operator: string; value: string };
+
 const Table: React.FC<TableProps> = ({
   collectionType,
-  onSelect,
+  onPick,
   blackList = [],
   singleSelect = false,
 }) => {
+  console.log("SINGLE SELCT", singleSelect);
   const _configureView = async () => {
     configureView({
       fields: collectionType.fields,
@@ -39,35 +41,18 @@ const Table: React.FC<TableProps> = ({
   };
 
   const history = useHistory();
-  const notify = useNotify();
-  type filterType = { fieldId: string; operator: string; value: string };
-  const [filters, setFilters] = React.useState<filterType[]>([]);
 
-  const [docs, setDocs] = React.useState<Document[]>([]);
-
+  const [filters, setFilters] = React.useState<FilterType[]>([]);
   const fields = collectionType.fields.filter((field) => field.displayOnTable);
   const [selected, setSelected] = React.useState<string[]>([]);
   const [orderBy, setOrderBy] = React.useState<{ fieldId: string; direction: "asc" | "desc" }>();
-  const [hoveredRow, setHoveredRow] = React.useState(-1);
+  const [endIsInView, setEndIsInView] = React.useState(false);
 
-  React.useEffect(() => {
-    setDocs([]);
-  }, [orderBy, filters]);
+  const { docs, setDocs } = useFetch(collectionType.id, filters, orderBy, endIsInView);
+  console.log(collectionType, docs);
 
   const onEdit = (doc: Document) => {
     history.push(`/collections/${collectionType.id}/edit/${doc.docId}`);
-  };
-
-  const onDelete = async (doc: Document) => {
-    if (await confirm({ confirmation: "Do you really want to delete the document?" })) {
-      deleteDocument(collectionType.id, doc.docId);
-      setDocs((prev) => {
-        let arr = [...prev];
-        const index = arr.findIndex((x) => x.docId === doc.docId);
-        arr.splice(index, 1);
-        return arr;
-      });
-    }
   };
 
   const onDeleteSelected = async () => {
@@ -111,101 +96,102 @@ const Table: React.FC<TableProps> = ({
       ? () => setOrderBy(undefined)
       : () => setOrderBy({ fieldId: field.id, direction: "desc" });
 
+  const selectAll = (select: boolean) => setSelected(select ? docs.map((x) => x.docId) : []);
+
+  const selectHandler = (docId: string, checked: boolean) => {
+    if (checked) {
+      if (singleSelect) {
+        setSelected([docId]);
+      } else {
+        setSelected((prev) => [...prev, docId]);
+      }
+
+      return;
+    }
+    setSelected((prev) => {
+      let arr = [...prev];
+      let index = arr.findIndex((x) => x === docId);
+      if (index != null) {
+        arr.splice(index, 1);
+      }
+      return arr;
+    });
+  };
+
   return (
-    <>
+    <div className="h-full w-full flex-col flex">
       <div className="flex justify-between mb-3">
-        <AddFilter
-          collectionType={collectionType}
-          onValue={(val: filterType) => setFilters((prev) => [val, ...prev])}
-        ></AddFilter>
-        {!onSelect ? (
+        <div className="flex flex-wrap">
+          <AddFilter
+            collectionType={collectionType}
+            onValue={(val: FilterType) => setFilters((prev) => [val, ...prev])}
+          ></AddFilter>
+          {filters.map((f, i) => (
+            <div
+              key={`f-${i}`}
+              className="text-white border border-white rounded min-h-28px leading-28px pl-3 text-sm pr-3 flex mr-3 mb-3 relative"
+            >
+              {f.fieldId} {f.operator} {f.value}{" "}
+              <span
+                onClick={() =>
+                  setFilters((prev) => {
+                    let arr = [...prev];
+                    arr.splice(i, 1);
+                    return arr;
+                  })
+                }
+                className="text-xs leading-28px ml-3 cursor-pointer"
+              >
+                ✕
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {!onPick ? (
           <Button
             noMinWidth
             onClick={onDeleteSelected}
             disabled={selected.length === 0}
-            className={`px-10 ${
+            className={`px-7 h-28px ${
               selected.length === 0
-                ? "bg-gray-300 text-gray-500 cursor-default"
-                : "bg-blue-300 hover:bg-blue-400 text-white"
+                ? "bg-gray-E1E1E1 text-gray-6C6C6C cursor-default"
+                : "bg-red-FF0000 hover:bg-red-FF0000-hover text-white"
             } `}
           >
             Delete
           </Button>
         ) : (
           <Button
-            onClick={() => onSelect(docs.filter((x) => selected.includes(x.docId)))}
-            className={`${
+            noMinWidth
+            onClick={() => onPick(docs.filter((x) => selected.includes(x.docId)))}
+            className={`h-28px px-7 ${
               selected.length === 0
                 ? "bg-gray-300 text-gray-500 cursor-default"
-                : "bg-blue-300 hover:bg-blue-400 text-white"
+                : "bg-fireck-4 hover:bg-fireck-4-hover"
             } `}
           >
             Select
           </Button>
         )}
       </div>
-      <div className="flex flex-wrap text-sm">
-        {filters.map((f, i) => (
-          <div
-            key={`f-${i}`}
-            className="text-blue-400 rounded h-34px leading-34px pl-5 pr-3 flex mr-3 mb-3 relative"
-          >
-            <div className="absolute left-0 top-0 w-full h-full bg-blue-400 opacity-10 rounded pointer-events-none"></div>
-            {f.fieldId} {f.operator} {f.value}{" "}
-            <span
-              onClick={() =>
-                setFilters((prev) => {
-                  let arr = [...prev];
-                  arr.splice(i, 1);
-                  return arr;
-                })
-              }
-              className="text-xs leading-34px ml-3 cursor-pointer"
-            >
-              ✕
-            </span>
-          </div>
-        ))}
-      </div>
-      <SimpleBar className="relative scrollbar-dark md:max-h-40vw max-h-96 -mr-3">
-        <SelectBar
-          hoveredRow={hoveredRow}
-          docs={docs}
-          onSelect={(docId, checked) => {
-            if (checked) {
-              setSelected((prev) => [...prev, docId]);
-              return;
-            }
-            setSelected((prev) => {
-              let arr = [...prev];
-              let index = arr.findIndex((x) => x === docId);
-              if (index != null) {
-                arr.splice(index, 1);
-              }
-              return arr;
-            });
-          }}
-          selectAll={(select) => setSelected(select ? docs.map((x) => x.docId) : [])}
-          selected={selected}
-        ></SelectBar>
-        <ActionsBar
-          hoveredRow={hoveredRow}
-          docs={docs}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onlySelect={onSelect != null}
-          configureView={_configureView}
-        ></ActionsBar>
-
-        <SimpleBar className="overflow-auto fireck-table pb-3 mr-3" autoHide={false}>
-          <table className="w-full text-center" style={{ minWidth: (fields.length + 2) * 142 }}>
+      <div className="flex-grow h-0 -mt-3 bg-white rounded overflow-hidden">
+        <SimpleBar className="relative scrollbar-light h-full" autoHide={false}>
+          <table className="w-full text-center">
             <thead>
-              <tr className="bg-gray-300 h-48px rounded">
-                <th className="w-12">
-                  <div className="w-12"></div>
+              <tr className="whitespace-nowrap">
+                <th className="sticky top-0 bg-gray-E1E1E1 z-10 px-1">
+                  {singleSelect ? null : (
+                    <Checkbox
+                      size="small"
+                      classes={{ checked: "text-fireck-1", root: "p-0" }}
+                      checked={selected.length === docs.length}
+                      onChange={(e) => selectAll(e.target.checked)}
+                    ></Checkbox>
+                  )}
                 </th>
                 {fields.map((field, i) => (
-                  <th className="font-medium" key={`th-${i}`}>
+                  <th className="font-semibold sticky top-0 bg-gray-E1E1E1" key={`th-${i}`}>
                     <div className="flex items-center justify-center">
                       <div className="w-5"></div>
                       <div className="cursor-pointer select-none" onClick={onOrder(field)}>
@@ -224,27 +210,27 @@ const Table: React.FC<TableProps> = ({
                     </div>
                   </th>
                 ))}
-                <th className="w-20">
-                  <div className="w-20"></div>
-                </th>
               </tr>
             </thead>
             <tbody>
               {docs.map((doc, i) =>
                 blackList.includes(doc.docId) ? null : (
                   <tr
-                    onMouseEnter={() => setHoveredRow(i)}
-                    onMouseLeave={() => setHoveredRow(-1)}
-                    onClick={() => onEdit(doc)}
+                    onClick={() =>
+                      onPick ? selectHandler(doc.docId, !selected.includes(doc.docId)) : onEdit(doc)
+                    }
                     key={`row-${i}`}
-                    className={classNames("h-48px cursor-pointer", {
-                      "bg-gray-300": hoveredRow === i,
-                    })}
+                    className={classNames("cursor-pointer bg-white hover:bg-fireck-4")}
                   >
-                    <td className="w-12">
-                      <div className="w-12"></div>
+                    <td className="px-1">
+                      <Checkbox
+                        size="small"
+                        classes={{ checked: "text-fireck-1", root: "p-0" }}
+                        checked={selected.includes(doc.docId)}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => selectHandler(doc.docId, e.target.checked)}
+                      ></Checkbox>
                     </td>
-
                     {fields.map((field, j) => (
                       <td key={`row-${i}-col-${j}`} className="px-2">
                         {doc[field.id] ? (
@@ -262,57 +248,22 @@ const Table: React.FC<TableProps> = ({
                         ) : null}
                       </td>
                     ))}
-                    <td className="w-20">
-                      <div className="w-20"></div>
-                    </td>
                   </tr>
                 )
               )}
             </tbody>
           </table>
-          <InViewFetcher
-            key={(orderBy ? orderBy.fieldId + orderBy.direction : "no-order") + filters.length}
-            limit={10}
-            onValue={(vals) => setDocs((prev) => [...prev, ...vals])}
-            onError={(message: string) => {
-              if (message.includes("FAILED_PRECONDITION")) {
-                createIndex(message.split("it here:")[1]);
-              } else {
-                notify(message, { variant: "error" });
-              }
+          <InView
+            onChange={async (inView) => {
+              setEndIsInView(inView);
             }}
-            fetcher={() => {
-              let options: GetCollectionOptions = { collectionId: collectionType.id };
-
-              options.where = "";
-              options.orderBy = "";
-
-              filters.forEach((f, i) => {
-                options.where += (i > 0 ? ";" : "") + f.fieldId + "," + f.operator + "," + f.value;
-                if (orderBy && orderBy.fieldId !== f.fieldId) {
-                  options.orderBy += (options.orderBy ? ";" : "") + f.fieldId;
-                }
-              });
-
-              if (orderBy) {
-                options.orderBy +=
-                  (options.orderBy ? ";" : "") + `${orderBy.fieldId},${orderBy.direction}`;
-              }
-              if (!orderBy && !filters.length) {
-                options.orderBy = "createdAt,asc";
-              }
-
-              if (docs.length) {
-                options.startAfter = docs[docs.length - 1][orderBy ? orderBy.fieldId : "createdAt"];
-              }
-              options.populateRef = false;
-              return getCollection(options);
-            }}
-          ></InViewFetcher>
+          >
+            <div className="w-full"></div>
+          </InView>
+          <div></div>
         </SimpleBar>
-        <div></div>
-      </SimpleBar>
-    </>
+      </div>
+    </div>
   );
 };
 

@@ -7,6 +7,7 @@ import store from "store";
 import { Provider } from "react-redux";
 import NotificationsProvider from "components/NotificationsProvider";
 import RouteLeaveGuard from "components/RouteLeaveGuard";
+import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 
 ReactDOM.render(
   <React.StrictMode>
@@ -27,3 +28,5 @@ declare const window: any;
 if (window.Cypress) {
   window.store = store;
 }
+
+serviceWorkerRegistration.register();

@@ -4,7 +4,6 @@ import Select from "components/Select";
 import Button from "components/Button";
 import { CollectionType } from "api/collectionTypes";
 import React from "react";
-import FilterListRounded from "@material-ui/icons/FilterListRounded";
 import { useFormik } from "formik";
 import Label from "components/Label";
 
@@ -56,10 +55,9 @@ const AddFilterModal: React.FC<AddFilterModalProps> = ({ collectionType, onValue
       <Button
         noMinWidth
         onClick={() => setOpen(true)}
-        className="bg-gray-300 hover:bg-gray-301 flex items-center justify-center"
+        className="bg-fireck-4 hover:bg-fireck-4-hover flex items-center justify-center h-28px px-7 rounded text-sm mr-3 mb-3"
       >
-        <FilterListRounded className="mr-3"></FilterListRounded>
-        <div>Filters</div>
+        Filters
       </Button>
       <Modal open={open}>
         <div className="fixed left-0 top-0 w-full h-full flex" onMouseDown={() => setOpen(false)}>

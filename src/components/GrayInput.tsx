@@ -20,9 +20,7 @@ const Input: React.FC<InputProps> = ({ className = "", error, ...props }) => {
     <div className={"relative flex items-center " + className}>
       <input
         className={`px-3 h-34px border-2 border-solid w-full placeholder-gray-500 rounded outline-none ${
-          error
-            ? "border-red-400"
-            : "focus:border-blue-300 focus:bg-gray-300  border-gray-300 bg-gray-300"
+          error ? "border-red-400" : "focus:border-fireck-4 focus:bg-gray-300 bg-white border-white"
         }`}
         {...props}
         spellCheck={false}

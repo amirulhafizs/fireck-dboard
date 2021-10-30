@@ -1,6 +1,6 @@
 import Loader from "components/Loader";
 import { InView } from "react-intersection-observer";
-import React from "react";
+import React, { useEffect } from "react";
 
 export interface InViewFetcherProps {
   fetcher: () => Promise<Array<any> | { error: any }>;
@@ -16,21 +16,34 @@ const InViewFetcher: React.FC<InViewFetcherProps> = ({
   onError = () => {},
 }) => {
   const [endReached, setEndReached] = React.useState(false);
+  const isInView = React.useRef(false);
+
+  const getter = async () => {
+    let res = await fetcher();
+    if (!("error" in res)) {
+      onValue(res);
+      if (!res.length || res.length < limit) {
+        setEndReached(true);
+      }
+    } else {
+      onError(res.error);
+      setEndReached(true);
+    }
+  };
+
+  useEffect(() => {
+    if (isInView.current && !endReached) {
+      getter();
+    }
+  }, [endReached, getter]);
+
   return (
     <InView
       className="w-full"
       onChange={async (inView) => {
-        if (inView && !endReached) {
-          let res = await fetcher();
-          if (!("error" in res)) {
-            onValue(res);
-            if (!res.length || res.length < limit) {
-              setEndReached(true);
-            }
-          } else {
-            onError(res.error);
-            setEndReached(true);
-          }
+        isInView.current = inView;
+        if (inView) {
+          getter();
         }
       }}
     >

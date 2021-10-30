@@ -18,6 +18,7 @@ const SelectFieldType: React.FC<SelectFieldTypeProps> = ({ proceed }) => {
           <div className="flex flex-wrap">
             {FieldTypes.map((x, i) => (
               <div
+                data-testid={`fieldtype-option-${x.type}`}
                 onClick={() => setFieldType(x.type as FieldInputType)}
                 key={`field-type-${i}`}
                 className={`flex md:w-1/3 sm:w-1/2 w-full select-none p-4 border-4 border-solid border-white items-center cursor-pointer rounded  ${
@@ -26,14 +27,17 @@ const SelectFieldType: React.FC<SelectFieldTypeProps> = ({ proceed }) => {
                     : "hover:border-gray-300 hover:bg-gray-300"
                 }`}
               >
-                <x.Badge></x.Badge>
-                <span className="capitalize ml-2 line-clamp-1">{x.type.replace("-", " ")}</span>
+                <div className="flex items-center pointer-events-none">
+                  <x.Badge></x.Badge>
+                  <span className="capitalize ml-2 line-clamp-1">{x.type.replace("-", " ")}</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
         <div className="flex justify-between">
           <Button
+            data-testid="cancel-field-type-btn"
             onClick={() => {
               proceed(false);
             }}
@@ -42,6 +46,7 @@ const SelectFieldType: React.FC<SelectFieldTypeProps> = ({ proceed }) => {
             Cancel
           </Button>
           <Button
+            data-testid="submit-field-type-btn"
             onClick={() => {
               proceed(fieldType);
             }}

@@ -18,7 +18,7 @@ const WarningIcon = React.forwardRef(function MyComponent(props: any, ref: any) 
 
 const Label: React.FC<LabelProps> = ({ className = "", children, error }) => {
   return (
-    <div className={`flex justify-between relative ${className}`}>
+    <div className={`flex justify-between text-white relative ${className}`}>
       <div>{children}</div>
       {error ? (
         <Tooltip title={error} placement="top">

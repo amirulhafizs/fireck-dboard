@@ -113,7 +113,7 @@ const App = (props: PropsFromRedux) => {
                 onCreateAdmin={() => setOpenAdminCreation(true)}
                 onCreateApp={() => setIsAppCreated(true)}
               ></ToDos>
-              <div className="flex-grow h-0 sm:p-42px p-7 overflow-auto relative">
+              <div className="flex-grow h-0 p-7 overflow-auto relative bg-fireck-1">
                 <div className="absolute top-0" ref={pageTopRef}>
                   <InView onChange={(inView) => setIsTopVisible(inView)}>
                     <div></div>

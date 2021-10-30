@@ -1,4 +1,5 @@
 import store from "store";
+import apiUrl from "./API_URL";
 
 const getAuthHeader = () => {
   const user = store.getState().user;
@@ -7,7 +8,7 @@ const getAuthHeader = () => {
 };
 
 export const isSuperAdminSet = () => {
-  return fetch(window.location.origin + "/private/admin/isSuperAdminCreated").then((x) => x.json());
+  return fetch(apiUrl + "/private/admin/isSuperAdminCreated").then((x) => x.json());
 };
 
 export const createSuperAdmin = (superAdmin: {
@@ -16,33 +17,33 @@ export const createSuperAdmin = (superAdmin: {
   email: string;
   subscribeEmails: boolean;
 }) => {
-  return fetch(window.location.origin + "/private/admin/createSuperAdmin", {
+  return fetch(apiUrl + "/private/admin/createSuperAdmin", {
     method: "POST",
     body: JSON.stringify({ ...superAdmin }),
   }).then((x) => x.json());
 };
 
 export const login = (credentials: { email: string; password: string }, firebase: any) => {
-  return fetch(window.location.origin + "/private/admin/login", {
+  return fetch(apiUrl + "/private/admin/login", {
     method: "POST",
     body: JSON.stringify(credentials),
   }).then((x) => x.json());
 };
 
 export const completeApp = () => {
-  return fetch(window.location.origin + "/private/admin/completeApp").then((x) => x.json());
+  return fetch(apiUrl + "/private/admin/completeApp").then((x) => x.json());
 };
 
 export const testFirestore = () => {
-  return fetch(window.location.origin + "/private/admin/testFirestore").then((x) => x.json());
+  return fetch(apiUrl + "/private/admin/testFirestore").then((x) => x.json());
 };
 
 export const testAuthentication = () => {
-  return fetch(window.location.origin + "/private/admin/testAuthentication").then((x) => x.json());
+  return fetch(apiUrl + "/private/admin/testAuthentication").then((x) => x.json());
 };
 
 export const getAppearance = () => {
-  return fetch(window.location.origin + "/private/admin/getAppearance", {
+  return fetch(apiUrl + "/private/admin/getAppearance", {
     headers: {
       Authorization: getAuthHeader(),
     },
@@ -52,7 +53,7 @@ export const getAppearance = () => {
 };
 
 export const updateAppearance = (updates: { logo?: string; colors?: string[] }) => {
-  return fetch(window.location.origin + "/private/admin/updateAppearance", {
+  return fetch(apiUrl + "/private/admin/updateAppearance", {
     method: "POST",
     headers: {
       Authorization: getAuthHeader(),
@@ -64,7 +65,7 @@ export const updateAppearance = (updates: { logo?: string; colors?: string[] }) 
 };
 
 export const createApp = () => {
-  return fetch(window.location.origin + "/private/admin/createApp", {
+  return fetch(apiUrl + "/private/admin/createApp", {
     headers: {
       Authorization: getAuthHeader(),
     },
@@ -74,7 +75,7 @@ export const createApp = () => {
 };
 
 export const getLastDeployment = () => {
-  return fetch(window.location.origin + "/private/admin/getDeployment", {
+  return fetch(apiUrl + "/private/admin/getDeployment", {
     headers: {
       Authorization: getAuthHeader(),
     },
@@ -84,7 +85,7 @@ export const getLastDeployment = () => {
 };
 
 export const setDeployment = () => {
-  return fetch(window.location.origin + "/private/admin/setDeployment", {
+  return fetch(apiUrl + "/private/admin/setDeployment", {
     headers: {
       Authorization: getAuthHeader(),
     },

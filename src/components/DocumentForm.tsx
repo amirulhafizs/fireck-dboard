@@ -130,13 +130,15 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
   }, [hasChanged, dispatch]);
 
   return (
-    <div>
-      <div className="flex justify-between flex-wrap mb-6">
+    <div className="h-full flex flex-col w-full">
+      <div className="flex justify-between flex-wrap mb-2">
         <div>
-          <div className="font-medium text-36px leading-none capitalize mb-4 mr-4">
-            {editableDocument ? `Edit ${collectionName}` : `Add new ${collectionName}`}
+          <div className="font-medium text-27px leading-none capitalize mb-3 mr-4 text-white">
+            {editableDocument ? `Edit Document` : `Add Document`}
           </div>
-          {!editableDocument ? null : <div className="mb-4">Doc id: {editableDocument.docId}</div>}
+          {!editableDocument ? null : (
+            <div className="mb-3 text-xs text-white">Doc id: {editableDocument.docId}</div>
+          )}
         </div>
         <div className="flex flex-wrap mb-2">
           {!allowDiscard ? null : (
@@ -151,133 +153,139 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
             type="submit"
             onClick={() => handleSubmit()}
             disabled={isSubmitting || !hasChanged}
-            className={`${
+            className={`h-34px ${
               hasChanged
-                ? "bg-orange-300 hover:bg-orange-301"
+                ? "bg-fireck-4 hover:bg-fireck-4-hover"
                 : "bg-gray-300 text-gray-600 cursor-default"
-            }  mb-2 mr-3`}
+            }  mb-2`}
           >
             {isSubmitting ? "Loading..." : editableDocument != null ? "Save" : "Publish"}
           </Button>
         </div>
       </div>
-      <div className="flex flex-wrap -mx-3">
-        {Object.keys(values).length
-          ? fields
-              .filter((x) => !x.isDefault)
-              .map((x, i) => (
-                <div
-                  key={`field-${i}`}
-                  className={`${
-                    ["rich-text", "collection"].includes(x.type) ? "w-full" : "sm:w-1/2 w-full"
-                  } px-3 mb-12`}
-                >
-                  <Label
-                    className="mb-2 font-medium"
-                    error={submitCount > 0 ? errors[x.id]?.toString() : null}
+      <div className="flex-grow h-0 overflow-y-auto overflow-x-hidden pt-4 -mx-7 -mb-7 px-7">
+        <div className="flex flex-wrap -mx-3">
+          {Object.keys(values).length
+            ? fields
+                .filter((x) => !x.isDefault)
+                .map((x, i) => (
+                  <div
+                    key={`field-${i}`}
+                    className={`${
+                      ["rich-text", "collection"].includes(x.type) ? "w-full" : "sm:w-1/2 w-full"
+                    } px-3 mb-12`}
                   >
-                    {x.id}{" "}
-                    {x.type === "collection" ? (
-                      <AddCircleOutlineRounded
-                        onClick={async () => {
-                          let document = await getSubcollectionDocument({
-                            collectionName: x.id,
-                            fields: x.collectionFields,
-                          });
-                          if (!document) return;
-                          setFieldValue(x.id, [...values[x.id], document]);
-                        }}
-                        className="ml-2 cursor-pointer"
-                      />
-                    ) : null}
-                  </Label>
-                  {x.type === "rich-text" ? (
-                    <RichTextEditor
-                      style={{ height: "30vw", minHeight: 400 }}
-                      value={values[x.id]}
-                      onChange={(val) => setFieldValue(x.id, val)}
-                    ></RichTextEditor>
-                  ) : x.type === "password" ? (
-                    <Input
-                      type="password"
-                      value={values[x.id]}
-                      name={x.id}
-                      onChange={handleChange}
-                    ></Input>
-                  ) : x.type === "string" ? (
-                    x.stringLong ? (
-                      <Textarea value={values[x.id]} onChange={handleChange} name={x.id}></Textarea>
-                    ) : (
+                    <Label
+                      className="mb-2 font-medium"
+                      error={submitCount > 0 ? errors[x.id]?.toString() : null}
+                    >
+                      {x.id}{" "}
+                      {x.type === "collection" ? (
+                        <AddCircleOutlineRounded
+                          onClick={async () => {
+                            let document = await getSubcollectionDocument({
+                              collectionName: x.id,
+                              fields: x.collectionFields,
+                            });
+                            if (!document) return;
+                            setFieldValue(x.id, [...values[x.id], document]);
+                          }}
+                          className="ml-2 cursor-pointer"
+                        />
+                      ) : null}
+                    </Label>
+                    {x.type === "rich-text" ? (
+                      <RichTextEditor
+                        style={{ height: "30vw", minHeight: 400 }}
+                        value={values[x.id]}
+                        onChange={(val) => setFieldValue(x.id, val)}
+                      ></RichTextEditor>
+                    ) : x.type === "password" ? (
                       <Input
-                        type="text"
+                        type="password"
                         value={values[x.id]}
                         name={x.id}
                         onChange={handleChange}
                       ></Input>
-                    )
-                  ) : x.type === "boolean" ? (
-                    <Switch
-                      value={values[x.id]}
-                      onChange={(val) => setFieldValue(x.id, val)}
-                    ></Switch>
-                  ) : ["array", "map", "json"].includes(x.type) ? (
-                    <JsonEditor
-                      value={values[x.id]}
-                      onChange={(val) => setFieldValue(x.id, val)}
-                    ></JsonEditor>
-                  ) : x.type === "media" ? (
-                    x.mediaSingle ? (
-                      <SingleMediaInput
-                        selectedFile={values[x.id]}
-                        setSelectedFile={(file: string) => setFieldValue(x.id, file)}
-                      ></SingleMediaInput>
-                    ) : (
-                      <MultipleMediaInput
-                        selectedFiles={values[x.id]}
-                        setSelectedFiles={(files: string[]) => setFieldValue(x.id, files)}
-                      ></MultipleMediaInput>
-                    )
-                  ) : x.type === "enum" ? (
-                    <Select
-                      options={[
-                        { label: "Select", value: "" },
-                        ...x.enumOptions.map((opt) => ({ label: opt, value: opt })),
-                      ]}
-                      name={x.id}
-                      onChange={handleChange}
-                      value={values[x.id]}
-                    ></Select>
-                  ) : x.type === "date" ? (
-                    <Input
-                      type="date"
-                      name={x.id}
-                      onChange={handleChange}
-                      value={values[x.id]}
-                    ></Input>
-                  ) : x.type === "number" ? (
-                    <Input
-                      type="number"
-                      name={x.id}
-                      onChange={handleChange}
-                      value={values[x.id]}
-                    ></Input>
-                  ) : x.type === "relation" ? (
-                    <RelationField
-                      onValue={(docIds) => setFieldValue(x.id, docIds)}
-                      fieldType={x}
-                      value={values[x.id]}
-                    ></RelationField>
-                  ) : x.type === "collection" ? (
-                    <SubcollectionTable
-                      collectionName={x.id}
-                      collection={values[x.id]}
-                      onChange={(arr) => setFieldValue(x.id, arr)}
-                      fields={x.collectionFields}
-                    ></SubcollectionTable>
-                  ) : null}
-                </div>
-              ))
-          : null}
+                    ) : x.type === "string" ? (
+                      x.stringLong ? (
+                        <Textarea
+                          value={values[x.id]}
+                          onChange={handleChange}
+                          name={x.id}
+                        ></Textarea>
+                      ) : (
+                        <Input
+                          type="text"
+                          value={values[x.id]}
+                          name={x.id}
+                          onChange={handleChange}
+                        ></Input>
+                      )
+                    ) : x.type === "boolean" ? (
+                      <Switch
+                        value={values[x.id]}
+                        onChange={(val) => setFieldValue(x.id, val)}
+                      ></Switch>
+                    ) : ["array", "map", "json"].includes(x.type) ? (
+                      <JsonEditor
+                        value={values[x.id]}
+                        onChange={(val) => setFieldValue(x.id, val)}
+                      ></JsonEditor>
+                    ) : x.type === "media" ? (
+                      x.mediaSingle ? (
+                        <SingleMediaInput
+                          selectedFile={values[x.id]}
+                          setSelectedFile={(file: string) => setFieldValue(x.id, file)}
+                        ></SingleMediaInput>
+                      ) : (
+                        <MultipleMediaInput
+                          selectedFiles={values[x.id]}
+                          setSelectedFiles={(files: string[]) => setFieldValue(x.id, files)}
+                        ></MultipleMediaInput>
+                      )
+                    ) : x.type === "enum" ? (
+                      <Select
+                        options={[
+                          { label: "Select", value: "" },
+                          ...x.enumOptions.map((opt) => ({ label: opt, value: opt })),
+                        ]}
+                        name={x.id}
+                        onChange={handleChange}
+                        value={values[x.id]}
+                      ></Select>
+                    ) : x.type === "date" ? (
+                      <Input
+                        type="date"
+                        name={x.id}
+                        onChange={handleChange}
+                        value={values[x.id]}
+                      ></Input>
+                    ) : x.type === "number" ? (
+                      <Input
+                        type="number"
+                        name={x.id}
+                        onChange={handleChange}
+                        value={values[x.id]}
+                      ></Input>
+                    ) : x.type === "relation" ? (
+                      <RelationField
+                        onValue={(docIds) => setFieldValue(x.id, docIds)}
+                        fieldType={x}
+                        value={values[x.id]}
+                      ></RelationField>
+                    ) : x.type === "collection" ? (
+                      <SubcollectionTable
+                        collectionName={x.id}
+                        collection={values[x.id]}
+                        onChange={(arr) => setFieldValue(x.id, arr)}
+                        fields={x.collectionFields}
+                      ></SubcollectionTable>
+                    ) : null}
+                  </div>
+                ))
+            : null}
+        </div>
       </div>
     </div>
   );

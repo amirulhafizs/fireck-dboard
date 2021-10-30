@@ -81,9 +81,9 @@ code {
 
 .scrollbar-light .simplebar-scrollbar.simplebar-visible:before {
   opacity: 0.2 !important;
-  background-color: white;
 }
 
 .scrollbar-dark .simplebar-scrollbar.simplebar-visible:before {
   opacity: 0.08 !important;
+  background: white;
 }

@@ -25,6 +25,7 @@ export interface SpecifyFieldDetailsProps {
   existingFieldNames?: string[];
   fieldType: FieldInputType;
   proceed: Function;
+  zLevel: number;
 }
 
 const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
@@ -32,6 +33,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
   existingFieldNames,
   proceed,
   fieldType,
+  zLevel,
 }) => {
   const initialValues = {
     id: "",
@@ -102,6 +104,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
         <div className="mb-9">
           <div className="mb-2">Field name</div>
           <Input
+            data-testid={`field-id-input-${zLevel}`}
             error={submitCount > 0 ? errors.id : ""}
             value={values.id}
             name="id"
@@ -116,6 +119,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
 
         {fieldType === "media" ? (
           <ToupleInput
+            data-testid={`media-touple-${zLevel}`}
             options={[
               { value: false, label: "Multiple media" },
               { value: true, label: "Single media" },
@@ -129,6 +133,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
             <div className="flex flex-wrap">
               {values.enumOptions.map((x, i) => (
                 <div
+                  data-testid={`enum-option-${x}-${zLevel}`}
                   key={`enum-option-${i}`}
                   className="bg-gray-300 rounded flex items-center px-3 h-34px mr-3 mb-3"
                 >
@@ -148,6 +153,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
             </div>
             <div className="flex">
               <Input
+                data-testid={`enum-option-input-${zLevel}`}
                 className="mr-3"
                 error={submitCount > 0 ? errors.enumOptions?.toString() : ""}
                 type="text"
@@ -159,7 +165,11 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
                   }
                 }}
               ></Input>
-              <Button onClick={addEnumOption} className="bg-orange-300 hover:bg-orange-301">
+              <Button
+                data-testid={`add-enum-option-btn-${zLevel}`}
+                onClick={addEnumOption}
+                className="bg-orange-300 hover:bg-orange-301"
+              >
                 Add option
               </Button>
             </div>
@@ -174,6 +184,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
                 Related collection
               </Label>
               <Select
+                data-testid={`related-collection-select-${zLevel}`}
                 options={[
                   { value: "", label: "Select" },
                   ...collections.map((c) => ({ label: c.id, value: c.docId })),
@@ -184,6 +195,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
             </div>
             <div className="mb-2">Relation type</div>
             <ToupleInput
+              data-testid={`relation-multiplicity-touple-${zLevel}`}
               value={values.relationOneToOne}
               setValue={(val) => setFieldValue("relationOneToOne", val)}
               options={[
@@ -194,6 +206,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
           </div>
         ) : fieldType === "string" ? (
           <ToupleInput
+            data-testid={`string-type-touple-${zLevel}`}
             value={values.stringLong}
             setValue={(val) => setFieldValue("stringLong", val)}
             options={[
@@ -206,10 +219,12 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
             <div className="flex mb-2">
               <div className="mr-2">Fields</div>
               <AddCircleOutlineRounded
+                data-testid={`add-field-for-subcollection-btn-${zLevel}`}
                 className="cursor-pointer"
                 onClick={async () => {
                   const field = await getCollectionField({
                     existingFieldNames: values.collectionFields.map((x) => x.id),
+                    zLevel: zLevel + 1,
                   });
                   if (!field) return;
                   const fields = [...values.collectionFields, field];
@@ -247,6 +262,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
                                   variant="transparent"
                                   onClick={async () => {
                                     const field = await getCollectionField({
+                                      zLevel: zLevel + 1,
                                       editableField: x,
                                       existingFieldNames: values.collectionFields
                                         .map((f) => f.id)
@@ -292,6 +308,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
         ) : null}
         <div className="flex justify-between">
           <Button
+            data-testid={`cancel-field-details-btn-${zLevel}`}
             onClick={() => {
               proceed(false);
             }}
@@ -300,6 +317,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
             Cancel
           </Button>
           <Button
+            data-testid={`submit-field-details-btn-${zLevel}`}
             type="submit"
             onClick={() => handleSubmit()}
             className="bg-orange-300 hover:bg-orange-301"

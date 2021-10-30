@@ -128,6 +128,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
             <div className="mb-3 sm:w-1/2 w-full sm:pr-2">
               <div className="mb-2">Collection name</div>
               <Input
+                data-testid={`collection-name-input`}
                 error={submitCount > 0 && errors.name ? errors.name : false}
                 value={values.name}
                 name="name"
@@ -155,6 +156,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
           ></ToupleInput>
           {editingCollectionIndex > -1 ? (
             <Button
+              data-testid="delete-collection-btn"
               onClick={async () => {
                 if (
                   await confirm({
@@ -184,6 +186,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
               Cancel
             </Button>
             <Button
+              data-testid="submit-btn"
               disabled={isSubmitting}
               onClick={() => handleSubmit()}
               className="bg-orange-300 hover:bg-orange-301"

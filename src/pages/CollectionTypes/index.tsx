@@ -11,7 +11,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "store";
 import Edit from "@material-ui/icons/EditRounded";
 import EditOutlined from "@material-ui/icons/EditOutlined";
-import DeleteIcon from "@material-ui/icons/DeleteOutlineOutlined";
+import DeleteOutlineOutlined from "@material-ui/icons/DeleteOutlineOutlined";
 import CollectionModal from "./CollectionModal";
 import FieldTypes from "components/fieldTypes";
 import { confirm } from "components/Confirm";
@@ -21,7 +21,6 @@ import SelectFieldType, { SelectFieldTypeProps } from "./SelectFieldType";
 import { callComponent } from "api/callComponent";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import DragIndicatorRounded from "@material-ui/icons/DragIndicatorRounded";
-import IconButton from "components/IconButton";
 import Select from "components/Select";
 import Visibility from "@material-ui/icons/Visibility";
 import InterfaceModal from "./InterfaceModal";
@@ -54,7 +53,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
     const collection = collections[selectedCollection];
     let res = await callComponent<SpecifyFieldDetailsProps, FieldType | boolean>({
       Component: SpecifyFieldDetails,
-      props: { fieldType, editableField: collection.fields[selectedField] },
+      props: { fieldType, editableField: collection.fields[selectedField], zLevel: 0 },
     });
 
     if (!(typeof res === "boolean")) {
@@ -87,6 +86,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
         props: {
           fieldType,
           existingFieldNames: collection.fields.map((x) => x.id),
+          zLevel: 0,
         },
       });
       if (!(typeof res1 === "boolean")) {
@@ -128,14 +128,15 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
   };
 
   return (
-    <div>
-      <div className="flex flex-wrap justify-between mb-6">
-        <div className="font-medium text-36px leading-none mb-4 mr-4">Collections</div>
+    <div className="h-full flex flex-col">
+      <div className="flex flex-wrap justify-between mb-4">
+        <div className="font-medium text-27px leading-none mb-4 mr-4 text-white">Collections</div>
         <Button
+          data-testid="add-collection-btn"
           onClick={() => setCollectionModalOpen(true)}
           className="bg-orange-300 hover:bg-orange-301 mb-4"
         >
-          <div className="flex items-center">
+          <div className="flex items-center pointer-events-none h-34px">
             <IoAdd className="mr-3" size={18}></IoAdd>
             <span>Add collection</span>
           </div>
@@ -148,7 +149,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
           onCreate={() => setCollectionModalOpen(true)}
         ></EmptyScreen>
       ) : (
-        <div className="flex flex-wrap lg:flex-nowrap">
+        <div className="flex flex-wrap lg:flex-nowrap w-full flex-grow">
           <div className="max-w-192px mb-3 mr-4 block lg:hidden w-full">
             <Select
               onChange={(e) => setSelectedCollection(parseInt(e.target.value))}
@@ -162,24 +163,26 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
           >
             {collections.map((x, i) => (
               <div
+                data-testid={`collection-name-${x.name}`}
                 onClick={() => setSelectedCollection(i)}
                 key={`collection-${i}`}
                 className={`mb-1 capitalize truncate cursor-pointer ${
-                  selectedCollection === i ? "bg-orange-300" : "hover:bg-gray-300"
-                } rounded h-34px leading-34px px-3`}
+                  selectedCollection === i ? "bg-fireck-4" : "hover:bg-fireck-1-hover text-white"
+                } rounded h-28px leading-28px px-3`}
               >
                 {x.name}
               </div>
             ))}
           </SimpleBar>
 
-          <div className="lg:flex-grow w-full rounded-lg bg-gray-300 p-7">
+          <div className="lg:flex-grow w-full rounded-lg bg-fireck-3 p-7 flex flex-col">
             <div className="flex justify-between mb-3 flex-wrap">
-              <div className="font-medium text-22px capitalize mb-3 mr-3">
+              <div className="font-medium text-22px capitalize mb-3 mr-3 text-white">
                 {selectedCollection < collections.length
                   ? collections[selectedCollection].name
                   : ""}
                 <Edit
+                  data-testid="edit-collection-btn"
                   onClick={() => {
                     setEditingCollectionIndex(selectedCollection);
                     setCollectionModalOpen(true);
@@ -190,35 +193,38 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
               </div>
               <div className="flex flex-wrap">
                 <Button
+                  data-testid="view-interface-btn"
                   onClick={() => setInterfaceColType(collections[selectedCollection])}
                   noMinWidth
-                  className="bg-blue-300 hover:bg-blue-400 text-white mr-3 mb-3"
+                  className="border border-white h-28px text-white mr-3 mb-3 pl-3"
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center pointer-events-none">
                     <Visibility className="mr-3"></Visibility>
                     Interface
                   </div>
                 </Button>
                 <Button
+                  noMinWidth
+                  data-testid="add-new-field-btn"
                   onClick={async () => {
                     addField();
                   }}
-                  className=" bg-blue-300 hover:bg-blue-400 text-white mb-3"
+                  className="bg-fireck-4 hover:bg-fireck-4-hover mb-3 h-28px pl-3"
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center pointer-events-none">
                     <IoAdd className="mr-3" size={18}></IoAdd>
-                    <span>Add new field</span>
+                    <span>Add field</span>
                   </div>
                 </Button>
               </div>
             </div>
 
-            <div className="-mr-4">
+            <div className="flex-grow h-0 bg-white rounded overflow-hidden">
               <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="droppable">
                   {(provided, snapshot) => (
                     <SimpleBar
-                      className="overflow-auto w-full sm:max-h-30vw max-h-96 scrollbar-dark pr-4"
+                      className="overflow-auto w-full h-full scrollbar-light py-0.5"
                       autoHide={false}
                     >
                       <div
@@ -233,15 +239,21 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                                 <Draggable key={x.id} draggableId={x.id} index={i}>
                                   {(provided, snapshot) => (
                                     <div
+                                      data-testid={`field-id-${x.id}`}
                                       key={`field-${i}`}
-                                      className="rounded bg-white px-3 py-2 flex mb-2 items-center"
+                                      className="bg-white hover:bg-fireck-4 flex mb-2 items-center px-2 py-0.5"
                                       ref={provided.innerRef}
                                       {...provided.draggableProps}
-                                      {...provided.dragHandleProps}
                                     >
-                                      <DragIndicatorRounded className="text-gray-400" />
+                                      <div {...provided.dragHandleProps}>
+                                        <DragIndicatorRounded
+                                          fontSize="inherit"
+                                          className="text-base"
+                                        />
+                                      </div>
+
                                       <div className="line-clamp-1 w-5/12 px-3">{x.id}</div>
-                                      <div className="flex w-4/12 flex-shrink-0">
+                                      <div className="flex w-4/12 flex-shrink-0 items-center">
                                         {Badge ? <Badge></Badge> : null}
                                         <span className="ml-3 hidden sm:block line-clamp-1">
                                           {x.type}
@@ -249,16 +261,21 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                                       </div>
                                       {x.isDefault ? null : (
                                         <div className="flex items-center flex-grow justify-end">
-                                          <IconButton
-                                            variant="transparent"
+                                          <div
+                                            data-testid={`edit-for-field-${x.id}`}
+                                            className="h-5 w-5 flex items-center justify-center rounded cursor-pointer hover:bg-white"
                                             onClick={() => {
                                               editField(x.type, i);
                                             }}
                                           >
-                                            <EditOutlined fontSize="small"></EditOutlined>
-                                          </IconButton>
-                                          <IconButton
-                                            variant="transparent"
+                                            <EditOutlined
+                                              fontSize="inherit"
+                                              classes={{ root: "pointer-events-none" }}
+                                            ></EditOutlined>
+                                          </div>
+                                          <div
+                                            className="h-5 w-5 flex items-center justify-center rounded cursor-pointer hover:bg-red-FF0000 hover:text-white"
+                                            data-testid={`delete-for-field-${x.id}`}
                                             onClick={async () => {
                                               let res = await confirm({
                                                 confirmation:
@@ -282,8 +299,11 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                                               }
                                             }}
                                           >
-                                            <DeleteIcon fontSize="small"></DeleteIcon>
-                                          </IconButton>
+                                            <DeleteOutlineOutlined
+                                              classes={{ root: "pointer-events-none" }}
+                                              fontSize="inherit"
+                                            ></DeleteOutlineOutlined>
+                                          </div>
                                         </div>
                                       )}
                                     </div>

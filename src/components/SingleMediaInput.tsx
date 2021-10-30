@@ -4,6 +4,7 @@ import DeleteRounded from "@material-ui/icons/DeleteRounded";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import { callComponent } from "api/callComponent";
 import SelectMedia, { SelectMediaProps } from "pages/Media/SelectMedia";
+import { ReactComponent as MediaIcon } from "assets/media.svg";
 
 export interface SingleMediaInputProps {
   selectedFile: string;
@@ -12,7 +13,7 @@ export interface SingleMediaInputProps {
 
 const SingleMediaInput: React.FC<SingleMediaInputProps> = ({ selectedFile, setSelectedFile }) => {
   return (
-    <div className="h-208px bg-blue-300 rounded relative">
+    <div className="h-208px border-2 border-white rounded-md relative">
       {!selectedFile ? (
         <div
           className="flex w-full h-full cursor-pointer relative z-10"
@@ -28,7 +29,7 @@ const SingleMediaInput: React.FC<SingleMediaInputProps> = ({ selectedFile, setSe
           }}
         >
           <div className="m-auto flex items-center text-white">
-            <InsertPhoto className="text-39px mr-3" fontSize="inherit"></InsertPhoto>
+            <MediaIcon className="text-39px mr-3" fontSize="inherit"></MediaIcon>
             <div>Upload a file</div>
           </div>
         </div>
