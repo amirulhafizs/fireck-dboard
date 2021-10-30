@@ -15,7 +15,7 @@ import ImportExportRounded from "@material-ui/icons/ImportExportRounded";
 import classNames from "classnames";
 import { ReactComponent as Webhook } from "assets/webhook.svg";
 import EmailIcon from "@material-ui/icons/Email";
-import UpdateAppWidget from "components/UpdateAppWidget";
+
 import SearchRounded from "@material-ui/icons/SearchRounded";
 import Section from "./Section";
 
@@ -74,9 +74,6 @@ const Menu = ({ onCloseMenu = () => {} }: { onCloseMenu?: () => void }) => {
           style={{ maxWidth: 212 }}
           className="mt-5 mb-4 cursor-pointer flex-shrink-0 pl-2"
         ></img>
-      </div>
-      <div className="pl-36px">
-        <UpdateAppWidget />
       </div>
       <div className="flex-grow h-0">
         <SimpleBar autoHide={false} className="max-h-full pt-3 scrollbar-dark">

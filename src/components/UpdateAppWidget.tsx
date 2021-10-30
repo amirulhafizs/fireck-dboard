@@ -7,15 +7,19 @@ const UpdateAppWidget: React.FC<UpdateAppWidgetProps> = () => {
   const { updateAvailable, gitName, gitRepo } = useUpdateAvailable();
 
   return !updateAvailable ? null : (
-    <div className="pb-3">
-      <div className="mb-2 text-white text-sm">New version available</div>
+    <div className="lg:flex items-center hidden">
+      <div className="mr-3 text-white text-sm">New version available</div>
       <Button
-        className="bg-orange-300 hover:bg-orange-301"
+        noMinWidth
+        className="bg-fireck-4 hover:bg-fireck-4-hover h-6 rounded px-4 mr-3 text-black"
         onClick={() =>
           (window.location.href = `https://fireck.com/update?gitName=${gitName}&gitRepo=${gitRepo}&appUrl=${window.location.origin}`)
         }
       >
-        Update App
+        Update
+      </Button>
+      <Button noMinWidth className="h-6 border-white border text-s rounded px-4 mr-3">
+        Ignore
       </Button>
     </div>
   );

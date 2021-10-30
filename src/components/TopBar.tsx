@@ -2,6 +2,7 @@ import KeyboardArrowLeftRounded from "@material-ui/icons/KeyboardArrowLeftRounde
 import { useHistory, matchPath } from "react-router-dom";
 import store from "store";
 import ButtonBase from "@material-ui/core/ButtonBase";
+import UpdateAppWidget from "components/UpdateAppWidget";
 
 const TopBar = () => {
   const history = useHistory();
@@ -28,6 +29,7 @@ const TopBar = () => {
           </ButtonBase>
           <span className="capitalize pl-3 ">{match?.params.id}</span>
         </div>
+        <UpdateAppWidget></UpdateAppWidget>
         <ButtonBase
           onClick={() => window.open("https://fireck-docs.netlify.app", "_blank")}
           className="px-9 hover:bg-fireck-1 cursor-pointer flex items-center outline-none"
