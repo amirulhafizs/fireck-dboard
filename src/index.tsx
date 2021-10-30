@@ -29,4 +29,4 @@ if (window.Cypress) {
   window.store = store;
 }
 
-serviceWorkerRegistration.unregister();
+serviceWorkerRegistration.register();
