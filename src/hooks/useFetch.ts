@@ -15,8 +15,6 @@ const useFetch = (
   const endReached = useRef(false);
   const notify = useNotify();
 
-  console.log("in view, orderBy, filters", inView, orderBy, filters);
-
   const getOptions = useCallback(
     (data: Document[]) => {
       let options: GetCollectionOptions = { collectionId };
@@ -83,7 +81,6 @@ const useFetch = (
     const fetcher = async () => {
       if (!endReached.current && inViewRef.current) {
         let options = getOptions(docs);
-        console.log(options);
         const newData = await getCollection(options);
         if (
           (newData.length &&

@@ -32,7 +32,6 @@ const Table: React.FC<TableProps> = ({
   blackList = [],
   singleSelect = false,
 }) => {
-  console.log("SINGLE SELCT", singleSelect);
   const _configureView = async () => {
     configureView({
       fields: collectionType.fields,
@@ -49,7 +48,6 @@ const Table: React.FC<TableProps> = ({
   const [endIsInView, setEndIsInView] = React.useState(false);
 
   const { docs, setDocs } = useFetch(collectionType.id, filters, orderBy, endIsInView);
-  console.log(collectionType, docs);
 
   const onEdit = (doc: Document) => {
     history.push(`/collections/${collectionType.id}/edit/${doc.docId}`);
