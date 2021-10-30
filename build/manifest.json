@@ -11,9 +11,14 @@
       "src": "logo.png",
       "sizes": "144x144",
       "type": "image/png"
+    },
+    {
+      "src": "logo_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ],
-  "start_url": "https://fireck-dboard.netlify.app/",
+  "start_url": ".",
   "display": "standalone",
   "theme_color": "#23F3F3",
   "background_color": "#091717"
