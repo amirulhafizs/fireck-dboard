@@ -22,6 +22,8 @@ import ToDos from "pages/Firestore/ToDos";
 import { CollectionType, findCollectionTypes } from "api/collectionTypes";
 import { SystemCollectionIds } from "store";
 import UpdateAppWidget from "components/UpdateAppWidget";
+import MenuIcon from "@material-ui/icons/Menu";
+import Logo from "assets/logo.svg";
 
 const PageLoader = ({ loading }: { loading: boolean | string }) => {
   return (
@@ -41,6 +43,7 @@ const App = (props: PropsFromRedux) => {
   const [isTopVisible, setIsTopVisible] = useState(true);
   const location = useLocation();
   const history = useHistory();
+  const [menuOpened, setMenuOpened] = useState(false);
 
   const [openAdminCreation, setOpenAdminCreation] = useState(false);
   const dispatch = useDispatch();
@@ -112,8 +115,14 @@ const App = (props: PropsFromRedux) => {
               onCreateAdmin={() => setOpenAdminCreation(true)}
               onCreateApp={() => setIsAppCreated(true)}
             ></ToDos>
+            <div className="w-full bg-fireck-2 h-34px flex md:hidden justify-between items-center text-white px-5">
+              <div>
+                <img alt="" src={Logo} width={85}></img>
+              </div>
+              <MenuIcon className="cursor-pointer" onClick={() => setMenuOpened(true)}></MenuIcon>
+            </div>
             <div className="h-0 flex-grow w-full flex">
-              <Menu></Menu>
+              <Menu menuOpened={menuOpened} setMenuOpened={setMenuOpened}></Menu>
               <div className="flex flex-col flex-grow w-0">
                 <TopBar></TopBar>
 

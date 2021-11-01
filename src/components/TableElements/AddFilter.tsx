@@ -2,7 +2,7 @@ import Modal from "@material-ui/core/Modal";
 import Input from "components/Input";
 import Select from "components/Select";
 import Button from "components/Button";
-import { CollectionType, FieldType } from "api/collectionTypes";
+import { CollectionType } from "api/collectionTypes";
 import React from "react";
 import { useFormik } from "formik";
 import Label from "components/Label";

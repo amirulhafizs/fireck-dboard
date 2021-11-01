@@ -1,6 +1,6 @@
 import ButtonBase from "@material-ui/core/ButtonBase";
 import React from "react";
-import { FileDocument, uploadFile } from "api/files";
+import { uploadFile } from "api/files";
 import Button from "components/Button";
 import AddRounded from "@material-ui/icons/AddRounded";
 import ExpandLessRounded from "@material-ui/icons/ExpandLessRounded";

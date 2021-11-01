@@ -6,7 +6,6 @@ import Palette from "@material-ui/icons/Palette";
 import React from "react";
 import { useHistory } from "react-router-dom";
 import SimpleBar from "simplebar-react";
-import MenuIcon from "@material-ui/icons/Menu";
 import Drawer from "@material-ui/core/Drawer";
 import { useSelector } from "react-redux";
 import { RootState } from "store";
@@ -82,19 +81,16 @@ const Menu = ({ onCloseMenu = () => {} }: { onCloseMenu?: () => void }) => {
   );
 };
 
-const ResponsiveMenu = () => {
-  const [menuOpened, setMenuOpened] = React.useState(false);
+const ResponsiveMenu: React.FC<{ setMenuOpened: (val: boolean) => void; menuOpened: boolean }> = ({
+  setMenuOpened,
+  menuOpened,
+}) => {
   return (
     <>
       <div className="h-full hidden md:block">
         <Menu></Menu>
       </div>
-      <div className="fixed left-0 top-0 w-full bg-fireck-2 h-34px flex md:hidden justify-between items-center text-white px-5">
-        <div>
-          <img alt="" src={Logo} width={85}></img>
-        </div>
-        <MenuIcon className="cursor-pointer" onClick={() => setMenuOpened(true)}></MenuIcon>
-      </div>
+
       <Drawer open={menuOpened} onClose={() => setMenuOpened(false)} anchor="left">
         <Menu onCloseMenu={() => setMenuOpened(false)}></Menu>
       </Drawer>

@@ -9,8 +9,6 @@ const Media = React.lazy(() => import("pages/Media"));
 const Roles = React.lazy(() => import("pages/Roles"));
 const Appearance = React.lazy(() => import("pages/Appearance"));
 const ImportExport = React.lazy(() => import("pages/ImportExport"));
-const Integrations = React.lazy(() => import("pages/Integrations"));
-const Payments = React.lazy(() => import("pages/Payments"));
 const Emails = React.lazy(() => import("pages/Emails"));
 const Webhooks = React.lazy(() => import("pages/Webhooks"));
 
@@ -18,7 +16,7 @@ export interface PagesProps {
   className?: string;
 }
 
-const Pages: React.FC<PagesProps> = ({ className = "" }) => {
+const Pages: React.FC<PagesProps> = () => {
   const routes = [
     { path: "/", component: CollectionTypes },
     { path: "/collections/:id/add", component: Document },

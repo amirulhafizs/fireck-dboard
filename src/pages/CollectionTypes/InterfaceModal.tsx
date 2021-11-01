@@ -1,8 +1,6 @@
 import Modal from "@material-ui/core/Modal";
 import { CollectionType, FieldType } from "api/collectionTypes";
 import CloseRounded from "@material-ui/icons/CloseRounded";
-import Assignment from "@material-ui/icons/Assignment";
-import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
 import { useState } from "react";
 import Button from "components/Button";
 import TypescriptSyntax from "components/TypescriptSyntax";
