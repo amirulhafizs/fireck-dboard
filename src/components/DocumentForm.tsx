@@ -184,8 +184,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                       ></RichTextEditor>
                     ) : x.type === "password" ? (
                       <Input
-                        groundColor="white"
-                        className="h-34px"
+                        groundColor={groundColor}
+                        className="h-28px"
                         type="password"
                         value={values[x.id]}
                         name={x.id}
@@ -194,14 +194,15 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                     ) : x.type === "string" ? (
                       x.stringLong ? (
                         <Textarea
+                          groundColor={groundColor}
                           value={values[x.id]}
                           onChange={handleChange}
                           name={x.id}
                         ></Textarea>
                       ) : (
                         <Input
-                          groundColor="white"
-                          className="h-34px"
+                          groundColor={groundColor}
+                          className="h-28px"
                           type="text"
                           value={values[x.id]}
                           name={x.id}
@@ -233,6 +234,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                       )
                     ) : x.type === "enum" ? (
                       <Select
+                        groundColor={groundColor}
                         options={[
                           { label: "Select", value: "" },
                           ...x.enumOptions.map((opt) => ({ label: opt, value: opt })),
@@ -243,8 +245,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                       ></Select>
                     ) : x.type === "date" ? (
                       <Input
-                        groundColor="white"
-                        className="h-34px"
+                        groundColor={groundColor}
+                        className="h-28px"
                         type="date"
                         name={x.id}
                         onChange={handleChange}
@@ -252,8 +254,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                       ></Input>
                     ) : x.type === "number" ? (
                       <Input
-                        groundColor="white"
-                        className="h-34px"
+                        groundColor={groundColor}
+                        className="h-28px"
                         type="number"
                         name={x.id}
                         onChange={handleChange}

@@ -27,7 +27,7 @@ import Logo from "assets/logo.svg";
 
 const PageLoader = ({ loading }: { loading: boolean | string }) => {
   return (
-    <div className="flex w-full h-full bg-fireck-1">
+    <div className="flex w-full h-full bg-fireck-1 text-white">
       <div className="m-auto">
         <div className="flex justify-center mb-2">
           <Loader></Loader>

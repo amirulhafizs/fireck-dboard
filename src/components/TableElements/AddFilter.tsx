@@ -89,6 +89,8 @@ const AddFilterModal: React.FC<AddFilterModalProps> = ({
                   Field
                 </Label>
                 <Select
+                  className="h-34px"
+                  groundColor="white"
                   name="fieldId"
                   onChange={handleChange}
                   value={values.fieldId}
@@ -107,6 +109,8 @@ const AddFilterModal: React.FC<AddFilterModalProps> = ({
                   Operator
                 </Label>
                 <Select
+                  className="h-34px"
+                  groundColor="white"
                   name="operator"
                   onChange={handleChange}
                   value={values.operator}

@@ -54,7 +54,10 @@ const Configuration: React.FC<ConfigurationProps> = () => {
       <div>
         <div className="mb-12 sm:w-1/2 sm:pr-3">
           <div className="mb-2">Service provider</div>
-          <Select white options={services.map((x) => ({ value: x, label: x }))}></Select>
+          <Select
+            groundColor="black"
+            options={services.map((x) => ({ value: x, label: x }))}
+          ></Select>
         </div>
         <div className="flex flex-wrap -mx-3">
           <div className="mb-12 sm:w-1/2 w-full px-3">

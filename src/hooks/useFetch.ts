@@ -10,12 +10,14 @@ const useFetch = (
   orderBy: { fieldId: string; direction: "asc" | "desc" } | undefined,
   inView: boolean
 ) => {
-  const [latestDocs, setLatestDocs] = useState<Document[]>([]);
   const [docs, setDocs] = useState<Document[]>([]);
   const inViewRef = useRef(false);
   const endReached = useRef(false);
+  const filterSortTriggered = useRef(false);
   const notify = useNotify();
   const [loading, setLoading] = useState(false);
+  const abortController = useRef(new AbortController());
+  const [filterSortCounter, setFilterSortCounter] = useState(0);
 
   const getOptions = useCallback(
     (data: Document[]) => {
@@ -59,15 +61,21 @@ const useFetch = (
   useEffect(() => {
     inViewRef.current = inView;
     const fetcher = async () => {
-      if (!endReached.current && inViewRef.current) {
-        let options = getOptions(docs);
+      if ((!endReached.current && inViewRef.current) || filterSortTriggered.current) {
+        let triggeredBySortFilter = filterSortTriggered.current;
+        filterSortTriggered.current = false;
+
+        let options = getOptions(triggeredBySortFilter ? [] : docs);
         setLoading(true);
-        const newData = await getCollection(options);
+
+        const newData = await getCollection(options, abortController.current.signal);
+
         if (newData.error) {
-          onError(newData.error);
+          if (newData.error !== "aborted") {
+            onError(newData.error);
+          }
         } else {
-          let arr = [...docs];
-          setLatestDocs([...arr, ...newData]);
+          setDocs((prev) => (triggeredBySortFilter ? newData : [...prev, ...newData]));
           if (newData.length < (options.limit || 10)) {
             endReached.current = true;
           }
@@ -76,19 +84,20 @@ const useFetch = (
       }
     };
     fetcher();
-  }, [inView, docs]);
+
+    return () => {
+      abortController.current.abort();
+      abortController.current = new AbortController();
+    };
+  }, [inView, docs, filterSortCounter]);
 
   useEffect(() => {
-    setDocs([]);
+    filterSortTriggered.current = true;
     endReached.current = false;
+    setFilterSortCounter((prev) => prev + 1);
   }, [filters, orderBy]);
 
-  useEffect(() => {
-    //if docs will be updated from outside
-    setDocs(latestDocs);
-  }, [latestDocs]);
-
-  return { docs: latestDocs, setDocs: setLatestDocs, loading };
+  return { docs, setDocs, loading };
 };
 
 export default useFetch;

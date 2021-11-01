@@ -10,7 +10,7 @@ const Button: React.FC<ButtonProps> = ({ className = "", noMinWidth = false, ...
     <button
       {...rest}
       className={classNames(
-        "whitespace-nowrap font-medium text-sm rounded px-4 outline-none focus:outline-none text-center",
+        "whitespace-nowrap font-medium text-sm rounded px-4 outline-none select-none focus:outline-none text-center",
         { "min-w-120px": !noMinWidth },
         className
       )}

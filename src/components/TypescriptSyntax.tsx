@@ -15,7 +15,6 @@ const TypescriptSyntax: React.FC<TypescriptSyntaxProps> = ({ code }) => {
     <CodeMirror
       value={code}
       options={{
-        height: "100%",
         theme: "material",
         lineNumbers: true,
         readOnly: true,

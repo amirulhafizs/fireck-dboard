@@ -54,7 +54,8 @@ const AddDocument: React.FC<AddDocumentProps> = ({ match }) => {
             await updateDocument(collectionType.id, docId, vals);
             notify("Document updated!", { variant: "success" });
           } else {
-            await addDocument(collectionType.id, vals);
+            const res = await addDocument(collectionType.id, vals);
+            console.log("Add doc res", res);
             if (collectionType.single) {
               notify("Document updated!", { variant: "success" });
               return;

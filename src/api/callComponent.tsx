@@ -17,7 +17,6 @@ export function callComponent<T, RT>({ Component, props }: callComponentArgs<T>)
   return new Promise((resolve, reject) => {
     const wrapper = document.getElementById("root")?.appendChild(document.createElement("div"));
 
-    console.log("Wrapper", wrapper);
     if (wrapper) {
       ReactDOM.render(
         <Provider store={store}>

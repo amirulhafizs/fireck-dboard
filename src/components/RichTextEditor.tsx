@@ -29,7 +29,7 @@ const RichText: React.FC<RichTextProps> = ({ style = {}, onChange, value }) => {
       }
 
       .rc-md-editor{
-        background-color: #F3F6FA !important;
+        background-color: #EFF3F8 !important;
         border: none !important;
         padding: 7px !important;
         border-radius: 4px !important;
@@ -42,9 +42,7 @@ const RichText: React.FC<RichTextProps> = ({ style = {}, onChange, value }) => {
         border-right: 1px solid #DDDDDD !important;
       }
 
-      .rc-md-editor textarea:focus{
-        border: 2px solid #33A1FD !important;
-      }
+      
       
       `}</style>
       <MdEditor

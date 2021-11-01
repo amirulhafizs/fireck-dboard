@@ -1,5 +1,4 @@
 import Button from "components/Button";
-import { IoAdd } from "react-icons/io5";
 import React, { useState } from "react";
 import { uploadFile } from "api/files";
 import store, { RootState } from "store";
@@ -7,6 +6,8 @@ import { useNotify } from "components/NotificationsProvider";
 import PageTitle from "components/PageTitle";
 import CollectionTable from "components/TableElements/CollectionTable";
 import { useSelector } from "react-redux";
+import AddRounded from "@material-ui/icons/AddRounded";
+import { formatBytes } from "helper";
 
 export interface MediaProps {}
 
@@ -17,10 +18,11 @@ export const MediaDocumentFormatters = {
         e.stopPropagation();
         window.open(value, "_blank");
       }}
-      className="bg-center bg-cover h-10 w-10 mx-auto"
+      className="bg-center bg-cover h-10 w-10 mx-auto bg-gray-E1E1E1"
       style={{ backgroundImage: `url(${value})` }}
     ></div>
   ),
+  size: (value: number) => formatBytes(value),
 };
 
 const Media: React.FC<MediaProps> = () => {
@@ -39,12 +41,14 @@ const Media: React.FC<MediaProps> = () => {
       <div className="flex justify-between flex-wrap mb-3">
         <PageTitle className="mb-4 mr-4">Media</PageTitle>
         <input
+          key={`file-input-${refreshCounter}`}
           type="file"
           multiple
           className="hidden"
           ref={uploadRef}
           onChange={async (e) => {
             const files = e.target.files;
+
             if (files && files.length) {
               store.dispatch({
                 type: "SET_LOADING",
@@ -76,7 +80,7 @@ const Media: React.FC<MediaProps> = () => {
           className="bg-fireck-4 hover:bg-fireck-4-hover mb-4 h-34px pr-6 pl-5"
         >
           <div className="flex items-center">
-            <IoAdd className="mr-2" size={18}></IoAdd>
+            <AddRounded className="mr-2 text-lg" fontSize="inherit"></AddRounded>
             <span>Upload</span>
           </div>
         </Button>

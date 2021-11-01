@@ -9,6 +9,7 @@ const getAuthHeader = () => {
 export interface Document {
   docId: string;
   created_at: string;
+  modified_at: string;
   [index: string]: any;
 }
 
@@ -22,15 +23,18 @@ export interface GetCollectionOptions {
   populateRef?: boolean;
 }
 
-export const getCollection = ({
-  collectionId,
-  orderBy,
-  startAt,
-  startAfter,
-  where,
-  limit = 10,
-  populateRef = true,
-}: GetCollectionOptions) => {
+export const getCollection = (
+  {
+    collectionId,
+    orderBy,
+    startAt,
+    startAfter,
+    where,
+    limit = 10,
+    populateRef = true,
+  }: GetCollectionOptions,
+  signal?: AbortSignal
+) => {
   const url = `${
     window.location.origin
   }/api/${collectionId}?limit=${limit}&populateRef=${populateRef}${
@@ -38,7 +42,14 @@ export const getCollection = ({
   }${startAt ? `&startAt=${startAt}` : startAfter ? `&startAfter=${startAfter}` : ""}${
     where ? `&where=${where}` : ""
   }`;
-  return fetch(url, { headers: { Authorization: getAuthHeader() } }).then((x) => x.json());
+  return fetch(url, { headers: { Authorization: getAuthHeader() }, signal })
+    .then((x) => x.json())
+    .catch((error: any) => {
+      if (error.code && error.code === 20) {
+        return { error: "aborted" };
+      }
+      return { error: error.toString() };
+    });
 };
 
 export const addDocument = (collectionId: string, doc: { [index: string]: any }) => {

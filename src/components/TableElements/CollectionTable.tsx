@@ -1,15 +1,13 @@
 import { Document } from "api/collections";
-import { CollectionType, FieldType, updateCollectionType } from "api/collectionTypes";
+import { CollectionType, FieldType } from "api/collectionTypes";
 import { deleteDocument } from "api/collections";
 import FilesCell from "./FilesCell";
 import React from "react";
 import ExpandMoreRounded from "@material-ui/icons/ExpandMoreRounded";
 import { useHistory } from "react-router-dom";
 import { confirm } from "components/Confirm";
-import store from "store";
 import AddFilter from "./AddFilter";
 import Button from "components/Button";
-import { configureView } from "components/TableViewConfig";
 import SimpleBar from "simplebar-react";
 import classNames from "classnames";
 import useFetch from "hooks/useFetch";
@@ -36,13 +34,6 @@ const Table: React.FC<TableProps> = ({
   valueFormatters,
   groundColor,
 }) => {
-  const _configureView = async () => {
-    configureView({
-      fields: collectionType.fields,
-      callback: onConfigureView,
-    });
-  };
-
   const history = useHistory();
 
   const [filters, setFilters] = React.useState<FilterType[]>([]);
@@ -65,26 +56,6 @@ const Table: React.FC<TableProps> = ({
       setDocs((prev) => prev.filter((x) => !selected.includes(x.docId)));
       setSelected([]);
     }
-  };
-
-  const onConfigureView = ({
-    fields,
-    displayDocIdOnTable,
-  }: {
-    fields: FieldType[];
-    displayDocIdOnTable?: boolean;
-  }) => {
-    const display = displayDocIdOnTable != null ? displayDocIdOnTable : true;
-    updateCollectionType(collectionType.docId, {
-      ...collectionType,
-      fields,
-    });
-
-    store.dispatch({
-      type: "UPDATE_COLLECTION",
-      docId: collectionType.docId,
-      payload: { fields, displayDocIdOnTable: display },
-    });
   };
 
   const onOrder = (field: FieldType) =>
@@ -120,7 +91,7 @@ const Table: React.FC<TableProps> = ({
 
   const formatValue = (field: FieldType, value: any) => {
     return field.type === "date"
-      ? moment(value).format("YYYY-MM-DD hh:mm")
+      ? moment(value).format("YYYY-MM-DD HH:mm")
       : valueFormatters && field.id in valueFormatters
       ? valueFormatters[field.id](value)
       : value.toString().substring(0, 40);

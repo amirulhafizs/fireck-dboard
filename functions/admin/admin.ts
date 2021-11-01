@@ -195,6 +195,7 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
       fields: [
         { id: "url", type: "string", displayOnTable: true },
         { id: "name", type: "string", displayOnTable: true },
+        { id: "type", type: "string", displayOnTable: true },
         { id: "size", type: "number", displayOnTable: true },
         { id: "storagePath", type: "string", displayOnTable: false },
         {

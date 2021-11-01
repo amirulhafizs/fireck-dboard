@@ -57,9 +57,13 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setIsAdminSet, onClose })
   });
 
   return (
-    <div className="fixed left-0 top-0 w-full h-full flex overflow-auto p-7" onClick={onClose}>
-      <div className="m-auto max-w-430px w-full" onClick={(e) => e.stopPropagation()}>
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-12 text-sm relative">
+    <div className="fixed left-0 top-0 w-full h-full flex overflow-auto p-7" onMouseDown={onClose}>
+      <div
+        className="m-auto w-full"
+        style={{ maxWidth: 360 }}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-9 text-sm relative">
           <CloseRounded
             className="absolute top-0 right-0 cursor-pointer"
             onClick={onClose}

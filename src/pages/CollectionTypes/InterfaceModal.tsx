@@ -75,7 +75,7 @@ const InterfaceModal: React.FC<InterfaceModalProps> = ({ open, collectionType, o
         onMouseDown={onClose}
       >
         <div
-          className="bg-white p-7 m-auto max-h-600px h-full flex flex-col rounded md:max-w-lg max-w-sm w-full relative animate-littlemoveup"
+          className="bg-white p-7 m-auto rounded md:max-w-lg max-w-sm w-full relative animate-littlemoveup"
           onMouseDown={(e) => e.stopPropagation()}
         >
           <CloseRounded
@@ -85,7 +85,7 @@ const InterfaceModal: React.FC<InterfaceModalProps> = ({ open, collectionType, o
           <div className="mb-7 text-22px capitalize font-medium">
             {collectionType.name} interface
           </div>
-          <div className="relative flex-grow h-0 rounded overflow-hidden">
+          <div className="relative rounded overflow-hidden">
             {copied ? (
               <div className="absolute z-20 text-white top-1 animate-littlemoveup right-1 cursor-pointer h-6 px-2 text-sm font-medium">
                 Copied!
@@ -106,9 +106,7 @@ const InterfaceModal: React.FC<InterfaceModalProps> = ({ open, collectionType, o
               </Button>
             )}
 
-            <SimpleBar className="h-full scrollbar-dark">
-              <TypescriptSyntax code={interfaceString}></TypescriptSyntax>
-            </SimpleBar>
+            <TypescriptSyntax code={interfaceString}></TypescriptSyntax>
           </div>
         </div>
       </div>

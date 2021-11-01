@@ -1,6 +1,7 @@
 import firebase from "firebase";
+import { getFileExtension } from "helper";
 import store from "store";
-import { v4 } from "uuid";
+import shortuuid from "short-uuid";
 import { addDocument, deleteDocument, updateDocument } from "./collections";
 
 export const uploadFileToStorage = (
@@ -16,7 +17,7 @@ export const uploadFileToStorage = (
 
       const nameParts = file.name.split(".");
 
-      const fileName = v4() + "." + nameParts[nameParts.length - 1];
+      const fileName = shortuuid.generate() + "." + nameParts[nameParts.length - 1];
       let ref = storage.ref(fileName);
       const uploadTask = ref.put(file, metadata);
       uploadTask.on(
@@ -40,6 +41,7 @@ export const uploadFileToStorage = (
 export const uploadFile = async (file: File): Promise<{ error: string } | any> => {
   try {
     const res = await uploadFileToStorage(file);
+
     if ("error" in res) {
       return res;
     } else {
@@ -48,11 +50,12 @@ export const uploadFile = async (file: File): Promise<{ error: string } | any> =
         size: file.size,
         url: res.downloadUrl,
         storagePath: res.fileName,
+        type: getFileExtension(file),
       };
       return addDocument("FilesReservedCollection", fileDetails);
     }
-  } catch (error) {
-    return { error };
+  } catch (error: any) {
+    return { error: error.toString() };
   }
 };
 

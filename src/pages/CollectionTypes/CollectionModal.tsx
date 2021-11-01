@@ -18,7 +18,7 @@ export interface AddNewCollectionProps {
   open: boolean;
   onClose: () => void;
   collections: Array<CollectionType>;
-  editingCollectionIndex: number;
+  editingCollectionDocId: string;
   onCreate: (val: CollectionType) => void;
   onUpdate: (val: Partial<CollectionType>) => void;
   onDelete: (docId: string) => void;
@@ -57,7 +57,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
   open,
   onClose,
   collections,
-  editingCollectionIndex,
+  editingCollectionDocId,
   onCreate,
   onUpdate,
   onDelete,
@@ -75,8 +75,9 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
 
   const notify = useNotify();
 
-  const formIntialState =
-    editingCollectionIndex >= 0 ? collections[editingCollectionIndex] : initialData;
+  const formIntialState = editingCollectionDocId.length
+    ? collections.find((x) => x.docId === editingCollectionDocId) || initialData
+    : initialData;
 
   const { values, errors, handleSubmit, handleChange, setFieldValue, isSubmitting, submitCount } =
     useFormik({
@@ -84,13 +85,12 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
       onSubmit: async (vals, { resetForm }) => {
         const id = createId(vals.name);
 
-        const res =
-          editingCollectionIndex > -1
-            ? await updateCollectionType(values.docId, { ...values, id })
-            : await createCollectionType({ ...values, id });
-        const actionType = editingCollectionIndex > -1 ? "updated" : "created";
+        const res = editingCollectionDocId.length
+          ? await updateCollectionType(values.docId, { ...values, id })
+          : await createCollectionType({ ...values, id });
+        const actionType = editingCollectionDocId.length ? "updated" : "created";
         if (!res.error) {
-          if (editingCollectionIndex > -1) {
+          if (editingCollectionDocId.length) {
             onUpdate(res);
           } else {
             onCreate(res);
@@ -110,7 +110,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
         } else {
           const id = createId(vals.name);
           const index = collections.findIndex((x) => x.id === id);
-          if (index !== -1 && index !== editingCollectionIndex) {
+          if (index !== -1 && collections[index].docId !== editingCollectionDocId) {
             errors.name = "There is collection with the same name";
           }
         }
@@ -130,7 +130,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
             onClick={onClose}
           ></CloseRounded>
           <div className="text-22px font-medium mb-12">
-            {editingCollectionIndex > -1 ? "Edit" : "Create"} collection type
+            {editingCollectionDocId.length ? "Edit" : "Create"} collection type
           </div>
           <div className="flex flex-wrap mb-7">
             <div className="mb-3 sm:w-1/2 w-full sm:pr-2">
@@ -162,15 +162,15 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
             </div>
           </div>
           <ToupleInput
-            disabled={editingCollectionIndex !== -1}
+            disabled={editingCollectionDocId.length > 0}
             value={values.single}
             options={[
               { value: false, label: "Multiple elements" },
               { value: true, label: "Single element" },
             ]}
-            setValue={(val) => (editingCollectionIndex === -1 ? setFieldValue("single", val) : {})}
+            setValue={(val) => (!editingCollectionDocId ? setFieldValue("single", val) : {})}
           ></ToupleInput>
-          {editingCollectionIndex > -1 ? (
+          {editingCollectionDocId ? (
             <Button
               noMinWidth
               data-testid="delete-collection-btn"
@@ -180,7 +180,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
                     confirmation: "Delete collection type?",
                   })
                 ) {
-                  const deleteDocId = collections[editingCollectionIndex].docId;
+                  const deleteDocId = editingCollectionDocId;
                   let res = await deleteCollectionType(deleteDocId);
                   if (!res.error) {
                     onClose();
@@ -192,7 +192,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
                   onClose();
                 }
               }}
-              className="border-2 h-34px px-4 border-red-500 text-red-500 mb-10 hover:bg-red-500 hover:text-white"
+              className="border-2 h-34px px-4 border-red-FF0000 text-red-FF0000 mb-10 hover:bg-red-FF0000 hover:text-white"
             >
               Delete collection
             </Button>

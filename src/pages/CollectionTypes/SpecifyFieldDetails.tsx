@@ -197,6 +197,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
                 Related collection
               </Label>
               <Select
+                groundColor="white"
                 data-testid={`related-collection-select-${zLevel}`}
                 options={[
                   { value: "", label: "Select" },

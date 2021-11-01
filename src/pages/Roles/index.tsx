@@ -1,27 +1,38 @@
+import SettingsPage from "components/SettingsPage";
 import Button from "components/Button";
 import React from "react";
-import AddRounded from "@material-ui/icons/AddRounded";
-import Select from "components/Select";
 import RoleEditor from "./RoleEditor";
 import RoleModal from "./RoleModal";
 import { getCollection, updateDocument, addDocument, deleteDocument } from "api/collections";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "store";
 import { useNotify } from "components/NotificationsProvider";
-import PageTitle from "components/PageTitle";
 import { RoleDocument } from "api/roles";
 import { confirm } from "components/Confirm";
+import classNames from "classnames";
 
-export interface RolesProps {}
+interface RolesProps {}
 
 const Roles: React.FC<RolesProps> = () => {
   const [roleModalOpen, setRoleModalOpen] = React.useState(false);
   const [roles, setRoles] = React.useState<RoleDocument[]>([]);
-  const [selectedRole, setSelectedRole] = React.useState(0);
+  const [selectedRole, setSelectedRole] = React.useState("");
   const [editRole, setEditRole] = React.useState<RoleDocument>();
   const collectionTypes = useSelector((state: RootState) => state.collectionTypes);
   const notify = useNotify();
   const dispatch = useDispatch();
+
+  const [roleCopy, setRoleCopy] = React.useState<RoleDocument>();
+  const [isSaving, setIsSaving] = React.useState(false);
+  const role = roles.find((x) => x.docId === selectedRole);
+
+  const hasBeenChanged = !(JSON.stringify(role) === JSON.stringify(roleCopy));
+
+  React.useEffect(() => {
+    if (role) {
+      setRoleCopy(JSON.parse(JSON.stringify(role)));
+    }
+  }, [role]);
 
   React.useEffect(() => {
     (async () => {
@@ -31,6 +42,9 @@ const Roles: React.FC<RolesProps> = () => {
           const res = await getCollection({ collectionId: "RolesReservedCollection" });
           if (!("error" in res)) {
             setRoles(res);
+            if (res.length) {
+              setSelectedRole(res[0].docId);
+            }
           }
         }
       } catch (error) {
@@ -57,7 +71,9 @@ const Roles: React.FC<RolesProps> = () => {
     if (!("error" in res)) {
       setRoles((prev) => {
         let arr = [...prev];
-        arr[selectedRole] = newRole;
+        let index = arr.findIndex((x) => x.docId === selectedRole);
+        if (index === -1) return arr;
+        arr[index] = newRole;
         return arr;
       });
       notify("Role updated!", { variant: "success" });
@@ -102,64 +118,55 @@ const Roles: React.FC<RolesProps> = () => {
   };
 
   return (
-    <div>
-      <div className="flex flex-wrap justify-between mb-6">
-        <PageTitle className="mb-4 mr-4">Roles</PageTitle>
-        <Button
-          onClick={() => setRoleModalOpen(true)}
-          className="bg-orange-300 hover:bg-orange-301 mb-4"
-        >
-          <div className="flex items-center">
-            <AddRounded className="mr-3 text-lg" fontSize="inherit"></AddRounded>
-            <span>Create role</span>
-          </div>
-        </Button>
-        <RoleModal
-          onCreate={onCreate}
-          onDelete={onDelete}
-          editRole={editRole}
-          open={roleModalOpen}
-          onSave={onUpdate}
-          onClose={() => {
-            setRoleModalOpen(false);
-            setEditRole(undefined);
-          }}
-        ></RoleModal>
-      </div>
-      <div className="flex flex-wrap lg:flex-nowrap">
-        <div className="max-w-192px mb-3 mr-4 block lg:hidden w-full">
-          <Select
-            onChange={(e) => setSelectedRole(parseInt(e.target.value))}
-            value={selectedRole}
-            options={roles.map((x, i) => ({ label: x.name, value: i }))}
-          ></Select>
-        </div>
-
-        <div className="max-w-192px w-full flex-shrink-0 mr-4 hidden lg:block">
-          {roles.map((x, i) => (
-            <div
-              onClick={() => setSelectedRole(i)}
-              key={`collection-${i}`}
-              className={`mb-1 capitalize truncate cursor-pointer ${
-                selectedRole === i ? "bg-orange-300" : "hover:bg-gray-300"
-              } rounded h-34px leading-34px px-3`}
-            >
-              {x.name}
-            </div>
-          ))}
-        </div>
-        {selectedRole < roles.length ? (
-          <div className="lg:flex-grow w-full lg:w-0">
-            <RoleEditor
-              setEditRole={(r) => setEditRole(r)}
-              role={roles[selectedRole]}
-              collections={collectionTypes}
-              onSave={onUpdate}
-            ></RoleEditor>
-          </div>
-        ) : null}
-      </div>
-    </div>
+    <>
+      <RoleModal
+        onCreate={onCreate}
+        onDelete={onDelete}
+        editRole={editRole}
+        open={roleModalOpen}
+        onSave={onUpdate}
+        onClose={() => {
+          setRoleModalOpen(false);
+          setEditRole(undefined);
+        }}
+      ></RoleModal>
+      <SettingsPage
+        selectedEntityId={selectedRole}
+        entity="role"
+        enitityPlural="roles"
+        onAddEntity={() => setRoleModalOpen(true)}
+        entities={roles}
+        entityButtons={
+          <Button
+            onClick={async () => {
+              if (!roleCopy) return;
+              setIsSaving(true);
+              await onUpdate(roleCopy);
+              setIsSaving(false);
+            }}
+            noMinWidth
+            disabled={!hasBeenChanged || isSaving}
+            className={classNames("mb-4 h-28px px-7", {
+              "bg-white cursor-default text-gray-500": !hasBeenChanged && !isSaving,
+              "bg-fireck-4 hover:bg-fireck-4-hover": !(!hasBeenChanged && !isSaving),
+            })}
+          >
+            {isSaving ? "Saving..." : hasBeenChanged ? "Save" : "Saved!"}
+          </Button>
+        }
+        onSelectEntity={(docId) => {
+          setSelectedRole(docId);
+        }}
+        onInvokeEntityEdit={() => setEditRole(role)}
+        entityContent={
+          <RoleEditor
+            collections={collectionTypes}
+            roleCopy={roleCopy}
+            setRoleCopy={setRoleCopy}
+          ></RoleEditor>
+        }
+      ></SettingsPage>
+    </>
   );
 };
 

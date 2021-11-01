@@ -1,16 +1,14 @@
 import { HttpMethod, updateCollectionType } from "api/collectionTypes";
 import classNames from "classnames";
-import PageTitle from "components/PageTitle";
 import Select from "components/Select";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "store";
 import Button from "components/Button";
 import Input from "components/Input";
-import SimpleBar from "simplebar-react";
-import { useHistory } from "react-router-dom";
-import EmptyScreen from "components/EmptyScreen";
 import { Webhooks as WebhooksInterface, CmsEvent } from "api/collectionTypes";
+import SettingsPage from "components/SettingsPage";
+import SimpleBar from "simplebar-react";
 
 export interface WebhooksProps {}
 
@@ -23,7 +21,7 @@ const initialWebhooks: WebhooksInterface = {
 };
 
 const Webhooks: React.FC<WebhooksProps> = () => {
-  const [collectionTypeDocId, setCollectionTypeDocId] = useState<string>();
+  const [collectionTypeDocId, setCollectionTypeDocId] = useState("");
   const collectionTypes = useSelector((state: RootState) => state.collectionTypes);
   const colType = collectionTypes.find((x) => x.docId === collectionTypeDocId);
 
@@ -55,86 +53,21 @@ const Webhooks: React.FC<WebhooksProps> = () => {
 
   const changed = JSON.stringify(prevState) !== JSON.stringify(webhooks);
 
-  const history = useHistory();
-
   return (
-    <div>
-      <PageTitle className="mb-1">Webhooks</PageTitle>
-      <div className="mb-12">Create webhooks for events in each collection</div>
-
-      {!collectionTypes.length ? (
-        <EmptyScreen
-          title="Create collection to add webhooks for"
-          buttonTitle="Create collection type"
-          onCreate={() => history.push("/collections")}
-        ></EmptyScreen>
-      ) : (
-        <div className="flex flex-wrap lg:flex-nowrap">
-          <div className="max-w-192px mb-3 mr-4 block lg:hidden w-full">
-            <Select
-              onChange={(e) =>
-                !changed || window.confirm("Changes will be lost")
-                  ? setCollectionTypeDocId(e.target.value)
-                  : {}
-              }
-              value={collectionTypeDocId}
-              options={collectionTypes.map((x) => ({ value: x.docId, label: x.name }))}
-            ></Select>
-          </div>
-
-          <SimpleBar
-            className="min-w-192px flex-shrink-0 mr-4 hidden lg:block select-none max-h-72 pr-4 scrollbar-dark"
-            autoHide={false}
-          >
-            {collectionTypes.map((x) => (
-              <div
-                onClick={() =>
-                  !changed || window.confirm("Changes will be lost")
-                    ? setCollectionTypeDocId(x.docId)
-                    : {}
-                }
-                key={x.id}
-                className={`mb-1 capitalize truncate cursor-pointer ${
-                  collectionTypeDocId === x.docId ? "bg-orange-300" : "hover:bg-gray-300"
-                } rounded h-34px leading-34px px-3`}
-              >
-                {x.name}
-              </div>
-            ))}
-          </SimpleBar>
-          <div className="lg:flex-grow w-full rounded bg-gray-300 p-7">
+    <SettingsPage
+      entityContent={
+        <div className="h-full rounded overflow-hidden bg-white">
+          <SimpleBar className="h-full p-3">
             {!colType ? null : (
               <>
-                <div className="flex justify-between mb-4">
-                  <div className="text-22px capitalize font-medium mb-3">{colType.name}</div>
-                  <Button
-                    disabled={!changed}
-                    className={classNames("mb-3", {
-                      "cursor-default bg-white text-gray-400": !changed,
-                      "bg-orange-300 hover:bg-orange-301": changed,
-                    })}
-                    onClick={() => {
-                      if (!collectionTypeDocId) return;
-                      updateCollectionType(collectionTypeDocId, { webhooks });
-                      dispatch({
-                        type: "UPDATE_COLLECTION_TYPE",
-                        docId: colType.docId,
-                        payload: { webhooks },
-                      });
-                    }}
-                  >
-                    {!changed ? "Saved!" : "Save"}
-                  </Button>
-                </div>
-
                 {cmsEvents.map((x) => {
                   const hook = webhooks[x];
                   return (
                     <div className="flex mb-2">
-                      <div className="w-32">On {x}</div>
+                      <div className="w-32 font-semibold">On {x}</div>
                       <Select
-                        className="mr-2"
-                        white
+                        className="mr-2 h-28px"
+                        groundColor="white"
                         options={httpsMethods.map((m) => ({ value: m, label: m }))}
                         value={hook.method}
                         onChange={(e) => {
@@ -147,6 +80,7 @@ const Webhooks: React.FC<WebhooksProps> = () => {
                       ></Select>
                       <div className="flex-grow">
                         <Input
+                          groundColor="white"
                           value={hook.url}
                           onChange={(e) => {
                             setWebhooks((prev) => {
@@ -156,7 +90,7 @@ const Webhooks: React.FC<WebhooksProps> = () => {
                             });
                           }}
                           placeholder="Type your url"
-                          className="w-full placeholder-gray-300"
+                          className="w-full h-28px"
                         ></Input>
                       </div>
                     </div>
@@ -164,10 +98,38 @@ const Webhooks: React.FC<WebhooksProps> = () => {
                 })}
               </>
             )}
-          </div>
+          </SimpleBar>
         </div>
-      )}
-    </div>
+      }
+      selectedEntityId={collectionTypeDocId}
+      entities={collectionTypes}
+      onSelectEntity={(docId) =>
+        !changed || window.confirm("Changes will be lost") ? setCollectionTypeDocId(docId) : {}
+      }
+      entity="webhook"
+      enitityPlural="webhooks"
+      entityButtons={
+        <Button
+          noMinWidth
+          disabled={!changed}
+          className={classNames("mb-4 h-28px px-7", {
+            "bg-white cursor-default text-gray-500": !changed,
+            "bg-fireck-4 hover:bg-fireck-4-hover": changed,
+          })}
+          onClick={() => {
+            if (!collectionTypeDocId) return;
+            updateCollectionType(collectionTypeDocId, { webhooks });
+            dispatch({
+              type: "UPDATE_COLLECTION_TYPE",
+              docId: collectionTypeDocId,
+              payload: { webhooks },
+            });
+          }}
+        >
+          {!changed ? "Saved!" : "Save"}
+        </Button>
+      }
+    />
   );
 };
 

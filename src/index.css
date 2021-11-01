@@ -53,7 +53,7 @@ code {
   stroke-dasharray: 1, 200;
   stroke-dashoffset: 0;
   animation: dash 1.5s ease-in-out infinite;
-  stroke: #2176ff;
+  stroke: #23f3f3;
   stroke-width: 4px;
   stroke-linecap: round;
 }

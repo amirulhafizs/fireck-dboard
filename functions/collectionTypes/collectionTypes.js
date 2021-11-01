@@ -46,7 +46,9 @@ const getCollectionTypes = async (user) => {
 const createCollectionType = async (user, type) => {
   const allow = await doAllow(user, "create");
   if (allow) {
-    const docRef = db.collection(collectionName).doc();
+    const docRef = type.docId
+      ? db.collection(collectionName).doc(type.docId)
+      : db.collection(collectionName).doc();
 
     const roles = (await db.collection("RolesReservedCollection").get()).docs.map((x) => x.data());
 
