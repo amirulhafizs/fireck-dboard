@@ -39,10 +39,10 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setFirestoreWorks, setAut
             </div>
             <div className="flex justify-end w-full">
               <Button
-                className="bg-orange-300 hover:bg-orange-301"
+                className="bg-fireck-4 hover:bg-fireck-4-hover h-34px"
                 onClick={async () => {
                   const res = await confirm({
-                    confirmation: "Are you sure you have enabled firestore and authentication?",
+                    confirmation: "Step completed?",
                   });
 
                   if (res) {
@@ -55,7 +55,7 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setFirestoreWorks, setAut
               </Button>
             </div>
           </div>
-          <div className="md:w-5/12 bg-orange-300 flex p-12 flex-wrap">
+          <div className="md:w-5/12 bg-fireck-4 flex p-12 flex-wrap">
             <div className="m-auto">
               <div className="mb-7 flex flex-wrap">
                 {"How to enable the Firestore and Authentication".split(" ").map((x, i) => (

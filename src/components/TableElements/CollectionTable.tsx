@@ -1,8 +1,7 @@
 import { Document } from "api/collections";
 import { CollectionType, FieldType, updateCollectionType } from "api/collectionTypes";
-import { getCollection, GetCollectionOptions, deleteDocument } from "api/collections";
+import { deleteDocument } from "api/collections";
 import FilesCell from "./FilesCell";
-import InViewFetcher from "components/InViewFetcher";
 import React from "react";
 import ExpandMoreRounded from "@material-ui/icons/ExpandMoreRounded";
 import { useHistory } from "react-router-dom";
@@ -16,12 +15,15 @@ import classNames from "classnames";
 import useFetch from "hooks/useFetch";
 import { InView } from "react-intersection-observer";
 import Checkbox from "@material-ui/core/Checkbox";
+import moment from "moment";
 
 export interface TableProps {
   collectionType: CollectionType;
   onPick?: (a: Document[]) => void;
   blackList?: string[];
   singleSelect?: boolean;
+  valueFormatters?: { [key: string]: (val: any) => any };
+  groundColor: "white" | "black";
 }
 
 export type FilterType = { fieldId: string; operator: string; value: string };
@@ -31,6 +33,8 @@ const Table: React.FC<TableProps> = ({
   onPick,
   blackList = [],
   singleSelect = false,
+  valueFormatters,
+  groundColor,
 }) => {
   const _configureView = async () => {
     configureView({
@@ -54,9 +58,7 @@ const Table: React.FC<TableProps> = ({
   };
 
   const onDeleteSelected = async () => {
-    if (
-      await confirm({ confirmation: `Do you really want to delete ${selected.length} documents?` })
-    ) {
+    if (await confirm({ confirmation: `Delete ${selected.length} documents?` })) {
       selected.forEach((x) => {
         deleteDocument(collectionType.id, x);
       });
@@ -116,6 +118,14 @@ const Table: React.FC<TableProps> = ({
     });
   };
 
+  const formatValue = (field: FieldType, value: any) => {
+    return field.type === "date"
+      ? moment(value).format("YYYY-MM-DD hh:mm")
+      : valueFormatters && field.id in valueFormatters
+      ? valueFormatters[field.id](value)
+      : value.toString().substring(0, 40);
+  };
+
   return (
     <div className="h-full w-full flex-col flex">
       <div className="flex justify-between mb-3">
@@ -127,7 +137,11 @@ const Table: React.FC<TableProps> = ({
           {filters.map((f, i) => (
             <div
               key={`f-${i}`}
-              className="text-white border border-white rounded min-h-28px leading-28px pl-3 text-sm pr-3 flex mr-3 mb-3 relative"
+              className={classNames(
+                "rounded min-h-28px border leading-28px pl-3 text-sm pr-3 flex mr-3 mb-3 relative",
+                { "text-white border-white": groundColor === "black" },
+                { "text-black border-black": groundColor === "white" }
+              )}
             >
               {f.fieldId} {f.operator} {f.value}{" "}
               <span
@@ -173,8 +187,12 @@ const Table: React.FC<TableProps> = ({
           </Button>
         )}
       </div>
-      <div className="flex-grow h-0 -mt-3 bg-white rounded overflow-hidden">
-        <SimpleBar className="relative scrollbar-light h-full" autoHide={false}>
+      <div
+        className={classNames("flex-grow h-0 -mt-3 rounded overflow-hidden bg-white", {
+          "shadow-border-gray": groundColor === "white",
+        })}
+      >
+        <SimpleBar className={"relative scrollbar-light h-full"} autoHide={false}>
           <table className="w-full text-center">
             <thead>
               <tr className="whitespace-nowrap">
@@ -200,7 +218,7 @@ const Table: React.FC<TableProps> = ({
                           <ExpandMoreRounded
                             fontSize="small"
                             className={`${
-                              orderBy?.direction === "desc" ? "transform rotate-180" : ""
+                              orderBy?.direction === "asc" ? "transform rotate-180" : ""
                             }`}
                           ></ExpandMoreRounded>
                         ) : null}
@@ -218,20 +236,19 @@ const Table: React.FC<TableProps> = ({
                       onPick ? selectHandler(doc.docId, !selected.includes(doc.docId)) : onEdit(doc)
                     }
                     key={`row-${i}`}
-                    className={classNames("cursor-pointer bg-white hover:bg-fireck-4")}
+                    className={"cursor-pointer hover:bg-fireck-4"}
                   >
-                    <td className="px-1">
+                    <td className="px-1" onClick={(e) => e.stopPropagation()}>
                       <Checkbox
                         size="small"
                         classes={{ checked: "text-fireck-1", root: "p-0" }}
                         checked={selected.includes(doc.docId)}
-                        onClick={(e) => e.stopPropagation()}
                         onChange={(e) => selectHandler(doc.docId, e.target.checked)}
                       ></Checkbox>
                     </td>
                     {fields.map((field, j) => (
                       <td key={`row-${i}-col-${j}`} className="px-2">
-                        {doc[field.id] ? (
+                        {doc[field.id] != null ? (
                           field.type === "media" ? (
                             field.mediaSingle ? (
                               <FilesCell file={doc[field.id]}></FilesCell>
@@ -240,7 +257,7 @@ const Table: React.FC<TableProps> = ({
                             )
                           ) : (
                             <div className="whitespace-nowrap">
-                              {doc[field.id].toString().substring(0, 40)}
+                              {formatValue(field, doc[field.id])}
                             </div>
                           )
                         ) : null}

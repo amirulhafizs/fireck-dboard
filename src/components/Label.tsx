@@ -1,11 +1,13 @@
 import React from "react";
 import ErrorRounded from "@material-ui/icons/ErrorRounded";
 import Tooltip from "@material-ui/core/Tooltip";
+import classNames from "classnames";
 
 export interface LabelProps {
   error?: string | undefined | null;
   className?: string;
   children: any;
+  groundColor: "black" | "white";
 }
 
 const WarningIcon = React.forwardRef(function MyComponent(props: any, ref: any) {
@@ -16,9 +18,14 @@ const WarningIcon = React.forwardRef(function MyComponent(props: any, ref: any) 
   );
 });
 
-const Label: React.FC<LabelProps> = ({ className = "", children, error }) => {
+const Label: React.FC<LabelProps> = ({ className = "", children, error, groundColor }) => {
   return (
-    <div className={`flex justify-between text-white relative ${className}`}>
+    <div
+      className={classNames(`flex justify-between relative ${className}`, {
+        "text-white": groundColor === "black",
+        "text-black": groundColor === "white",
+      })}
+    >
       <div>{children}</div>
       {error ? (
         <Tooltip title={error} placement="top">

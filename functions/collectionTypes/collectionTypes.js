@@ -62,9 +62,24 @@ const createCollectionType = async (user, type) => {
     });
 
     let mandatoryFields = [
-      { id: "createdAt", type: "date", displayOnTable: true, isDefault: true },
-      { id: "modifiedAt", type: "date", displayOnTable: true, isDefault: true },
-      { id: "docId", type: "string", displayOnTable: true, isDefault: true },
+      type.fields.find((x) => x.id === "createdAt") || {
+        id: "createdAt",
+        type: "date",
+        displayOnTable: true,
+        isDefault: true,
+      },
+      type.fields.find((x) => x.id === "modifiedAt") || {
+        id: "modifiedAt",
+        type: "date",
+        displayOnTable: true,
+        isDefault: true,
+      },
+      type.fields.find((x) => x.id === "docId") || {
+        id: "docId",
+        type: "string",
+        displayOnTable: true,
+        isDefault: true,
+      },
     ];
 
     await docRef.set({

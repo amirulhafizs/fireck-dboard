@@ -13,8 +13,10 @@ export interface AddDocumentProps extends RouteComponentProps<CollectionParams> 
 const AddDocument: React.FC<AddDocumentProps> = ({ match }) => {
   const collectionId = match.params.id;
   const docId = match.params.docId;
-  const collectionType = useSelector((state: RootState) =>
-    state.collectionTypes.find((x) => x.id === collectionId)
+  const collectionType = useSelector(
+    (state: RootState) =>
+      state.collectionTypes.find((x) => x.id === collectionId) ||
+      state.systemCollectionTypes.find((x) => x.id === collectionId)
   );
 
   const [doc, setDoc] = React.useState<Document | null>(null);
@@ -25,6 +27,7 @@ const AddDocument: React.FC<AddDocumentProps> = ({ match }) => {
         if (!collectionType) return;
         if (!docId && !collectionType.single) return;
         const res = await getDocument(collectionId, docId);
+
         if (!res.error) {
           setDoc(res);
         }
@@ -40,8 +43,10 @@ const AddDocument: React.FC<AddDocumentProps> = ({ match }) => {
 
   return !collectionType ? null : (
     <DocumentForm
+      level={0}
+      groundColor="black"
+      docId={docId}
       editableDocument={doc ? doc : undefined}
-      collectionName={collectionType.name}
       fields={collectionType.fields}
       onSubmit={async (vals) => {
         if (vals) {

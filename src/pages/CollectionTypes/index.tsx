@@ -1,5 +1,4 @@
 import Button from "components/Button";
-import { IoAdd } from "react-icons/io5";
 import React from "react";
 import {
   updateCollectionType,
@@ -13,7 +12,7 @@ import Edit from "@material-ui/icons/EditRounded";
 import EditOutlined from "@material-ui/icons/EditOutlined";
 import DeleteOutlineOutlined from "@material-ui/icons/DeleteOutlineOutlined";
 import CollectionModal from "./CollectionModal";
-import FieldTypes from "components/fieldTypes";
+import FieldTypes from "components/FieldTypes";
 import { confirm } from "components/Confirm";
 import { useNotify } from "components/NotificationsProvider";
 import SpecifyFieldDetails, { SpecifyFieldDetailsProps } from "./SpecifyFieldDetails";
@@ -22,10 +21,10 @@ import { callComponent } from "api/callComponent";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import DragIndicatorRounded from "@material-ui/icons/DragIndicatorRounded";
 import Select from "components/Select";
-import Visibility from "@material-ui/icons/Visibility";
 import InterfaceModal from "./InterfaceModal";
 import SimpleBar from "simplebar-react";
 import EmptyScreen from "components/EmptyScreen";
+import AddRounded from "@material-ui/icons/AddRounded";
 
 export interface CollectionsBuilderProps {}
 
@@ -53,7 +52,12 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
     const collection = collections[selectedCollection];
     let res = await callComponent<SpecifyFieldDetailsProps, FieldType | boolean>({
       Component: SpecifyFieldDetails,
-      props: { fieldType, editableField: collection.fields[selectedField], zLevel: 0 },
+      props: {
+        fieldType,
+        editableField: collection.fields[selectedField],
+        zLevel: 0,
+        goBack: (closer) => closer(),
+      },
     });
 
     if (!(typeof res === "boolean")) {
@@ -87,6 +91,10 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
           fieldType,
           existingFieldNames: collection.fields.map((x) => x.id),
           zLevel: 0,
+          goBack: (closer) => {
+            closer();
+            addField();
+          },
         },
       });
       if (!(typeof res1 === "boolean")) {
@@ -132,13 +140,15 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
       <div className="flex flex-wrap justify-between mb-4">
         <div className="font-medium text-27px leading-none mb-4 mr-4 text-white">Collections</div>
         <Button
+          noMinWidth
           data-testid="add-collection-btn"
           onClick={() => setCollectionModalOpen(true)}
           className="bg-orange-300 hover:bg-orange-301 mb-4"
         >
           <div className="flex items-center pointer-events-none h-34px">
-            <IoAdd className="mr-3" size={18}></IoAdd>
-            <span>Add collection</span>
+            <AddRounded className="mr-2 text-lg" fontSize="inherit"></AddRounded>
+            <span className="hidden md:block">Add collection</span>
+            <span className="md:hidden">Add</span>
           </div>
         </Button>
       </div>
@@ -150,13 +160,6 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
         ></EmptyScreen>
       ) : (
         <div className="flex flex-wrap lg:flex-nowrap w-full flex-grow">
-          <div className="max-w-192px mb-3 mr-4 block lg:hidden w-full">
-            <Select
-              onChange={(e) => setSelectedCollection(parseInt(e.target.value))}
-              value={selectedCollection}
-              options={collections.map((x, i) => ({ label: x.name, value: i }))}
-            ></Select>
-          </div>
           <SimpleBar
             className="max-w-192px w-full flex-shrink-0 mr-4 hidden lg:block max-h-96 scrollbar-dark pr-3"
             autoHide={false}
@@ -178,9 +181,18 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
           <div className="lg:flex-grow w-full rounded-lg bg-fireck-3 p-7 flex flex-col">
             <div className="flex justify-between mb-3 flex-wrap">
               <div className="font-medium text-22px capitalize mb-3 mr-3 text-white">
-                {selectedCollection < collections.length
-                  ? collections[selectedCollection].name
-                  : ""}
+                <span className="hidden lg:inline-block">
+                  {selectedCollection < collections.length
+                    ? collections[selectedCollection].name
+                    : ""}
+                </span>
+                <div className="lg:hidden inline-block text-black text-base">
+                  <Select
+                    onChange={(e) => setSelectedCollection(parseInt(e.target.value))}
+                    value={selectedCollection}
+                    options={collections.map((x, i) => ({ label: x.name, value: i }))}
+                  ></Select>
+                </div>
                 <Edit
                   data-testid="edit-collection-btn"
                   onClick={() => {
@@ -196,12 +208,9 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                   data-testid="view-interface-btn"
                   onClick={() => setInterfaceColType(collections[selectedCollection])}
                   noMinWidth
-                  className="border border-white h-28px text-white mr-3 mb-3 pl-3"
+                  className="border border-white h-28px text-white mr-3 mb-3 px-5"
                 >
-                  <div className="flex items-center pointer-events-none">
-                    <Visibility className="mr-3"></Visibility>
-                    Interface
-                  </div>
+                  <div className="flex items-center pointer-events-none">Interface</div>
                 </Button>
                 <Button
                   noMinWidth
@@ -212,7 +221,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                   className="bg-fireck-4 hover:bg-fireck-4-hover mb-3 h-28px pl-3"
                 >
                   <div className="flex items-center pointer-events-none">
-                    <IoAdd className="mr-3" size={18}></IoAdd>
+                    <AddRounded className="mr-2 text-lg" fontSize="inherit"></AddRounded>
                     <span>Add field</span>
                   </div>
                 </Button>
@@ -224,7 +233,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                 <Droppable droppableId="droppable">
                   {(provided, snapshot) => (
                     <SimpleBar
-                      className="overflow-auto w-full h-full scrollbar-light py-0.5"
+                      className="overflow-auto w-full h-full scrollbar-light scrollbar-thin py-0.5"
                       autoHide={false}
                     >
                       <div
@@ -248,7 +257,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                                       <div {...provided.dragHandleProps}>
                                         <DragIndicatorRounded
                                           fontSize="inherit"
-                                          className="text-base"
+                                          className="text-lg"
                                         />
                                       </div>
 
@@ -270,7 +279,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                                           >
                                             <EditOutlined
                                               fontSize="inherit"
-                                              classes={{ root: "pointer-events-none" }}
+                                              classes={{ root: "pointer-events-none text-lg" }}
                                             ></EditOutlined>
                                           </div>
                                           <div
@@ -278,8 +287,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                                             data-testid={`delete-for-field-${x.id}`}
                                             onClick={async () => {
                                               let res = await confirm({
-                                                confirmation:
-                                                  "Do you really want to delete the field?",
+                                                confirmation: "Delete field?",
                                               });
                                               if (res) {
                                                 let updatedCollection = JSON.parse(
@@ -300,7 +308,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                                             }}
                                           >
                                             <DeleteOutlineOutlined
-                                              classes={{ root: "pointer-events-none" }}
+                                              classes={{ root: "pointer-events-none text-lg" }}
                                               fontSize="inherit"
                                             ></DeleteOutlineOutlined>
                                           </div>

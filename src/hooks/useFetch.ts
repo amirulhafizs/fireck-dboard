@@ -10,10 +10,12 @@ const useFetch = (
   orderBy: { fieldId: string; direction: "asc" | "desc" } | undefined,
   inView: boolean
 ) => {
+  const [latestDocs, setLatestDocs] = useState<Document[]>([]);
   const [docs, setDocs] = useState<Document[]>([]);
   const inViewRef = useRef(false);
   const endReached = useRef(false);
   const notify = useNotify();
+  const [loading, setLoading] = useState(false);
 
   const getOptions = useCallback(
     (data: Document[]) => {
@@ -55,51 +57,38 @@ const useFetch = (
   };
 
   useEffect(() => {
-    (async () => {
-      try {
-        if (orderBy || filters.length) {
-          endReached.current = false;
-          let options = getOptions([]);
-          const newData = await getCollection(options);
-          if (newData.error) {
-            onError(newData.error);
-          } else {
-            setDocs(newData);
-            if (newData.length < (options.limit || 10)) {
-              endReached.current = true;
-            }
-          }
-        }
-      } catch (er) {
-        console.log(er);
-      }
-    })();
-  }, [orderBy, filters]);
-
-  useEffect(() => {
     inViewRef.current = inView;
     const fetcher = async () => {
       if (!endReached.current && inViewRef.current) {
         let options = getOptions(docs);
+        setLoading(true);
         const newData = await getCollection(options);
-        if (
-          (newData.length &&
-            docs.length &&
-            newData[newData.length - 1].docId !== docs[docs.length - 1].docId) ||
-          !docs.length
-        ) {
-          setDocs((prev) => [...prev, ...newData]);
+        if (newData.error) {
+          onError(newData.error);
+        } else {
+          let arr = [...docs];
+          setLatestDocs([...arr, ...newData]);
+          if (newData.length < (options.limit || 10)) {
+            endReached.current = true;
+          }
         }
-
-        if (newData.length < (options.limit || 10)) {
-          endReached.current = true;
-        }
+        setLoading(false);
       }
     };
     fetcher();
   }, [inView, docs]);
 
-  return { docs, setDocs };
+  useEffect(() => {
+    setDocs([]);
+    endReached.current = false;
+  }, [filters, orderBy]);
+
+  useEffect(() => {
+    //if docs will be updated from outside
+    setDocs(latestDocs);
+  }, [latestDocs]);
+
+  return { docs: latestDocs, setDocs: setLatestDocs, loading };
 };
 
 export default useFetch;

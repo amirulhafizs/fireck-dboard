@@ -1,7 +1,7 @@
 import React from "react";
 import Button from "components/Button";
 import RichTextEditor from "components/RichTextEditor";
-import Input from "components/GrayInput";
+import Input from "components/Input";
 import Switch from "components/Switch";
 import { useFormik } from "formik";
 import JsonEditor from "components/JsonEditor";
@@ -12,25 +12,27 @@ import Select from "components/Select";
 import Label from "components/Label";
 import RelationField from "components/RelationField";
 import Textarea from "components/Textarea";
-import SubcollectionTable from "components/SubcollectionTable";
-import AddCircleOutlineRounded from "@material-ui/icons/AddCircleOutlineRounded";
-import { getSubcollectionDocument } from "./SubcollectionDocument";
+import SubcollectionField from "components/SubcollectionField";
+
 import { useDispatch } from "react-redux";
+import classNames from "classnames";
 
 export interface DocumentFormProps {
   onSubmit: (a: { [key: string]: any } | null) => void;
   fields: FieldType[];
-  collectionName: string;
   editableDocument?: { [key: string]: any };
-  allowDiscard?: boolean;
+  docId?: string;
+  groundColor: "black" | "white";
+  level: number;
 }
 
 const DocumentForm: React.FC<DocumentFormProps> = ({
   onSubmit,
   fields,
   editableDocument,
-  collectionName,
-  allowDiscard = false,
+  level,
+  docId,
+  groundColor,
 }) => {
   const initialValues = {
     password: () => "",
@@ -133,35 +135,27 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
     <div className="h-full flex flex-col w-full">
       <div className="flex justify-between flex-wrap mb-2">
         <div>
-          <div className="font-medium text-27px leading-none capitalize mb-3 mr-4 text-white">
-            {editableDocument ? `Edit Document` : `Add Document`}
-          </div>
-          {!editableDocument ? null : (
-            <div className="mb-3 text-xs text-white">Doc id: {editableDocument.docId}</div>
-          )}
-        </div>
-        <div className="flex flex-wrap mb-2">
-          {!allowDiscard ? null : (
-            <Button
-              onClick={() => onSubmit(null)}
-              className={"bg-blue-300 hover:bg-blue-400 mb-2 mr-3 text-white"}
-            >
-              Discard
-            </Button>
-          )}
-          <Button
-            type="submit"
-            onClick={() => handleSubmit()}
-            disabled={isSubmitting || !hasChanged}
-            className={`h-34px ${
-              hasChanged
-                ? "bg-fireck-4 hover:bg-fireck-4-hover"
-                : "bg-gray-300 text-gray-600 cursor-default"
-            }  mb-2`}
+          <div
+            className={classNames("font-medium text-27px leading-none capitalize mb-3 mr-4", {
+              "text-white": groundColor === "black",
+            })}
           >
-            {isSubmitting ? "Loading..." : editableDocument != null ? "Save" : "Publish"}
-          </Button>
+            {docId ? `Edit Document` : `Add Document`}
+          </div>
+          {!docId ? null : <div className="mb-3 text-xs text-white">Doc id: {docId}</div>}
         </div>
+        <Button
+          type="submit"
+          onClick={() => handleSubmit()}
+          disabled={isSubmitting || !hasChanged}
+          className={`h-34px ${
+            hasChanged
+              ? "bg-fireck-4 hover:bg-fireck-4-hover"
+              : "bg-gray-300 text-gray-600 cursor-default"
+          }  mb-2`}
+        >
+          {isSubmitting ? "Loading..." : editableDocument != null ? "Save" : "Publish"}
+        </Button>
       </div>
       <div className="flex-grow h-0 overflow-y-auto overflow-x-hidden pt-4 -mx-7 -mb-7 px-7">
         <div className="flex flex-wrap -mx-3">
@@ -176,23 +170,11 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                     } px-3 mb-12`}
                   >
                     <Label
+                      groundColor={groundColor}
                       className="mb-2 font-medium"
                       error={submitCount > 0 ? errors[x.id]?.toString() : null}
                     >
                       {x.id}{" "}
-                      {x.type === "collection" ? (
-                        <AddCircleOutlineRounded
-                          onClick={async () => {
-                            let document = await getSubcollectionDocument({
-                              collectionName: x.id,
-                              fields: x.collectionFields,
-                            });
-                            if (!document) return;
-                            setFieldValue(x.id, [...values[x.id], document]);
-                          }}
-                          className="ml-2 cursor-pointer"
-                        />
-                      ) : null}
                     </Label>
                     {x.type === "rich-text" ? (
                       <RichTextEditor
@@ -202,6 +184,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                       ></RichTextEditor>
                     ) : x.type === "password" ? (
                       <Input
+                        groundColor="white"
+                        className="h-34px"
                         type="password"
                         value={values[x.id]}
                         name={x.id}
@@ -216,6 +200,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                         ></Textarea>
                       ) : (
                         <Input
+                          groundColor="white"
+                          className="h-34px"
                           type="text"
                           value={values[x.id]}
                           name={x.id}
@@ -224,6 +210,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                       )
                     ) : x.type === "boolean" ? (
                       <Switch
+                        groundColor={groundColor}
                         value={values[x.id]}
                         onChange={(val) => setFieldValue(x.id, val)}
                       ></Switch>
@@ -256,6 +243,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                       ></Select>
                     ) : x.type === "date" ? (
                       <Input
+                        groundColor="white"
+                        className="h-34px"
                         type="date"
                         name={x.id}
                         onChange={handleChange}
@@ -263,6 +252,8 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                       ></Input>
                     ) : x.type === "number" ? (
                       <Input
+                        groundColor="white"
+                        className="h-34px"
                         type="number"
                         name={x.id}
                         onChange={handleChange}
@@ -275,12 +266,12 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                         value={values[x.id]}
                       ></RelationField>
                     ) : x.type === "collection" ? (
-                      <SubcollectionTable
-                        collectionName={x.id}
-                        collection={values[x.id]}
-                        onChange={(arr) => setFieldValue(x.id, arr)}
+                      <SubcollectionField
+                        level={level}
+                        value={values[x.id]}
+                        onValue={(arr) => setFieldValue(x.id, arr)}
                         fields={x.collectionFields}
-                      ></SubcollectionTable>
+                      ></SubcollectionField>
                     ) : null}
                   </div>
                 ))

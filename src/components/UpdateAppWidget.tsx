@@ -1,13 +1,20 @@
+import classNames from "classnames";
 import Button from "components/Button";
 import useUpdateAvailable from "hooks/useUpdateAvailable";
+import { useState } from "react";
 
 export interface UpdateAppWidgetProps {}
 
 const UpdateAppWidget: React.FC<UpdateAppWidgetProps> = () => {
   const { updateAvailable, gitName, gitRepo } = useUpdateAvailable();
+  const [show, setShow] = useState(true);
 
-  return !updateAvailable ? null : (
-    <div className="lg:flex items-center hidden">
+  return (
+    <div
+      className={classNames("flex items-center px-3 h-34px bg-fireck-1 transition-all", {
+        "-mt-34px": !updateAvailable || !show,
+      })}
+    >
       <div className="mr-3 text-white text-sm">New version available</div>
       <Button
         noMinWidth
@@ -18,7 +25,11 @@ const UpdateAppWidget: React.FC<UpdateAppWidgetProps> = () => {
       >
         Update
       </Button>
-      <Button noMinWidth className="h-6 border-white border text-s rounded px-4 mr-3">
+      <Button
+        onClick={() => setShow(false)}
+        noMinWidth
+        className="h-6 border-white border text-s rounded px-4 mr-3 text-white"
+      >
         Ignore
       </Button>
     </div>

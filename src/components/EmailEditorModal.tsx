@@ -1,7 +1,7 @@
 import Modal from "@material-ui/core/Modal";
 import EmailEditor from "react-email-editor";
 import Button from "components/Button";
-import Input from "components/GrayInput";
+import Input from "components/Input";
 import { useState, useRef, useEffect } from "react";
 import { Template } from "pages/Emails";
 

@@ -1,5 +1,12 @@
 import Modal from "@material-ui/core/Modal";
 import { CollectionType, FieldType } from "api/collectionTypes";
+import CloseRounded from "@material-ui/icons/CloseRounded";
+import Assignment from "@material-ui/icons/Assignment";
+import AssignmentTurnedIn from "@material-ui/icons/AssignmentTurnedIn";
+import { useState } from "react";
+import Button from "components/Button";
+import TypescriptSyntax from "components/TypescriptSyntax";
+import SimpleBar from "simplebar-react";
 
 export interface InterfaceModalProps {
   open: boolean;
@@ -17,10 +24,9 @@ const getType = (type: FieldType, ident: number, identStep: number = 3): string 
       ? `{\n${fields.reduce(
           (a, b) =>
             a +
-            `${getGap(ident)}${b.id.includes(" ") ? `"${b.id}"` : b.id}: ${getType(
-              b,
-              ident + identStep
-            )};\n`,
+            `${getGap(ident)}${
+              b.id.includes(" ") || b.id.includes("-") ? `"${b.id}"` : b.id
+            }: ${getType(b, ident + identStep)};\n`,
           ""
         )}${getGap(ident - identStep)}${multiple ? "}[]" : "}"}`
       : multiple
@@ -60,21 +66,51 @@ export const generateInterface = (colType: CollectionType) => {
 };
 
 const InterfaceModal: React.FC<InterfaceModalProps> = ({ open, collectionType, onClose }) => {
+  const [copied, setCopied] = useState(false);
+
+  const interfaceString = collectionType ? generateInterface(collectionType) : "";
+
   return !collectionType ? null : (
     <Modal open={open} hideBackdrop>
       <div
-        className="fixed left-0 top-0 w-full h-full overflow-auto flex bg-black bg-opacity-40"
-        onClick={onClose}
+        className="fixed left-0 top-0 w-full h-full flex overflow-auto bg-black bg-opacity-40 p-9"
+        onMouseDown={onClose}
       >
         <div
-          className="bg-white p-7 m-auto rounded-md md:max-w-lg max-w-sm w-full"
-          onClick={(e) => e.stopPropagation()}
+          className="bg-white p-7 m-auto max-h-600px h-full flex flex-col rounded md:max-w-lg max-w-sm w-full relative animate-littlemoveup"
+          onMouseDown={(e) => e.stopPropagation()}
         >
+          <CloseRounded
+            className="absolute top-0 right-0 cursor-pointer"
+            onClick={onClose}
+          ></CloseRounded>
           <div className="mb-7 text-22px capitalize font-medium">
             {collectionType.name} interface
           </div>
-          <div className="rounded bg-gray-300 p-7 overflow-auto">
-            <pre>{generateInterface(collectionType)}</pre>
+          <div className="relative flex-grow h-0 rounded overflow-hidden">
+            {copied ? (
+              <div className="absolute z-20 text-white top-1 animate-littlemoveup right-1 cursor-pointer h-6 px-2 text-sm font-medium">
+                Copied!
+              </div>
+            ) : (
+              <Button
+                noMinWidth
+                onClick={() => {
+                  navigator.clipboard.writeText(interfaceString);
+                  setCopied(true);
+                  setTimeout(() => {
+                    setCopied(false);
+                  }, 2000);
+                }}
+                className="absolute z-20 top-1 right-1 text-xs cursor-pointer h-6 px-3 bg-fireck-4 hover:bg-fireck-4-hover"
+              >
+                Copy
+              </Button>
+            )}
+
+            <SimpleBar className="h-full scrollbar-dark">
+              <TypescriptSyntax code={interfaceString}></TypescriptSyntax>
+            </SimpleBar>
           </div>
         </div>
       </div>

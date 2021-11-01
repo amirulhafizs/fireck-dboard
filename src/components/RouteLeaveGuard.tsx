@@ -18,7 +18,7 @@ const RouteLeaveGuard: React.FC<RouteLeaveGuardProps> = () => {
         if (isActive) {
           return (
             <Confirm
-              confirmation="Do you really want to leave? Unsaved changes might be lost"
+              confirmation="Leave page?"
               proceed={(val: any) => {
                 if (val) {
                   onConfirm();

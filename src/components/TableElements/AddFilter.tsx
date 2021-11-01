@@ -1,18 +1,24 @@
 import Modal from "@material-ui/core/Modal";
-import Input from "components/GrayInput";
+import Input from "components/Input";
 import Select from "components/Select";
 import Button from "components/Button";
-import { CollectionType } from "api/collectionTypes";
+import { CollectionType, FieldType } from "api/collectionTypes";
 import React from "react";
 import { useFormik } from "formik";
 import Label from "components/Label";
+import CloseRounded from "@material-ui/icons/CloseRounded";
 
 export interface AddFilterModalProps {
-  collectionType: CollectionType;
+  collectionType: Pick<CollectionType, "fields">;
   onValue: Function;
+  groundColor?: "black" | "white";
 }
 
-const AddFilterModal: React.FC<AddFilterModalProps> = ({ collectionType, onValue }) => {
+const AddFilterModal: React.FC<AddFilterModalProps> = ({
+  collectionType,
+  onValue,
+  groundColor = "white",
+}) => {
   const operators = [
     "<",
     "<=",
@@ -60,11 +66,26 @@ const AddFilterModal: React.FC<AddFilterModalProps> = ({ collectionType, onValue
         Filters
       </Button>
       <Modal open={open}>
-        <div className="fixed left-0 top-0 w-full h-full flex" onMouseDown={() => setOpen(false)}>
-          <div onMouseDown={(e) => e.stopPropagation()} className="bg-white rounded p-7  m-auto">
+        <div
+          className="fixed left-0 top-0 w-full h-full flex p-7"
+          onMouseDown={() => setOpen(false)}
+        >
+          <div
+            onMouseDown={(e) => e.stopPropagation()}
+            className="bg-white rounded p-7 m-auto relative"
+            style={{ maxWidth: 600 }}
+          >
+            <CloseRounded
+              className="absolute top-0 right-0 cursor-pointer"
+              onClick={() => setOpen(false)}
+            ></CloseRounded>
             <div className="flex flex-wrap -mx-2 mb-4">
               <div className="sm:w-1/3 w-full mb-3 px-2">
-                <Label className="mb-2" error={submitCount > 0 ? errors.fieldId : null}>
+                <Label
+                  groundColor={groundColor}
+                  className="mb-2"
+                  error={submitCount > 0 ? errors.fieldId : null}
+                >
                   Field
                 </Label>
                 <Select
@@ -78,7 +99,11 @@ const AddFilterModal: React.FC<AddFilterModalProps> = ({ collectionType, onValue
                 ></Select>
               </div>
               <div className="sm:w-1/3 w-full mb-3 px-2">
-                <Label className="mb-2" error={submitCount > 0 ? errors.operator : null}>
+                <Label
+                  groundColor={groundColor}
+                  className="mb-2"
+                  error={submitCount > 0 ? errors.operator : null}
+                >
                   Operator
                 </Label>
                 <Select
@@ -92,16 +117,21 @@ const AddFilterModal: React.FC<AddFilterModalProps> = ({ collectionType, onValue
                 ></Select>
               </div>
               <div className="sm:w-1/3 w-full mb-3 px-2">
-                <Label className="mb-2" error={submitCount > 0 ? errors.value : null}>
+                <Label
+                  groundColor={groundColor}
+                  className="mb-2 text-black"
+                  error={submitCount > 0 ? errors.value : null}
+                >
                   Value
                 </Label>
                 <Input
+                  groundColor="white"
                   placeholder={
                     ["in", "not in", "array-contains-any"].includes(values.operator)
                       ? "value, value, value"
                       : "value"
                   }
-                  className="placeholder-black"
+                  className="placeholder-black h-34px"
                   value={values.value}
                   onChange={handleChange}
                   name="value"
@@ -112,8 +142,7 @@ const AddFilterModal: React.FC<AddFilterModalProps> = ({ collectionType, onValue
               <Button
                 disabled={isSubmitting}
                 onClick={() => handleSubmit()}
-                noMinWidth
-                className="bg-orange-300 hover:bg-orange-301"
+                className="bg-fireck-4 hover:bg-fireck-4-hover h-34px"
               >
                 Add
               </Button>

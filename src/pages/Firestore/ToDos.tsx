@@ -46,21 +46,18 @@ const ToDos: React.FC<ToDosProps> = ({ isAdminSet, isAppCreated, onCreateAdmin, 
     });
   }
   return !toDos.length ? null : (
-    <div className="sm:px-42px sm:pt-42px px-7 pt-7">
+    <div className="text-sm flex flex-wrap w-full bg-fireck-1">
       {toDos.map((x) => (
-        <div
-          key={x.title}
-          className="rounded-md bg-blue-300 text-white flex items-center justify-between p-3 mb-2"
-        >
-          <div className="flex items-center">
-            <Error className="mr-3"></Error>
+        <div key={x.title} className="flex items-center px-3 h-34px mr-4">
+          <div className="flex items-center text-white mr-3">
+            {/* <Error className="mr-3 text-lg"></Error> */}
             <div>{x.title}</div>
           </div>
 
           <Button
             onClick={x.onClick}
             noMinWidth
-            className="bg-orange-300 hover:bg-orange-301 text-black"
+            className="bg-fireck-4 hover:bg-fireck-4-hover h-6 px-4"
           >
             {loading === x.id ? <Loader size="tiny"></Loader> : x.btnTitle}
           </Button>

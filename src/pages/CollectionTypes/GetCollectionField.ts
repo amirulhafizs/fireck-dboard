@@ -29,6 +29,10 @@ export const getCollectionField = async ({
       editableField,
       existingFieldNames,
       zLevel,
+      goBack: (closer) => {
+        closer();
+        getCollectionField({ editableField, existingFieldNames, zLevel });
+      },
     },
   });
   if (typeof res1 === "boolean") return null;

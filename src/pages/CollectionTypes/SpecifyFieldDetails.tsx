@@ -1,8 +1,8 @@
 import React from "react";
-import Input from "components/GrayInput";
+import Input from "components/Input";
 import Button from "components/Button";
 import { FieldInputType, FieldType } from "api/collectionTypes";
-import FieldTypes from "components/fieldTypes";
+import FieldTypes from "components/FieldTypes";
 import Select from "components/Select";
 import { ReactComponent as OneToOneIcon } from "assets/one-to-one.svg";
 import { ReactComponent as OneToManyIcon } from "assets/one-to-many.svg";
@@ -19,6 +19,7 @@ import Delete from "@material-ui/icons/DeleteOutlineOutlined";
 import { getCollectionField } from "./GetCollectionField";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { reorder } from ".";
+import CloseRounded from "@material-ui/icons/CloseRounded";
 
 export interface SpecifyFieldDetailsProps {
   editableField?: FieldType;
@@ -26,6 +27,7 @@ export interface SpecifyFieldDetailsProps {
   fieldType: FieldInputType;
   proceed: Function;
   zLevel: number;
+  goBack: (closer: () => void) => void;
 }
 
 const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
@@ -34,6 +36,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
   proceed,
   fieldType,
   zLevel,
+  goBack,
 }) => {
   const initialValues = {
     id: "",
@@ -94,7 +97,14 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
 
   return (
     <div className="fixed left-0 top-0 w-full h-full flex overflow-auto bg-black bg-opacity-40">
-      <div className="m-auto rounded bg-white p-9 max-w-600px w-full">
+      <div
+        style={{ maxWidth: 550 }}
+        className="m-auto rounded bg-white p-7 w-full relative animate-littlemoveup"
+      >
+        <CloseRounded
+          className="absolute top-0 right-0 cursor-pointer"
+          onClick={() => proceed(false)}
+        ></CloseRounded>
         <div className="text-22px font-medium mb-9 flex items-center">
           {SelectedFieldType ? <SelectedFieldType.Badge></SelectedFieldType.Badge> : null}
           <span className="ml-3">
@@ -104,6 +114,8 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
         <div className="mb-9">
           <div className="mb-2">Field name</div>
           <Input
+            groundColor="white"
+            className="h-34px"
             data-testid={`field-id-input-${zLevel}`}
             error={submitCount > 0 ? errors.id : ""}
             value={values.id}
@@ -178,6 +190,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
           <div className="mb-10">
             <div className="mb-9">
               <Label
+                groundColor="white"
                 error={submitCount > 0 ? errors.relatedCollectionTypeDocId : ""}
                 className="mb-2"
               >
@@ -309,18 +322,16 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
         <div className="flex justify-between">
           <Button
             data-testid={`cancel-field-details-btn-${zLevel}`}
-            onClick={() => {
-              proceed(false);
-            }}
-            className="bg-blue-300 hover:bg-blue-400 text-white"
+            onClick={() => goBack(() => proceed(false))}
+            className="bg-blue-300 hover:bg-blue-400 text-white h-34px"
           >
-            Cancel
+            {editableField ? "Cancel" : "Back"}
           </Button>
           <Button
             data-testid={`submit-field-details-btn-${zLevel}`}
             type="submit"
             onClick={() => handleSubmit()}
-            className="bg-orange-300 hover:bg-orange-301"
+            className="bg-fireck-4 hover:bg-fireck-4-hover h-34px"
           >
             Submit
           </Button>

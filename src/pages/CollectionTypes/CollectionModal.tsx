@@ -1,5 +1,5 @@
 import Modal from "@material-ui/core/Modal";
-import Input from "components/GrayInput";
+import Input from "components/Input";
 import React from "react";
 import Button from "components/Button";
 import {
@@ -12,10 +12,11 @@ import { useNotify } from "components/NotificationsProvider";
 import { confirm } from "components/Confirm";
 import { useFormik } from "formik";
 import ToupleInput from "components/ToupleInput";
+import CloseRounded from "@material-ui/icons/CloseRounded";
 
 export interface AddNewCollectionProps {
   open: boolean;
-  onClose: Function;
+  onClose: () => void;
   collections: Array<CollectionType>;
   editingCollectionIndex: number;
   onCreate: (val: CollectionType) => void;
@@ -119,8 +120,15 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
 
   return (
     <Modal open={open} hideBackdrop>
-      <div className="w-full h-full flex overflow-auto bg-black bg-opacity-40">
-        <div className="m-auto rounded bg-white max-w-644px w-full p-9">
+      <div className="w-full h-full flex overflow-auto bg-black bg-opacity-40 p-7">
+        <div
+          className="m-auto rounded bg-white w-full p-7 relative animate-littlemoveup"
+          style={{ maxWidth: 600 }}
+        >
+          <CloseRounded
+            className="absolute top-0 right-0 cursor-pointer"
+            onClick={onClose}
+          ></CloseRounded>
           <div className="text-22px font-medium mb-12">
             {editingCollectionIndex > -1 ? "Edit" : "Create"} collection type
           </div>
@@ -128,6 +136,8 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
             <div className="mb-3 sm:w-1/2 w-full sm:pr-2">
               <div className="mb-2">Collection name</div>
               <Input
+                groundColor="white"
+                className="h-34px"
                 data-testid={`collection-name-input`}
                 error={submitCount > 0 && errors.name ? errors.name : false}
                 value={values.name}
@@ -142,7 +152,13 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
             </div>
             <div className="mb-3 sm:w-1/2 w-full sm:pl-2">
               <div className="mb-2">UID</div>
-              <Input disabled value={createId(values.name)} name="id"></Input>
+              <Input
+                className="h-34px"
+                groundColor="white"
+                disabled
+                value={createId(values.name)}
+                name="id"
+              ></Input>
             </div>
           </div>
           <ToupleInput
@@ -156,11 +172,12 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
           ></ToupleInput>
           {editingCollectionIndex > -1 ? (
             <Button
+              noMinWidth
               data-testid="delete-collection-btn"
               onClick={async () => {
                 if (
                   await confirm({
-                    confirmation: "Do you really want to delete collection type?",
+                    confirmation: "Delete collection type?",
                   })
                 ) {
                   const deleteDocId = collections[editingCollectionIndex].docId;
@@ -175,7 +192,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
                   onClose();
                 }
               }}
-              className="border-2 border-red-500 text-red-500 mb-10 hover:bg-red-500 hover:text-white"
+              className="border-2 h-34px px-4 border-red-500 text-red-500 mb-10 hover:bg-red-500 hover:text-white"
             >
               Delete collection
             </Button>
@@ -189,7 +206,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
               data-testid="submit-btn"
               disabled={isSubmitting}
               onClick={() => handleSubmit()}
-              className="bg-orange-300 hover:bg-orange-301"
+              className="bg-fireck-4 hover:bg-fireck-4-hover h-34px"
             >
               {isSubmitting ? "Loading..." : "Submit"}
             </Button>

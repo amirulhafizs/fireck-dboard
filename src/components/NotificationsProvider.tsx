@@ -5,10 +5,10 @@ const NotificationsProvider = (props: any) => {
     <SnackbarProvider
       {...props}
       classes={{
-        variantSuccess: "text-green-400 bg-white shadow-snack",
-        variantError: "text-red-400 bg-white shadow-snack",
-        variantWarning: "text-orange-400 bg-white shadow-snack",
-        variantInfo: "text-blue-400 bg-white shadow-snack",
+        variantSuccess: "text-green-400 bg-white shadow-snack capitalize",
+        variantError: "text-red-400 bg-white shadow-snack capitalize",
+        variantWarning: "text-orange-400 bg-white shadow-snack capitalize",
+        variantInfo: "text-blue-400 bg-white shadow-snack capitalize",
       }}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
     ></SnackbarProvider>

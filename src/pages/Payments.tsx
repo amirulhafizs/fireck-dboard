@@ -1,6 +1,6 @@
 import Button from "components/Button";
 import PageTitle from "components/PageTitle";
-import Input from "components/GrayInput";
+import Input from "components/Input";
 import { updateIntegration, getIntegration } from "api/integrations";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "store";

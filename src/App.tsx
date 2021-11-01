@@ -21,10 +21,11 @@ import Modal from "@material-ui/core/Modal";
 import ToDos from "pages/Firestore/ToDos";
 import { CollectionType, findCollectionTypes } from "api/collectionTypes";
 import { SystemCollectionIds } from "store";
+import UpdateAppWidget from "components/UpdateAppWidget";
 
 const PageLoader = ({ loading }: { loading: boolean | string }) => {
   return (
-    <div className="flex w-full h-full">
+    <div className="flex w-full h-full bg-fireck-1">
       <div className="m-auto">
         <div className="flex justify-center mb-2">
           <Loader></Loader>
@@ -91,7 +92,7 @@ const App = (props: PropsFromRedux) => {
   } = useConfiguration();
 
   return (
-    <div className="">
+    <div>
       {checkCompleted ? (
         !(adminSdkState === "connected") ? (
           <FirebaseSettings adminSdkState={adminSdkState}></FirebaseSettings>
@@ -103,39 +104,43 @@ const App = (props: PropsFromRedux) => {
         ) : isAdminSet && !props.user.token ? (
           <Login firebase={firebase}></Login>
         ) : (
-          <div className="fixed left-0 top-0 w-full h-full flex">
-            <Menu></Menu>
-            <div className="flex flex-col flex-grow w-0">
-              <TopBar></TopBar>
-              <ToDos
-                isAdminSet={isAdminSet}
-                isAppCreated={isAppCreated}
-                onCreateAdmin={() => setOpenAdminCreation(true)}
-                onCreateApp={() => setIsAppCreated(true)}
-              ></ToDos>
-              <div className="flex-grow h-0 p-7 overflow-auto relative bg-fireck-1">
-                <div className="absolute top-0" ref={pageTopRef}>
-                  <InView onChange={(inView) => setIsTopVisible(inView)}>
-                    <div></div>
-                  </InView>
-                </div>
-                {!isTopVisible ? (
-                  <ButtonBase
-                    className="z-30 fixed shadow-2xl outline-none right-6 bottom-3 w-34px h-34px rounded flex cursor-pointer text-black bg-orange-300 hover:bg-orange-301 items-center justify-center"
-                    onClick={() => pageTopRef.current.scrollIntoView({ behavior: "smooth" })}
-                  >
-                    <ExpandLessRounded></ExpandLessRounded>
-                  </ButtonBase>
-                ) : null}
+          <div className="fixed left-0 top-0 w-full h-full flex flex-col">
+            <UpdateAppWidget></UpdateAppWidget>
+            <ToDos
+              isAdminSet={isAdminSet}
+              isAppCreated={isAppCreated}
+              onCreateAdmin={() => setOpenAdminCreation(true)}
+              onCreateApp={() => setIsAppCreated(true)}
+            ></ToDos>
+            <div className="h-0 flex-grow w-full flex">
+              <Menu></Menu>
+              <div className="flex flex-col flex-grow w-0">
+                <TopBar></TopBar>
 
-                {props.loading ? (
-                  <div className="absolute left-0 top-0 z-20 w-full h-full bg-white">
-                    <PageLoader loading={props.loading}></PageLoader>{" "}
+                <div className="flex-grow h-0 p-7 overflow-auto relative bg-fireck-1">
+                  <div className="absolute top-0" ref={pageTopRef}>
+                    <InView onChange={(inView) => setIsTopVisible(inView)}>
+                      <div></div>
+                    </InView>
                   </div>
-                ) : null}
-                <Suspense fallback={<PageLoader loading={props.loading}></PageLoader>}>
-                  <PagesRoot></PagesRoot>
-                </Suspense>
+                  {!isTopVisible ? (
+                    <ButtonBase
+                      className="z-30 fixed shadow-2xl outline-none right-6 bottom-3 w-34px h-34px rounded flex cursor-pointer text-black bg-orange-300 hover:bg-orange-301 items-center justify-center"
+                      onClick={() => pageTopRef.current.scrollIntoView({ behavior: "smooth" })}
+                    >
+                      <ExpandLessRounded></ExpandLessRounded>
+                    </ButtonBase>
+                  ) : null}
+
+                  {props.loading ? (
+                    <div className="absolute left-0 top-0 z-20 w-full h-full bg-white">
+                      <PageLoader loading={props.loading}></PageLoader>{" "}
+                    </div>
+                  ) : null}
+                  <Suspense fallback={<PageLoader loading={props.loading}></PageLoader>}>
+                    <PagesRoot></PagesRoot>
+                  </Suspense>
+                </div>
               </div>
             </div>
           </div>

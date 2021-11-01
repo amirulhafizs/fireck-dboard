@@ -1,22 +1,18 @@
 import { FieldType } from "api/collectionTypes";
-import { Document, getCollection, getDocument } from "api/collections";
 import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "store";
-import FilesCell from "./TableElements/FilesCell";
 import CollectionTable from "./TableElements/CollectionTable";
 import Modal from "@material-ui/core/Modal";
 import IconButton from "./IconButton";
-import Delete from "@material-ui/icons/DeleteOutlineOutlined";
 import Link from "@material-ui/icons/Link";
 import AddRounded from "@material-ui/icons/AddRounded";
 import { ReactComponent as OneToOneIcon } from "assets/one-to-one.svg";
 import { ReactComponent as OneToManyIcon } from "assets/one-to-many.svg";
-import { useHistory } from "react-router-dom";
 import CloseRounded from "@material-ui/icons/CloseRounded";
 import { confirm } from "components/Confirm";
 import DeleteOutlineOutlined from "@material-ui/icons/DeleteOutlineOutlined";
-import EditOutlined from "@material-ui/icons/EditOutlined";
+import SimpleBar from "simplebar-react";
 
 export interface RelationFieldProps {
   fieldType: FieldType;
@@ -25,55 +21,11 @@ export interface RelationFieldProps {
 }
 
 const RelationField: React.FC<RelationFieldProps> = ({ fieldType, value, onValue }) => {
-  const [docs, setDocs] = React.useState<Document[]>([]);
   const collectionType = useSelector((state: RootState) =>
     state.collectionTypes.find((x) => x.docId === fieldType.relatedCollectionTypeDocId)
   );
 
   const [open, setOpen] = React.useState(false);
-  const history = useHistory();
-
-  // React.useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       if (collectionType) {
-  //         if (typeof value === "object") {
-  //           if (!value.length) {
-  //             setDocs([]);
-  //             return;
-  //           }
-  //           const res = await getCollection({
-  //             collectionId: collectionType.id,
-  //             where: `docId,${value.length > 1 ? "in" : "=="}${value.reduce(
-  //               (a, b) => a + "," + b,
-  //               ""
-  //             )}`,
-  //           });
-  //           if (res.error) {
-  //             return;
-  //           }
-  //           setDocs(res);
-  //         } else {
-  //           if (value) {
-  //             const res = await getDocument(collectionType.id, value);
-  //             console.log("Res", res);
-  //             if (!res.error) {
-  //               setDocs([res]);
-  //               return;
-  //             }
-  //             setDocs([]);
-  //             return;
-  //           }
-  //           setDocs([]);
-  //         }
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   })();
-  // }, [value, collectionType]);
-
-  console.log("VALUE relati", value, typeof value);
 
   return (
     <div className="bg-fireck-3 rounded p-5">
@@ -114,11 +66,11 @@ const RelationField: React.FC<RelationFieldProps> = ({ fieldType, value, onValue
             <div className="flex-grow h-0">
               {collectionType ? (
                 <CollectionTable
+                  groundColor="white"
                   collectionType={collectionType}
                   blackList={typeof value === "string" ? [value] : value}
                   singleSelect={typeof value === "string"}
                   onPick={(docs) => {
-                    console.log("DOCS picked", docs);
                     if (docs.length) {
                       if (typeof value === "string") {
                         onValue(docs[0].docId);
@@ -137,38 +89,60 @@ const RelationField: React.FC<RelationFieldProps> = ({ fieldType, value, onValue
       </Modal>
       <div className="w-full max-h-64 overflow-auto bg-white rounded">
         {typeof value === "string" ? (
-          <div className="px-1">{value}</div>
+          <div className="px-1 h-28px bg-white flex items-center justify-between">
+            <span>{value}</span>
+            {!value ? null : (
+              <div
+                className="h-5 w-5 flex items-center justify-center rounded cursor-pointer hover:bg-red-FF0000 hover:text-white"
+                data-testid={`delete-for-field-${fieldType.id}-${value}`}
+                onClick={async () => {
+                  let res = await confirm({
+                    confirmation: "Remove document?",
+                  });
+                  if (res) {
+                    onValue("");
+                  }
+                }}
+              >
+                <DeleteOutlineOutlined
+                  classes={{ root: "pointer-events-none" }}
+                  fontSize="inherit"
+                ></DeleteOutlineOutlined>
+              </div>
+            )}
+          </div>
         ) : (
-          value.map((x, i) => (
-            <div
-              className="px-1 hover:bg-fireck-4 flex justify-between"
-              key={`relation-${fieldType.id}-docId-${x}`}
-            >
-              <div>{x}</div>
-              <div className="flex items-center flex-grow justify-end">
-                <div
-                  className="h-5 w-5 flex items-center justify-center rounded cursor-pointer hover:bg-red-FF0000 hover:text-white"
-                  data-testid={`delete-for-field-${fieldType.id}-${x}`}
-                  onClick={async () => {
-                    let res = await confirm({
-                      confirmation:
-                        "Do you really want to remove the document from the collection?",
-                    });
-                    if (res) {
-                      let arr = [...value];
-                      arr.splice(i, 1);
-                      onValue(arr);
-                    }
-                  }}
-                >
-                  <DeleteOutlineOutlined
-                    classes={{ root: "pointer-events-none" }}
-                    fontSize="inherit"
-                  ></DeleteOutlineOutlined>
+          <SimpleBar className="h-36 bg-white scrollbar-light scrollbar-thin" autoHide={false}>
+            {value.map((x, i) => (
+              <div
+                className="px-1 hover:bg-fireck-4 flex justify-between "
+                key={`relation-${fieldType.id}-docId-${x}`}
+              >
+                <div>{x}</div>
+                <div className="flex items-center flex-grow justify-end">
+                  <div
+                    className="h-5 w-5 flex items-center justify-center rounded cursor-pointer hover:bg-red-FF0000 hover:text-white"
+                    data-testid={`delete-for-field-${fieldType.id}-${x}`}
+                    onClick={async () => {
+                      let res = await confirm({
+                        confirmation: "Remove document?",
+                      });
+                      if (res) {
+                        let arr = [...value];
+                        arr.splice(i, 1);
+                        onValue(arr);
+                      }
+                    }}
+                  >
+                    <DeleteOutlineOutlined
+                      classes={{ root: "pointer-events-none" }}
+                      fontSize="inherit"
+                    ></DeleteOutlineOutlined>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+          </SimpleBar>
         )}
       </div>
     </div>

@@ -87,3 +87,15 @@ code {
   opacity: 0.08 !important;
   background: white;
 }
+
+.scrollbar-thin .simplebar-track.simplebar-vertical {
+  width: 8px !important;
+}
+
+.scrollbar-thin .simplebar-track.simplebar-horizontal {
+  height: 8px !important;
+}
+
+.CodeMirror {
+  height: auto !important;
+}

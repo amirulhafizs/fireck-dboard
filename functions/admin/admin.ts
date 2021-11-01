@@ -193,10 +193,16 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
       docId: filesColName,
       name: filesColName,
       fields: [
-        { id: "name", type: "string" },
-        { id: "url", type: "string" },
-        { id: "size", type: "number" },
-        { id: "storagePath", type: "string" },
+        { id: "url", type: "string", displayOnTable: true },
+        { id: "name", type: "string", displayOnTable: true },
+        { id: "size", type: "number", displayOnTable: true },
+        { id: "storagePath", type: "string", displayOnTable: false },
+        {
+          id: "docId",
+          type: "string",
+          displayOnTable: false,
+          isDefault: true,
+        },
       ] as FieldType[],
     };
 

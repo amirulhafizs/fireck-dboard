@@ -4,19 +4,16 @@ import PanoramaRounded from "@material-ui/icons/PanoramaRounded";
 import BrushRounded from "@material-ui/icons/BrushRounded";
 import Palette from "@material-ui/icons/Palette";
 import React from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 import MenuIcon from "@material-ui/icons/Menu";
 import Drawer from "@material-ui/core/Drawer";
 import { useSelector } from "react-redux";
 import { RootState } from "store";
-import ButtonBase from "@material-ui/core/ButtonBase";
 import ImportExportRounded from "@material-ui/icons/ImportExportRounded";
-import classNames from "classnames";
 import { ReactComponent as Webhook } from "assets/webhook.svg";
 import EmailIcon from "@material-ui/icons/Email";
 
-import SearchRounded from "@material-ui/icons/SearchRounded";
 import Section from "./Section";
 
 export type SectionType = {
@@ -28,7 +25,6 @@ export type SectionType = {
 };
 
 const Menu = ({ onCloseMenu = () => {} }: { onCloseMenu?: () => void }) => {
-  const [hoveredItem, setHoveredItem] = React.useState([-1, -1]);
   const history = useHistory();
   const { collections, logo } = useSelector((state: RootState) => ({
     user: state.user,

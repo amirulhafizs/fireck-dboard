@@ -4,7 +4,7 @@ import Wrapper from "./Wrapper";
 const Relation: React.FC = () => {
   return (
     <Wrapper>
-      <Link fontSize="inherit" className="text-xl"></Link>
+      <Link fontSize="inherit" className="text-lg"></Link>
     </Wrapper>
   );
 };

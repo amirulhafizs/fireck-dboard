@@ -1,5 +1,5 @@
 import Modal from "@material-ui/core/Modal";
-import GrayInput from "components/GrayInput";
+import GrayInput from "components/Input";
 import { RoleDocument, permissions } from "api/roles";
 import React from "react";
 import { useFormik } from "formik";

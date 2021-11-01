@@ -13,15 +13,30 @@ const WarningIcon = React.forwardRef(function MyComponent(props: any, ref: any) 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
   error?: string | boolean;
+  groundColor?: string;
 }
 
-const Input: React.FC<InputProps> = ({ className = "", error, ...props }) => {
+const Input: React.FC<InputProps> = ({ className = "", error, groundColor = "dark", ...props }) => {
+  const variants: { [key: string]: { error: string; base: string } } = {
+    dark: {
+      base: "focus:border-fireck-4 bg-white border-white",
+      error: "border-red-FF0000",
+    },
+
+    white: {
+      base: "focus:border-fireck-4 bg-gray-300 border-gray-300",
+      error: "border-red-FF0000",
+    },
+  };
+
+  const variantObj = variants[groundColor] || variants["dark"];
+
   return (
-    <div className={`${className} relative flex items-center`}>
+    <div className={"relative flex items-center " + className}>
       <input
-        className={`px-3 h-34px w-full rounded outline-none ${
-          error ? "border-red-500" : "focus:border-blue-300 border-white"
-        }  border-2 border-solid focus:border-3`}
+        className={`px-3 border-2 h-full border-solid w-full placeholder-gray-500 rounded outline-none ${
+          error ? variantObj.error : variantObj.base
+        }`}
         {...props}
         spellCheck={false}
       ></input>

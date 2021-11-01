@@ -1,10 +1,11 @@
-import Input from "components/GrayInput";
+import Input from "components/Input";
 import Button from "components/Button";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { createSuperAdmin } from "api/adminUsers";
 import store from "store";
 import { useNotify } from "components/NotificationsProvider";
+import CloseRounded from "@material-ui/icons/CloseRounded";
 
 export interface AdminCreationProps {
   setIsAdminSet: (a: boolean) => void;
@@ -58,7 +59,11 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setIsAdminSet, onClose })
   return (
     <div className="fixed left-0 top-0 w-full h-full flex overflow-auto p-7" onClick={onClose}>
       <div className="m-auto max-w-430px w-full" onClick={(e) => e.stopPropagation()}>
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-12 text-sm">
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-12 text-sm relative">
+          <CloseRounded
+            className="absolute top-0 right-0 cursor-pointer"
+            onClick={onClose}
+          ></CloseRounded>
           <div className="text-center mb-7">
             <div className="mb-2 text-2xl font-medium">Create admin</div>
             <div className="text-gray-600 text-sm max-w-xs mx-auto">
@@ -68,6 +73,8 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setIsAdminSet, onClose })
           <div className="mb-7">
             <div className="mb-2">Email</div>
             <Input
+              groundColor="white"
+              className="h-34px"
               type="email"
               name="email"
               value={values.email}
@@ -78,6 +85,8 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setIsAdminSet, onClose })
           <div className="mb-7">
             <div className="mb-2">Password</div>
             <Input
+              groundColor="white"
+              className="h-34px"
               type="password"
               name="password"
               value={values.password}
@@ -88,6 +97,8 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setIsAdminSet, onClose })
           <div className="mb-9">
             <div className="mb-2">Confirmation Password</div>
             <Input
+              groundColor="white"
+              className="h-34px"
               type="password"
               name="confirmationPassword"
               value={values.confirmationPassword}
@@ -111,7 +122,7 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setIsAdminSet, onClose })
           <Button
             disabled={isSubmitting}
             type="submit"
-            className="bg-orange-300 hover:bg-orange-301 w-full"
+            className="bg-fireck-4 hover:bg-fireck-4-hover h-34px w-full"
           >
             {isSubmitting ? "Loading..." : "Let's get started"}
           </Button>

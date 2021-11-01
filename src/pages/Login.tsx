@@ -1,4 +1,4 @@
-import Input from "components/GrayInput";
+import Input from "components/Input";
 import Logo from "assets/logo.svg";
 import Button from "components/Button";
 import { useFormik } from "formik";
@@ -46,6 +46,7 @@ const Login: React.FC<LoginProps> = ({ firebase }) => {
           <div className="mb-7">
             <div className="mb-2 text-white">Email</div>
             <Input
+              className="h-34px"
               name="email"
               value={values.email}
               onChange={handleChange}
@@ -55,6 +56,7 @@ const Login: React.FC<LoginProps> = ({ firebase }) => {
           <div className="mb-9">
             <div className="mb-2 text-white">Password</div>
             <Input
+              className="h-34px"
               type="password"
               name="password"
               value={values.password}

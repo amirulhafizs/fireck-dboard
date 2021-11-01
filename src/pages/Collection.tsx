@@ -47,13 +47,18 @@ const Collection: React.FC<CollectionProps> = ({ match }) => {
           <div className="flex items-center">
             <AddRounded fontSize="inherit" className="text-lg sm:mr-3"></AddRounded>
             <span className="sm:block hidden">Add Document</span>
+            <span className="sm:hidden">Add</span>
           </div>
         </Button>
       </div>
 
       {collectionType ? (
         <div className="flex-grow h-0">
-          <Table key={collectionType.id} collectionType={collectionType}></Table>
+          <Table
+            groundColor="black"
+            key={collectionType.id}
+            collectionType={collectionType}
+          ></Table>
         </div>
       ) : null}
     </div>

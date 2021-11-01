@@ -1,7 +1,7 @@
 import firebase from "firebase";
 import store from "store";
 import { v4 } from "uuid";
-import { addDocument, deleteDocument } from "./collections";
+import { addDocument, deleteDocument, updateDocument } from "./collections";
 
 export const uploadFileToStorage = (
   file: File
@@ -111,6 +111,14 @@ export const deleteFile = (docId: string, storagePath: string) => {
     storage.ref(storagePath).delete();
 
     return deleteDocument("FilesReservedCollection", docId);
+  } catch (error) {
+    return { error };
+  }
+};
+
+export const editFile = (docId: string, updates: { [key: string]: any }) => {
+  try {
+    return updateDocument("FilesReservedCollection", docId, updates);
   } catch (error) {
     return { error };
   }

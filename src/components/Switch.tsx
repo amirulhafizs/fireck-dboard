@@ -1,3 +1,4 @@
+import { makeStyles } from "@material-ui/core/styles";
 import Switch from "@material-ui/core/Switch";
 import withStyles from "@material-ui/styles/withStyles";
 import { ChangeEvent } from "react";
@@ -5,9 +6,10 @@ import { ChangeEvent } from "react";
 export interface SwitchProps {
   value: boolean;
   onChange: (value: boolean) => void;
+  groundColor: "black" | "white";
 }
 
-const PurpleSwitch = withStyles({
+const useStyles = makeStyles({
   switchBase: {
     "&$checked": {
       color: getComputedStyle(document.documentElement).getPropertyValue("--primary-darker"),
@@ -19,17 +21,19 @@ const PurpleSwitch = withStyles({
     },
   },
   checked: {},
-  track: {
-    background: "white",
-  },
-})(Switch);
+  track: (props: any) => ({
+    background: props.groundColor === "white" ? "black" : "white",
+  }),
+});
 
-const CustomSwitch: React.FC<SwitchProps> = ({ value, onChange }) => {
+const CustomSwitch: React.FC<SwitchProps> = ({ value, onChange, groundColor }) => {
+  const classes = useStyles({ groundColor });
   return (
-    <PurpleSwitch
+    <Switch
+      classes={classes}
       checked={value}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.checked)}
-    ></PurpleSwitch>
+    ></Switch>
   );
 };
 

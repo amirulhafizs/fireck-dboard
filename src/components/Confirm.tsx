@@ -1,6 +1,7 @@
 import { confirmable, createConfirmation } from "react-confirm";
 import Button from "components/Button";
 import { useState } from "react";
+import CloseRounded from "@material-ui/icons/CloseRounded";
 
 export interface ConfirmProps {
   proceed: ((value?: string | undefined) => void) & ((value?: boolean | undefined) => void);
@@ -20,15 +21,24 @@ const Confirm: React.FC<ConfirmProps> = ({ confirmation, proceed }) => {
       style={{ zIndex: 5000 }}
     >
       <div
-        className="bg-white rounded-md p-7 m-auto max-w-md"
+        style={{ maxWidth: 348 }}
+        className="bg-white rounded-md p-7 m-auto relative w-full animate-littlemoveup"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="mb-12">{confirmation}</div>
+        <CloseRounded
+          onClick={() => {
+            proceed(false);
+            setShow(false);
+          }}
+          className="absolute right-0 top-0 cursor-pointer"
+        ></CloseRounded>
+        <div className="mb-4 text-22px font-medium">{confirmation}</div>
+        <div className="mb-12 text-sm font-medium">Action is irreversible</div>
         <div className="flex justify-between">
           <Button
             data-testid="dialog-cancel-btn"
             noMinWidth
-            className="text-white bg-blue-300 hover:bg-blue-400 mr-7 w-140px h-28px"
+            className="border border-black rounded mr-7 px-6 h-28px"
             onClick={() => {
               proceed(false);
               setShow(false);
@@ -39,13 +49,13 @@ const Confirm: React.FC<ConfirmProps> = ({ confirmation, proceed }) => {
           <Button
             data-testid="dialog-confirm-btn"
             noMinWidth
-            className="bg-fireck-4 hover:fireck-4-hover w-140px h-28px"
+            className="bg-fireck-4 hover:bg-fireck-4-hover px-6 h-28px"
             onClick={() => {
               proceed(true);
               setShow(false);
             }}
           >
-            Submit
+            Confirm
           </Button>
         </div>
       </div>
