@@ -4,12 +4,14 @@ import { FilterType } from "components/TableElements/CollectionTable";
 import { createIndex } from "components/TableElements/CreateIndex";
 import { useEffect, useRef, useState, useCallback } from "react";
 
-const useFetch = (
-  collectionId: string,
-  filters: FilterType[],
-  orderBy: { fieldId: string; direction: "asc" | "desc" } | undefined,
-  inView: boolean
-) => {
+interface UseFetchProps {
+  collectionId: string;
+  filters?: FilterType[];
+  orderBy?: { fieldId: string; direction: "asc" | "desc" };
+  inView: boolean;
+}
+
+const useFetch = ({ collectionId, filters = [], orderBy, inView }: UseFetchProps) => {
   const [docs, setDocs] = useState<Document[]>([]);
   const inViewRef = useRef(false);
   const endReached = useRef(false);

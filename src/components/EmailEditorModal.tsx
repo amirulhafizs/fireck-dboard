@@ -71,13 +71,14 @@ const EmailEditorModal: React.FC<EmailEditorModalProps> = ({ onClose, onSave, ed
           <div className="flex justify-between p-4 items-center">
             <div className="flex">
               <Input
+                groundColor="white"
                 placeholder="Type name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mr-3"
+                className="mr-3 h-28px"
               ></Input>
               <Button
-                className="bg-orange-300 hover:bg-orange-301 mr-3"
+                className="bg-fireck-4 hover:bg-fireck-4-hover mr-3 h-28px"
                 onClick={(e) => {
                   if (!name) {
                     alert("Name is empty");
@@ -90,11 +91,14 @@ const EmailEditorModal: React.FC<EmailEditorModalProps> = ({ onClose, onSave, ed
               >
                 Save
               </Button>
-              <Button onClick={onDownload} className="bg-gray-301 hover:bg-gray-302">
+              <Button onClick={onDownload} className="bg-gray-301 hover:bg-gray-302 h-28px">
                 Download
               </Button>
             </div>
-            <Button className="bg-blue-300 hover:bg-blue-400 text-white" onClick={onClose}>
+            <Button
+              className="bg-fireck-5 hover:bg-fireck-5-hover text-white h-28px"
+              onClick={onClose}
+            >
               Close
             </Button>
           </div>

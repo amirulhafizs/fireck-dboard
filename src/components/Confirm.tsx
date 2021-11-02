@@ -37,8 +37,7 @@ const Confirm: React.FC<ConfirmProps> = ({ confirmation, proceed }) => {
         <div className="flex justify-between">
           <Button
             data-testid="dialog-cancel-btn"
-            noMinWidth
-            className="border border-black rounded mr-7 px-6 h-28px"
+            className="border border-black rounded mr-7 px-6 h-28px min-w-unset"
             onClick={() => {
               proceed(false);
               setShow(false);
@@ -48,8 +47,7 @@ const Confirm: React.FC<ConfirmProps> = ({ confirmation, proceed }) => {
           </Button>
           <Button
             data-testid="dialog-confirm-btn"
-            noMinWidth
-            className="bg-fireck-4 hover:bg-fireck-4-hover px-6 h-28px"
+            className="bg-fireck-4 hover:bg-fireck-4-hover px-6 h-28px min-w-unset"
             onClick={() => {
               proceed(true);
               setShow(false);

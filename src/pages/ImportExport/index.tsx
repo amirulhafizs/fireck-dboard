@@ -1,7 +1,6 @@
 import { exportJson, importJson } from "api/importExport";
 import { useRef, useState } from "react";
 import { useNotify } from "components/NotificationsProvider";
-import { findCollectionTypes } from "api/collectionTypes";
 import store from "store";
 import Button from "components/Button";
 import Modal from "@material-ui/core/Modal";
@@ -10,6 +9,8 @@ import Checkbox from "@material-ui/core/Checkbox";
 import { getAppearance } from "api/adminUsers";
 import { setColors } from "hooks/useConfiguration";
 import PageTitle from "components/PageTitle";
+import { getCollection } from "api/collections";
+import CloseRounded from "@material-ui/icons/CloseRounded";
 
 export interface ImportExportProps {}
 
@@ -62,7 +63,10 @@ const ImportExport: React.FC<ImportExportProps> = () => {
               store.dispatch({ type: "SET_LOADING", payload: false });
               if (!res.error) {
                 notify("Database imported!", { variant: "success" });
-                const res1 = await findCollectionTypes();
+                const res1 = await getCollection({
+                  collectionId: "CollectionTypesReservedCollection",
+                  limit: 1000,
+                });
                 if (!res1.error) {
                   store.dispatch({ type: "SET_COLLECTION_TYPES", payload: res1 });
                 }
@@ -79,72 +83,80 @@ const ImportExport: React.FC<ImportExportProps> = () => {
           }
         }}
       ></input>
-      <Modal open={exportOpen} hideBackdrop>
-        <div
-          className="w-full h-full overflow-auto flex bg-black bg-opacity-40"
-          onMouseDown={() => setExportOpen(false)}
-        >
-          <div className="bg-white p-9 rounded m-auto" onMouseDown={(e) => e.stopPropagation()}>
-            <div className="flex flex-wrap max-w-422px w-full mb-9">
-              {Object.keys(exportOptions).map((k) => (
-                <div key={k} className="flex w-1/2 px-2 items-center select-none">
-                  <FormControlLabel
-                    classes={{ label: "font-poppins line-clamp-1" }}
-                    control={
-                      <Checkbox
-                        classes={{ root: "text-blue-300" }}
-                        className="mr-3"
-                        checked={exportOptions[k]}
-                        onChange={(e) => {
-                          setExportOptions((prev) => ({ ...prev, [k]: e.target.checked }));
-                          if (k === "collections" && e.target.checked) {
-                            setExportOptions((prev) => ({
-                              ...prev,
-                              collectionTypes: true,
-                            }));
-                          } else if (k === "collectionTypes" && !e.target.checked) {
-                            setExportOptions((prev) => ({
-                              ...prev,
-                              collections: false,
-                            }));
-                          }
-                        }}
-                      ></Checkbox>
-                    }
-                    label={k}
-                  ></FormControlLabel>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-end">
-              <Button
-                onClick={async () => {
-                  setIsExporting(true);
-                  await exportJson(exportOptions);
-                  setIsExporting(false);
-                  setExportOpen(false);
-                }}
-                className="bg-orange-300 hover:bg-orange-301"
-              >
-                {isExporting ? "Exporting..." : "Export"}
-              </Button>
+      {!exportOpen ? null : (
+        <Modal open={exportOpen} hideBackdrop>
+          <div
+            className="w-full h-full overflow-auto flex bg-black bg-opacity-40"
+            onMouseDown={() => setExportOpen(false)}
+          >
+            <div
+              className="bg-white p-7 rounded m-auto animate-littlemoveup relative"
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <CloseRounded
+                className="absolute top-0 right-0 cursor-pointer"
+                onClick={() => setExportOpen(false)}
+              ></CloseRounded>
+              <div className="flex flex-wrap max-w-422px w-full mb-9">
+                {Object.keys(exportOptions).map((k) => (
+                  <div key={k} className="flex w-1/2 px-2 items-center select-none">
+                    <FormControlLabel
+                      classes={{ label: "font-poppins line-clamp-1" }}
+                      control={
+                        <Checkbox
+                          classes={{ root: "text-fireck-1" }}
+                          className="mr-3"
+                          checked={exportOptions[k]}
+                          onChange={(e) => {
+                            setExportOptions((prev) => ({ ...prev, [k]: e.target.checked }));
+                            if (k === "collections" && e.target.checked) {
+                              setExportOptions((prev) => ({
+                                ...prev,
+                                collectionTypes: true,
+                              }));
+                            } else if (k === "collectionTypes" && !e.target.checked) {
+                              setExportOptions((prev) => ({
+                                ...prev,
+                                collections: false,
+                              }));
+                            }
+                          }}
+                        ></Checkbox>
+                      }
+                      label={k}
+                    ></FormControlLabel>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end">
+                <Button
+                  onClick={async () => {
+                    setIsExporting(true);
+                    await exportJson(exportOptions);
+                    setIsExporting(false);
+                    setExportOpen(false);
+                  }}
+                  className="bg-fireck-4 hover:bg-fireck-4-hover h-34px"
+                >
+                  {isExporting ? "Exporting..." : "Export"}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </Modal>
+        </Modal>
+      )}
       <div className="flex flex-wrap">
         {sections.map((s, i) => (
           <div
             key={`section-${i}`}
-            className="p-7 bg-gray-300 rounded mr-3 mb-3 max-w-sm w-full flex flex-col"
+            className="p-7 bg-fireck-3 text-white rounded mr-3 mb-3 max-w-sm w-full flex flex-col"
           >
             <div className="font-medium text-lg mb-2">{s.title}</div>
             <div className="mb-7 text-sm">{s.description}</div>
             <div className="flex justify-end flex-grow items-end">
               <Button
-                noMinWidth
                 onClick={s.onClick}
-                className="bg-orange-300 hover:bg-orange-301 w-140px"
+                className="bg-fireck-4 min-w-unset hover:bg-fireck-4-hover h-34px w-140px text-black"
               >
                 {s.btnText}
               </Button>

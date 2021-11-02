@@ -14,7 +14,9 @@ export interface LoginProps {
 
 const Login: React.FC<LoginProps> = ({ firebase }) => {
   const notify = useNotify();
-  const logo = useSelector((state: RootState) => state.appearance.logo);
+  const logo = useSelector(
+    (state: RootState) => state.appearance.items.find((x) => x.id === "logo")?.value
+  );
 
   const { values, errors, submitCount, handleSubmit, handleChange } = useFormik({
     onSubmit: async (vals) => {

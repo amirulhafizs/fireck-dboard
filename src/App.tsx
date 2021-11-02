@@ -19,11 +19,12 @@ import FirestoreSettings from "pages/Firestore";
 import useFirebase from "hooks/useFirebase";
 import Modal from "@material-ui/core/Modal";
 import ToDos from "pages/Firestore/ToDos";
-import { CollectionType, findCollectionTypes } from "api/collectionTypes";
+import { CollectionType } from "api/collectionTypes";
 import { SystemCollectionIds } from "store";
 import UpdateAppWidget from "components/UpdateAppWidget";
 import MenuIcon from "@material-ui/icons/Menu";
 import Logo from "assets/logo.svg";
+import { getCollection } from "api/collections";
 
 const PageLoader = ({ loading }: { loading: boolean | string }) => {
   return (
@@ -57,22 +58,30 @@ const App = (props: PropsFromRedux) => {
   }
 
   useEffect(() => {
+    const search = new URLSearchParams(location.search);
+    let token = search.get("user-token");
+    if (token) {
+      dispatch({ type: "SET_USER", payload: { token } });
+    }
+  }, []);
+
+  useEffect(() => {
     (async () => {
       try {
         if (props.user.token) {
-          let res = await findCollectionTypes(props.user.token);
+          dispatch({ type: "SET_LOADING", payload: true });
+          let res = await getCollection({
+            limit: 1000,
+            collectionId: "CollectionTypesReservedCollection",
+          });
 
           if (!res.error) {
             dispatch({
               type: "SET_COLLECTION_TYPES",
-              payload: res.filter((x: CollectionType) => !SystemCollectionIds.includes(x.id)),
-            });
-
-            dispatch({
-              type: "SET_SYSTEM_COLLECTION_TYPES",
-              payload: res.filter((x: CollectionType) => SystemCollectionIds.includes(x.id)),
+              payload: res,
             });
           }
+          dispatch({ type: "SET_LOADING", payload: false });
         }
       } catch (er) {}
     })();

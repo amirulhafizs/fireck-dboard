@@ -3,11 +3,11 @@ import VpnKeyRounded from "@material-ui/icons/VpnKeyRounded";
 import PanoramaRounded from "@material-ui/icons/PanoramaRounded";
 import BrushRounded from "@material-ui/icons/BrushRounded";
 import Palette from "@material-ui/icons/Palette";
-import React from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 import Drawer from "@material-ui/core/Drawer";
-import { useSelector } from "react-redux";
+import { useSelector, shallowEqual } from "react-redux";
 import { RootState } from "store";
 import ImportExportRounded from "@material-ui/icons/ImportExportRounded";
 import { ReactComponent as Webhook } from "assets/webhook.svg";
@@ -25,21 +25,27 @@ export type SectionType = {
 
 const Menu = ({ onCloseMenu = () => {} }: { onCloseMenu?: () => void }) => {
   const history = useHistory();
-  const { collections, logo } = useSelector((state: RootState) => ({
-    user: state.user,
-    collections: state.collectionTypes,
-    logo: state.newAppearance.logo,
-  }));
+  const [showSystemCollections, setShowSystemCollections] = useState(false);
+  const { collections, logo } = useSelector(
+    (state: RootState) => ({
+      user: state.user,
+      collections: state.collectionTypes,
+      logo: state.appearance.items.find((x) => x.id === "logo")?.value,
+    }),
+    shallowEqual
+  );
 
   const items: SectionType[] = [
     {
       name: "Collections",
       scroll: true,
-      subitems: collections.map((x) => ({
-        icon: (props: any) => <div {...props}>•</div>,
-        name: x.name,
-        path: (x.single ? "/documents/" : "/collections/") + x.id,
-      })),
+      subitems: collections
+        .filter((x) => showSystemCollections || !x.isSystem)
+        .map((x) => ({
+          icon: (props: any) => <div {...props}>•</div>,
+          name: x.name,
+          path: (x.single ? "/documents/" : "/collections/") + x.id,
+        })),
       searchable: true,
       onAdd: () => history.push("/collections"),
     },
@@ -52,7 +58,7 @@ const Menu = ({ onCloseMenu = () => {} }: { onCloseMenu?: () => void }) => {
         { icon: PanoramaRounded, name: "Media", path: "/media" },
         { icon: VpnKeyRounded, name: "Roles", path: "/roles" },
         { icon: Webhook, name: "Webhooks", path: "/webhooks" },
-        { icon: EmailIcon, name: "Emails", path: "/emails" },
+        // { icon: EmailIcon, name: "Emails", path: "/emails" },
         { icon: Palette, name: "Appearance", path: "/appearance" },
         { icon: ImportExportRounded, name: "Import & export", path: "/import-export" },
       ],
@@ -75,6 +81,14 @@ const Menu = ({ onCloseMenu = () => {} }: { onCloseMenu?: () => void }) => {
           {items.map((section, ind) => (
             <Section key={`section-${ind}`} section={section} onCloseMenu={onCloseMenu}></Section>
           ))}
+          {process.env.NODE_ENV === "production" ? null : (
+            <div
+              className="text-white py-1 text-xs cursor-pointer"
+              onClick={() => setShowSystemCollections((prev) => !prev)}
+            >
+              {showSystemCollections ? "Hide" : "Show"} system collections
+            </div>
+          )}
         </SimpleBar>
       </div>
     </div>

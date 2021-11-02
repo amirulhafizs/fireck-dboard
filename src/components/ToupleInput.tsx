@@ -28,7 +28,7 @@ const ToupleInput: React.FC<ToupleInputProps> = ({
             disabled ? "cursor-default" : "cursor-pointer"
           } flex items-center justify-center rounded ${
             value === opt.value
-              ? "border-4 border-orange-300"
+              ? "border-4 border-fireck-4"
               : `bg-gray-300 ${disabled ? "" : "hover:bg-gray-301"}`
           }`}
         >

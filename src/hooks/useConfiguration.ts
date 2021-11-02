@@ -7,12 +7,21 @@ import { ConnectionState } from "types";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "store";
 import { getAllIntegrations } from "api/integrations";
+import { getCollection } from "api/collections";
+import { ApperanceItem } from "pages/Appearance";
+import { COLORS_AMOUNT } from "pages/Appearance/Colors";
 
 export const setColors = (colors: string[]) => {
-  document.documentElement.style.setProperty("--secondary-lighter", colors[0]);
-  document.documentElement.style.setProperty("--secondary-normal", colors[1]);
-  document.documentElement.style.setProperty("--primary-normal", colors[2]);
-  document.documentElement.style.setProperty("--primary-darker", colors[3]);
+  if (colors.length === COLORS_AMOUNT * 2) {
+    new Array(COLORS_AMOUNT).fill(0).forEach((x, i) => {
+      let index = (i % COLORS_AMOUNT) + 1;
+      document.documentElement.style.setProperty(`--fireck-${index}`, colors[i]);
+      document.documentElement.style.setProperty(
+        `--fireck-${index}-hover`,
+        colors[COLORS_AMOUNT + i]
+      );
+    });
+  }
 };
 
 const useConfiguration = () => {
@@ -149,14 +158,23 @@ const useConfiguration = () => {
 
   React.useEffect(() => {
     (async () => {
-      if (isAdminSet) {
-        //colors are being set when super admin is being created I suppose.
-        const res = await getAppearance();
-        if (!res.error) {
-          store.dispatch({ type: "SET_APPEARANCE", payload: res });
-          store.dispatch({ type: "SET_NEW_APPEARANCE", payload: res });
-          setColors(res.colors);
+      try {
+        if (isAdminSet) {
+          //colors are being set when super admin is being created I suppose.
+          const res = await getCollection({
+            collectionId: "AppearanceReservedCollection",
+            limit: 1000,
+          });
+          if (!res.error) {
+            store.dispatch({ type: "SET_APPEARANCE", payload: res });
+            let colors = res.find((x: ApperanceItem) => x.id === "colors")?.value;
+            if (colors) {
+              setColors(colors);
+            }
+          }
         }
+      } catch (error) {
+        console.log(error);
       }
     })();
   }, [isAdminSet]);

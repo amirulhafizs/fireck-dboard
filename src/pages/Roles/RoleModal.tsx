@@ -113,7 +113,7 @@ const RoleModal: React.FC<RoleModalProps> = ({
           <div className="flex justify-between">
             <Button
               onClick={() => onClose()}
-              className="bg-blue-300 hover:bg-blue-400 text-white h-34px"
+              className="bg-fireck-5 hover:bg-fireck-5-hover text-white h-34px"
             >
               Cancel
             </Button>

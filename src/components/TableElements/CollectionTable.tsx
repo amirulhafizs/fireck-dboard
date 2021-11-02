@@ -2,7 +2,7 @@ import { Document } from "api/collections";
 import { CollectionType, FieldType } from "api/collectionTypes";
 import { deleteDocument } from "api/collections";
 import FilesCell from "./FilesCell";
-import React from "react";
+import React, { useEffect } from "react";
 import ExpandMoreRounded from "@material-ui/icons/ExpandMoreRounded";
 import { useHistory } from "react-router-dom";
 import { confirm } from "components/Confirm";
@@ -22,6 +22,9 @@ export interface TableProps {
   singleSelect?: boolean;
   valueFormatters?: { [key: string]: (val: any) => any };
   groundColor: "white" | "black";
+  filters?: FilterType[];
+  onEdit?: (doc: Document) => void;
+  hideFilters?: boolean;
 }
 
 export type FilterType = { fieldId: string; operator: string; value: string };
@@ -33,6 +36,9 @@ const Table: React.FC<TableProps> = ({
   singleSelect = false,
   valueFormatters,
   groundColor,
+  filters: _filters = [],
+  onEdit: _onEdit,
+  hideFilters = false,
 }) => {
   const history = useHistory();
 
@@ -42,11 +48,12 @@ const Table: React.FC<TableProps> = ({
   const [orderBy, setOrderBy] = React.useState<{ fieldId: string; direction: "asc" | "desc" }>();
   const [endIsInView, setEndIsInView] = React.useState(false);
 
-  const { docs, setDocs } = useFetch(collectionType.id, filters, orderBy, endIsInView);
-
-  const onEdit = (doc: Document) => {
-    history.push(`/collections/${collectionType.id}/edit/${doc.docId}`);
-  };
+  const { docs, setDocs } = useFetch({
+    collectionId: collectionType.id,
+    filters,
+    orderBy,
+    inView: endIsInView,
+  });
 
   const onDeleteSelected = async () => {
     if (await confirm({ confirmation: `Delete ${selected.length} documents?` })) {
@@ -57,6 +64,12 @@ const Table: React.FC<TableProps> = ({
       setSelected([]);
     }
   };
+
+  const onEdit =
+    _onEdit ||
+    ((doc: Document) => {
+      history.push(`/collections/${collectionType.id}/edit/${doc.docId}`);
+    });
 
   const onOrder = (field: FieldType) =>
     orderBy?.fieldId !== field.id
@@ -97,46 +110,53 @@ const Table: React.FC<TableProps> = ({
       : value.toString().substring(0, 40);
   };
 
+  useEffect(() => {
+    if (_filters.length) {
+      setFilters((prev) => [...prev, ..._filters]);
+    }
+  }, [_filters]);
+
   return (
     <div className="h-full w-full flex-col flex">
       <div className="flex justify-between mb-3">
-        <div className="flex flex-wrap">
-          <AddFilter
-            collectionType={collectionType}
-            onValue={(val: FilterType) => setFilters((prev) => [val, ...prev])}
-          ></AddFilter>
-          {filters.map((f, i) => (
-            <div
-              key={`f-${i}`}
-              className={classNames(
-                "rounded min-h-28px border leading-28px pl-3 text-sm pr-3 flex mr-3 mb-3 relative",
-                { "text-white border-white": groundColor === "black" },
-                { "text-black border-black": groundColor === "white" }
-              )}
-            >
-              {f.fieldId} {f.operator} {f.value}{" "}
-              <span
-                onClick={() =>
-                  setFilters((prev) => {
-                    let arr = [...prev];
-                    arr.splice(i, 1);
-                    return arr;
-                  })
-                }
-                className="text-xs leading-28px ml-3 cursor-pointer"
+        {hideFilters ? null : (
+          <div className="flex flex-wrap">
+            <AddFilter
+              collectionType={collectionType}
+              onValue={(val: FilterType) => setFilters((prev) => [val, ...prev])}
+            ></AddFilter>
+            {filters.map((f, i) => (
+              <div
+                key={`f-${i}`}
+                className={classNames(
+                  "rounded min-h-28px border leading-28px pl-3 text-sm pr-3 flex mr-3 mb-3 relative",
+                  { "text-white border-white": groundColor === "black" },
+                  { "text-black border-black": groundColor === "white" }
+                )}
               >
-                ✕
-              </span>
-            </div>
-          ))}
-        </div>
+                {f.fieldId} {f.operator} {f.value}{" "}
+                <span
+                  onClick={() =>
+                    setFilters((prev) => {
+                      let arr = [...prev];
+                      arr.splice(i, 1);
+                      return arr;
+                    })
+                  }
+                  className="text-xs leading-28px ml-3 cursor-pointer"
+                >
+                  ✕
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {!onPick ? (
           <Button
-            noMinWidth
             onClick={onDeleteSelected}
             disabled={selected.length === 0}
-            className={`px-7 h-28px ${
+            className={`px-7 mb-3 min-w-unset h-28px ${
               selected.length === 0
                 ? "bg-gray-E1E1E1 text-gray-6C6C6C cursor-default"
                 : "bg-red-FF0000 hover:bg-red-FF0000-hover text-white"
@@ -146,9 +166,8 @@ const Table: React.FC<TableProps> = ({
           </Button>
         ) : (
           <Button
-            noMinWidth
             onClick={() => onPick(docs.filter((x) => selected.includes(x.docId)))}
-            className={`h-28px px-7 ${
+            className={`h-28px min-w-unset mb-3 px-7 ${
               selected.length === 0
                 ? "bg-gray-300 text-gray-500 cursor-default"
                 : "bg-fireck-4 hover:bg-fireck-4-hover"

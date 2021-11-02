@@ -32,7 +32,7 @@ const Media: React.FC<MediaProps> = () => {
 
   const { collectionType } = useSelector((state: RootState) => {
     return {
-      collectionType: state.systemCollectionTypes.find((x) => x.id === "FilesReservedCollection"),
+      collectionType: state.collectionTypes.find((x) => x.id === "FilesReservedCollection"),
     };
   });
 
@@ -75,9 +75,8 @@ const Media: React.FC<MediaProps> = () => {
           }}
         />
         <Button
-          noMinWidth
           onClick={() => uploadRef.current.click()}
-          className="bg-fireck-4 hover:bg-fireck-4-hover mb-4 h-34px pr-6 pl-5"
+          className="bg-fireck-4 hover:bg-fireck-4-hover mb-4 h-34px pr-6 pl-5 min-w-unset"
         >
           <div className="flex items-center">
             <AddRounded className="mr-2 text-lg" fontSize="inherit"></AddRounded>

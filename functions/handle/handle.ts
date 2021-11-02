@@ -70,7 +70,8 @@ type FieldInputType =
   | "relation"
   | "json"
   | "collection"
-  | "document";
+  | "document"
+  | "any";
 
 const headers = {
   "Access-Control-Allow-Origin": "*",
@@ -367,6 +368,7 @@ const isValid: { [key in FieldInputType]: (a: any, type: FieldType) => boolean }
   date: (value, type) => typeof value === "string",
   enum: (value, type) => type.enumOptions.includes(value),
   map: (value, type) => typeof value === "object",
+  any: () => true,
 };
 
 const validateObj = (fields: FieldType[], obj: Object) => {
@@ -499,6 +501,14 @@ const getType = async (user: User, collectionId: string) => {
   }
 };
 
+const getUserFromToken = (token: string | undefined) => {
+  try {
+    return token ? { ...jwt.verify(token, process.env["APP_SECRET"]), token } : { role: "public" };
+  } catch (er) {
+    return { role: "public" };
+  }
+};
+
 const handler: Handler = async (event) => {
   try {
     const authHead = event.headers.authorization;
@@ -510,9 +520,7 @@ const handler: Handler = async (event) => {
     const body = ["POST", "PUT"].includes(method) ? JSON.parse(event.body) : null;
     let response;
 
-    const user = token
-      ? { ...jwt.verify(token, process.env["APP_SECRET"]), token }
-      : { role: "public" };
+    const user = getUserFromToken(token);
 
     switch (method) {
       case "GET": {

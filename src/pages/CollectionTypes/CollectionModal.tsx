@@ -2,17 +2,13 @@ import Modal from "@material-ui/core/Modal";
 import Input from "components/Input";
 import React from "react";
 import Button from "components/Button";
-import {
-  createCollectionType,
-  updateCollectionType,
-  CollectionType,
-  deleteCollectionType,
-} from "api/collectionTypes";
+import { CollectionType } from "api/collectionTypes";
 import { useNotify } from "components/NotificationsProvider";
 import { confirm } from "components/Confirm";
 import { useFormik } from "formik";
 import ToupleInput from "components/ToupleInput";
 import CloseRounded from "@material-ui/icons/CloseRounded";
+import { addDocument, deleteDocument, updateDocument } from "api/collections";
 
 export interface AddNewCollectionProps {
   open: boolean;
@@ -53,6 +49,8 @@ const createId = (string: string) => {
   return id;
 };
 
+const COLLECTION_ID = "CollectionTypesReservedCollection";
+
 const AddNewCollection: React.FC<AddNewCollectionProps> = ({
   open,
   onClose,
@@ -69,7 +67,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
     draftable: true,
     fields: [],
     size: 0,
-    lastIndex: 0,
+    isSystem: false,
     docId: "",
   } as CollectionType;
 
@@ -86,8 +84,8 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
         const id = createId(vals.name);
 
         const res = editingCollectionDocId.length
-          ? await updateCollectionType(values.docId, { ...values, id })
-          : await createCollectionType({ ...values, id });
+          ? await updateDocument(COLLECTION_ID, values.docId, { ...values, id })
+          : await addDocument(COLLECTION_ID, { ...values, id });
         const actionType = editingCollectionDocId.length ? "updated" : "created";
         if (!res.error) {
           if (editingCollectionDocId.length) {
@@ -172,7 +170,6 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
           ></ToupleInput>
           {editingCollectionDocId ? (
             <Button
-              noMinWidth
               data-testid="delete-collection-btn"
               onClick={async () => {
                 if (
@@ -181,7 +178,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
                   })
                 ) {
                   const deleteDocId = editingCollectionDocId;
-                  let res = await deleteCollectionType(deleteDocId);
+                  let res = await deleteDocument(COLLECTION_ID, deleteDocId);
                   if (!res.error) {
                     onClose();
                     onDelete(deleteDocId);
@@ -192,14 +189,17 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
                   onClose();
                 }
               }}
-              className="border-2 h-34px px-4 border-red-FF0000 text-red-FF0000 mb-10 hover:bg-red-FF0000 hover:text-white"
+              className="border-2 min-w-unset h-34px px-4 border-red-FF0000 text-red-FF0000 mb-10 hover:bg-red-FF0000 hover:text-white"
             >
               Delete collection
             </Button>
           ) : null}
 
           <div className="flex justify-between">
-            <Button onClick={() => onClose()} className="bg-blue-300 hover:bg-blue-400 text-white">
+            <Button
+              onClick={() => onClose()}
+              className="bg-fireck-5 hover:bg-fireck-5-hover text-white"
+            >
               Cancel
             </Button>
             <Button

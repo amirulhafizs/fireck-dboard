@@ -56,8 +56,7 @@ const ToDos: React.FC<ToDosProps> = ({ isAdminSet, isAppCreated, onCreateAdmin, 
 
           <Button
             onClick={x.onClick}
-            noMinWidth
-            className="bg-fireck-4 hover:bg-fireck-4-hover h-6 px-4"
+            className="bg-fireck-4 hover:bg-fireck-4-hover h-6 px-4 min-w-unset"
           >
             {loading === x.id ? <Loader size="tiny"></Loader> : x.btnTitle}
           </Button>

@@ -3,46 +3,6 @@ import admin from "firebase-admin";
 import jwt from "jsonwebtoken";
 import nodeFetch from "node-fetch";
 
-type WhereFilterOp =
-  | "<"
-  | "<="
-  | "=="
-  | "!="
-  | ">="
-  | ">"
-  | "array-contains"
-  | "in"
-  | "array-contains-any"
-  | "not-in";
-
-interface User {
-  role: string;
-  token?: string;
-}
-
-type Where = [string, WhereFilterOp, any];
-
-type OrderBy = [string, ("asc" | "desc")?];
-
-type Permission = "find" | "find one" | "create" | "update" | "delete" | "count" | "type";
-
-type CmsEvent = "find" | "find one" | "create" | "update" | "delete";
-
-type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-
-interface CollectionType {
-  id: string;
-  name: string;
-  fields: Array<FieldType>;
-  draftable: boolean;
-  single: boolean;
-  docId: string;
-  size: number;
-  lastIndex: number;
-  displayDocIdOnTable: boolean;
-  webhooks: { [key in CmsEvent]: { method: HttpMethod; url: string } };
-}
-
 type FieldType = {
   id: string;
   type: FieldInputType;
@@ -54,6 +14,7 @@ type FieldType = {
   stringLong: boolean;
   collectionFields: FieldType[];
   documentFields: FieldType[];
+  isDefault: boolean;
 };
 
 type FieldInputType =
@@ -71,6 +32,19 @@ type FieldInputType =
   | "json"
   | "collection"
   | "document";
+
+interface CollectionType {
+  id: string;
+  name: string;
+  fields: Array<Partial<FieldType>>;
+  draftable: boolean;
+  single: boolean;
+  docId: string;
+  size: number;
+  isSystem: boolean;
+  createdAt: string;
+  modifiedAt: string;
+}
 
 if (admin.apps.length === 0) {
   try {
@@ -187,86 +161,211 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
   try {
     const filesColName = "FilesReservedCollection";
     const rolesColName = "RolesReservedCollection";
+    const collectionTypesColName = "CollectionTypesReservedCollection";
+    const webhooksColName = "WebhooksReservedCollection";
+    const appearanceColName = "AppearanceReservedCollection";
 
-    const filesColType: Partial<CollectionType> = {
-      id: filesColName,
-      docId: filesColName,
-      name: filesColName,
-      fields: [
-        { id: "url", type: "string", displayOnTable: true },
-        { id: "name", type: "string", displayOnTable: true },
-        { id: "type", type: "string", displayOnTable: true },
-        { id: "size", type: "number", displayOnTable: true },
-        { id: "storagePath", type: "string", displayOnTable: false },
-        {
-          id: "docId",
-          type: "string",
-          displayOnTable: false,
-          isDefault: true,
-        },
-      ] as FieldType[],
+    const now = new Date().toJSON();
+
+    const formatCollectionType = (
+      colId: string,
+      name: string,
+      current: { fields: Partial<FieldType>[] }
+    ): CollectionType => {
+      return {
+        ...current,
+        id: colId,
+        docId: colId,
+        name,
+        single: false,
+        draftable: false,
+        size: 0,
+        isSystem: true,
+        createdAt: now,
+        modifiedAt: now,
+      };
     };
 
-    nodeFetch(apiUrl + "/private/collectionTypes", {
-      method: "POST",
-      body: JSON.stringify(filesColType),
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-      },
-    });
-
-    const rolesColType: Partial<CollectionType> = {
-      id: rolesColName,
-      docId: rolesColName,
-      name: rolesColName,
-      fields: [
-        { id: "docId", type: "string" },
-        { id: "name", type: "string" },
-        { id: "permissions", type: "map" },
-        { id: "defaultPermissions", type: "array" },
-      ] as FieldType[],
+    const createdAt: Partial<FieldType> = {
+      id: "createdAt",
+      type: "date",
+      displayOnTable: true,
+      isDefault: true,
     };
 
-    const res = await nodeFetch(apiUrl + "/private/collectionTypes", {
-      method: "POST",
-      body: JSON.stringify(rolesColType),
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-      },
-    });
+    const modifiedAt: Partial<FieldType> = {
+      id: "modifiedAt",
+      type: "date",
+      displayOnTable: true,
+      isDefault: true,
+    };
+
+    const docId: Partial<FieldType> = {
+      id: "docId",
+      type: "string",
+      displayOnTable: true,
+      isDefault: true,
+    };
 
     const db = admin.firestore();
+    const createColTypeCollection = db
+      .collection(collectionTypesColName)
+      .doc(collectionTypesColName)
+      .set(
+        formatCollectionType(collectionTypesColName, "Collection types", {
+          fields: [
+            { id: "id", type: "string", displayOnTable: true },
+            { id: "name", type: "string", displayOnTable: true },
+            { id: "fields", type: "array", displayOnTable: true },
+            { id: "draftable", type: "boolean", displayOnTable: true },
+            { id: "single", type: "boolean", displayOnTable: true },
+            { id: "size", type: "number", displayOnTable: true },
+            docId,
+            createdAt,
+            modifiedAt,
+          ],
+        })
+      );
 
-    nodeFetch(apiUrl + "/api/RolesReservedCollection", {
-      method: "POST",
-      body: JSON.stringify({
-        name: "public",
-        docId: "public",
-        permissions: {},
-        defaultPermissions: ["count", "find", "find one"],
-      }),
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-      },
-    });
+    const createFilesCollection = db
+      .collection(collectionTypesColName)
+      .doc(filesColName)
+      .set(
+        formatCollectionType(filesColName, "Files", {
+          fields: [
+            { id: "url", type: "string", displayOnTable: true },
+            { id: "name", type: "string", displayOnTable: true },
+            { id: "type", type: "string", displayOnTable: true },
+            { id: "size", type: "number", displayOnTable: true },
+            { id: "storagePath", type: "string", displayOnTable: false },
+            createdAt,
+            modifiedAt,
+            { ...docId, displayOnTable: false },
+          ] as FieldType[],
+        })
+      );
 
-    nodeFetch(apiUrl + "/api/RolesReservedCollection", {
-      method: "POST",
-      body: JSON.stringify({
-        name: "authenticated",
-        docId: "authenticated",
-        permissions: {},
-        defaultPermissions: ["count", "create", "find", "find one"],
-      }),
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-      },
-    });
+    const createWebhooksCollection = db
+      .collection(collectionTypesColName)
+      .doc(webhooksColName)
+      .set(
+        formatCollectionType(webhooksColName, "Webhooks", {
+          fields: [
+            { id: "collectionTypeDocId", type: "string", displayOnTable: false },
+            { id: "event", type: "string", displayOnTable: true },
+            { id: "method", type: "string", displayOnTable: true },
+            { id: "url", type: "string", displayOnTable: true },
+            { ...createdAt, displayOnTable: false },
+            { ...modifiedAt, displayOnTable: false },
+            { ...docId, displayOnTable: false },
+          ] as FieldType[],
+        })
+      );
 
-    db.collection("AppReservedCollection")
-      .doc("appearance")
-      .set({ logo: "", colors: ["#4C9394", "#19393B", "#23F3F3", "#1DCCCC"] })
-      .catch((error) => console.log(error));
+    const createRolesCollection = () =>
+      db
+        .collection(collectionTypesColName)
+        .doc(rolesColName)
+        .set(
+          formatCollectionType(rolesColName, "Roles", {
+            fields: [
+              { id: "docId", type: "string" },
+              { id: "name", type: "string" },
+              { id: "permissions", type: "map" },
+              { id: "defaultPermissions", type: "array" },
+              modifiedAt,
+              createdAt,
+              docId,
+            ] as FieldType[],
+          })
+        );
+
+    const createPublicRole = () =>
+      nodeFetch(apiUrl + "/api/RolesReservedCollection", {
+        method: "POST",
+        body: JSON.stringify({
+          name: "public",
+          docId: "public",
+          permissions: {},
+          defaultPermissions: ["count", "find", "find one"],
+        }),
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      });
+
+    const createAuthenitactedRole = () =>
+      nodeFetch(apiUrl + "/api/RolesReservedCollection", {
+        method: "POST",
+        body: JSON.stringify({
+          name: "authenticated",
+          docId: "authenticated",
+          permissions: {},
+          defaultPermissions: ["count", "create", "find", "find one"],
+        }),
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      });
+
+    const createAppearanceCollection = () =>
+      db
+        .collection(collectionTypesColName)
+        .doc(appearanceColName)
+        .set(
+          formatCollectionType(appearanceColName, "Appearance", {
+            fields: [
+              { id: "id", type: "string" },
+              { id: "name", type: "string" },
+              { id: "value", type: "any" },
+              modifiedAt,
+              createdAt,
+              docId,
+            ] as FieldType[],
+          })
+        );
+
+    const createLogo = () =>
+      nodeFetch(apiUrl + "/api/" + appearanceColName, {
+        method: "POST",
+        body: JSON.stringify({ id: "logo", name: "Logo", value: "" }),
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      })
+        .then((x) => x.json())
+        .then((res) => {
+          console.log("create logo res", res);
+          return null;
+        });
+
+    const createColors = () =>
+      nodeFetch(apiUrl + "/api/" + appearanceColName, {
+        method: "POST",
+        body: JSON.stringify({
+          id: "colors",
+          name: "Colors",
+          value: ["#4C9394", "#19393B", "#23F3F3", "#1DCCCC"],
+        }),
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      })
+        .then((x) => x.json())
+        .then((res) => {
+          console.log("create colors res", res);
+          return null;
+        });
+
+    const actions = [
+      createColTypeCollection,
+      createFilesCollection,
+      createWebhooksCollection,
+      createRolesCollection().then(createPublicRole).then(createAuthenitactedRole),
+      createAppearanceCollection().then(createLogo).then(createColors),
+    ];
+
+    return Promise.all(actions);
   } catch (error) {
     console.log(error);
   }
@@ -311,8 +410,8 @@ const createSuperAdmin = async (superAdmin, apiUrl: string) => {
       .then(async () => {
         return login(superAdmin.email, superAdmin.password);
       })
-      .then((res) => {
-        setInitialDatabaseMetadata(apiUrl, res.token);
+      .then(async (res) => {
+        await setInitialDatabaseMetadata(apiUrl, res.token);
         return { ...res };
       });
     return res;

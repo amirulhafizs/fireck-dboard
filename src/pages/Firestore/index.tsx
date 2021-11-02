@@ -13,7 +13,7 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setFirestoreWorks, setAut
   const projectId = useSelector((state: RootState) => state.projectId);
 
   return (
-    <div className="fixed left-0 top-0 w-full h-full flex overflow-auto p-sm-12 p-7 bg-blue-400">
+    <div className="fixed left-0 top-0 w-full h-full flex overflow-auto p-sm-12 p-7 bg-fireck-1">
       <img alt="" src={Logo} width={135} className="absolute left-8 top-8"></img>
       <div className="m-auto max-w-922px w-full md:py-10 py-16">
         <div className="w-full md:flex ">
@@ -27,7 +27,7 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setFirestoreWorks, setAut
             <div className="text-gray-600 mb-7 flex-grow text-center">
               Go to{" "}
               <a
-                className="text-blue-400 hover:underline"
+                className="text-fireck-5 hover:underline"
                 target="_blank"
                 rel="noreferrer"
                 href={`https://console.firebase.google.com/project/${projectId}/firestore`}
@@ -59,7 +59,7 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setFirestoreWorks, setAut
             <div className="m-auto">
               <div className="mb-7 flex flex-wrap">
                 {"How to enable the Firestore and Authentication".split(" ").map((x, i) => (
-                  <div className="bg-blue-300 text-white px-1 py-0.5">{x}</div>
+                  <div className="bg-fireck-5 text-white px-1 py-0.5">{x}</div>
                 ))}
               </div>
               <div className="w-full pt-60% rounded relative">

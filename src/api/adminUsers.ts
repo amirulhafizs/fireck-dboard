@@ -52,18 +52,6 @@ export const getAppearance = () => {
     .catch((error) => ({ error }));
 };
 
-export const updateAppearance = (updates: { logo?: string; colors?: string[] }) => {
-  return fetch(apiUrl + "/private/admin/updateAppearance", {
-    method: "POST",
-    headers: {
-      Authorization: getAuthHeader(),
-    },
-    body: JSON.stringify(updates),
-  })
-    .then((x) => x.json())
-    .catch((error) => ({ error }));
-};
-
 export const createApp = () => {
   return fetch(apiUrl + "/private/admin/createApp", {
     headers: {

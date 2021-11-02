@@ -3,6 +3,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import { permissions, RoleDocument, CollectionPermission } from "api/roles";
 import { CollectionType } from "api/collectionTypes";
 import SimpleBar from "simplebar-react";
+import Star from "@material-ui/icons/Star";
 
 export interface RoleEditorProps {
   roleCopy: RoleDocument | undefined;
@@ -66,7 +67,7 @@ const RoleEditor: React.FC<RoleEditorProps> = ({ roleCopy, collections, setRoleC
             <tr>
               <th className="text-center bg-gray-E1E1E1 sticky top-0 z-10"></th>
               <th className="text-center font-semibold bg-gray-E1E1E1 sticky top-0 z-10">
-                <div>All</div>
+                <div className="opacity-0">All</div>
                 <Checkbox
                   size="small"
                   classes={{ checked: "text-fireck-1", root: "p-0" }}
@@ -97,7 +98,10 @@ const RoleEditor: React.FC<RoleEditorProps> = ({ roleCopy, collections, setRoleC
             {collections.map((c, i) => (
               <tr key={c.docId} className="hover:bg-fireck-4">
                 <td>
-                  <div className="max-w-135px truncate pl-2 capitalize">{c.name}</div>
+                  <div className=" max-w-160px truncate pl-2 capitalize flex items-center">
+                    {!c.isSystem ? null : <Star fontSize="inherit" className="text-sm mr-1"></Star>}
+                    {c.name}
+                  </div>
                 </td>
                 <td className="text-center">
                   <Checkbox

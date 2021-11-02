@@ -1,5 +1,3 @@
-import ButtonBase from "@material-ui/core/ButtonBase";
-
 export type IconButtonVariant = "transparent" | "standard";
 
 export interface IconButtonProps {
@@ -14,16 +12,13 @@ const IconButton: React.FC<IconButtonProps> = ({
   ...rest
 }) => {
   return (
-    <ButtonBase
+    <div
       {...rest}
       className={
-        `outline-none h-26px w-26px rounded ${
-          variant === "standard"
-            ? "bg-orange-300 hover:bg-orange-301"
-            : "hover:bg-black hover:bg-opacity-5"
-        }  ` + className
+        `bg-fireck-4 hover:bg-fireck-4-hover h-5 w-5 rounded flex items-center justify-center transition cursor-pointer ` +
+        className
       }
-    ></ButtonBase>
+    ></div>
   );
 };
 

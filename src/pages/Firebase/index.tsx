@@ -42,7 +42,7 @@ const FirebaseSettings: React.FC<PropsFromRedux> = ({
   };
 
   return (
-    <div className="fixed left-0 top-0 w-full h-full flex overflow-auto bg-blue-400 p-12">
+    <div className="fixed left-0 top-0 w-full h-full flex overflow-auto bg-fireck-1 p-12">
       <img alt="" src={Logo} width={135} className="absolute left-8 top-8"></img>
       <div className="m-auto py-16 max-w-922px w-full">
         <div className="w-full md:flex">
@@ -82,11 +82,11 @@ const FirebaseSettings: React.FC<PropsFromRedux> = ({
               ></LinearProgress>
             </div>
           ) : null}
-          <div className="md:w-5/12 bg-orange-300 flex p-12 flex-wrap">
+          <div className="md:w-5/12 bg-fireck-4 flex p-12 flex-wrap">
             <div className="m-auto">
               <div className="mb-7 flex flex-wrap">
                 {"How to get a service account private keys file?".split(" ").map((x, i) => (
-                  <div className="bg-blue-300 text-white px-1 py-0.5" key={`text-part-${i}`}>
+                  <div className="bg-fireck-5 text-white px-1 py-0.5" key={`text-part-${i}`}>
                     {x}
                   </div>
                 ))}

@@ -31,7 +31,7 @@ const SelectFieldType: React.FC<SelectFieldTypeProps> = ({ proceed }) => {
                 key={`field-type-${i}`}
                 className={`flex md:w-1/3 sm:w-1/2 w-full select-none p-3 border-4 border-solid border-white items-center cursor-pointer rounded  ${
                   fieldType === x.type
-                    ? "border-orange-300"
+                    ? "border-fireck-4"
                     : "hover:border-gray-300 hover:bg-gray-300"
                 }`}
               >
@@ -49,7 +49,7 @@ const SelectFieldType: React.FC<SelectFieldTypeProps> = ({ proceed }) => {
             onClick={() => {
               proceed(false);
             }}
-            className="bg-blue-300 hover:bg-blue-400 text-white h-34px"
+            className="bg-fireck-5 hover:bg-fireck-5-hover text-white h-34px"
           >
             Cancel
           </Button>

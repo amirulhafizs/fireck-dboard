@@ -16,15 +16,13 @@ const CreateIndexModal: React.FC<CreateIndexModalProps> = ({ proceed, url }) => 
         <div className="mb-12">This query requires creating an index.</div>
         <div className="flex justify-between">
           <Button
-            noMinWidth
-            className="bg-blue-300 hover:bg-blue-400 text-white h-28px"
+            className="bg-fireck-5 hover:bg-fireck-5-hover min-w-unset text-white h-28px"
             onClick={() => proceed(false)}
           >
             Later
           </Button>
           <Button
-            noMinWidth
-            className="bg-fireck-4 hover:bg-fireck-4-hover h-28px"
+            className="bg-fireck-4 hover:bg-fireck-4-hover min-w-unset h-28px"
             onClick={() => {
               window.open(url, "_blank");
               proceed(false);

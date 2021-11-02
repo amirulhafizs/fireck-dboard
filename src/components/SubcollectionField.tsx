@@ -126,10 +126,9 @@ const Table: React.FC<SubcollectionFieldProps> = ({
         </div>
         <div className="flex flex-wrap">
           <Button
-            noMinWidth
             onClick={onDeleteSelected}
             disabled={selected.length === 0}
-            className={`px-7 mr-4 h-28px ${
+            className={`px-7 mr-4 min-w-unset h-28px ${
               selected.length === 0
                 ? "bg-gray-E1E1E1 text-gray-6C6C6C cursor-default"
                 : "bg-red-FF0000 hover:bg-red-FF0000-hover text-white"
@@ -138,7 +137,6 @@ const Table: React.FC<SubcollectionFieldProps> = ({
             Delete
           </Button>
           <Button
-            noMinWidth
             onClick={async () => {
               let document = await getSubcollectionDocument({
                 fields,
@@ -147,7 +145,7 @@ const Table: React.FC<SubcollectionFieldProps> = ({
               if (!document) return;
               onValue([...value, document]);
             }}
-            className={`px-7 h-28px bg-fireck-4 hover:bg-fireck-4-hover`}
+            className={`px-7 h-28px bg-fireck-4 min-w-unset hover:bg-fireck-4-hover`}
           >
             Add
           </Button>

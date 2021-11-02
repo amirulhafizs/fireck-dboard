@@ -1,4 +1,4 @@
-import store from "store";
+import { Document } from "./collections";
 
 export type FieldInputType =
   | "string"
@@ -14,7 +14,8 @@ export type FieldInputType =
   | "relation"
   | "json"
   | "collection"
-  | "document";
+  | "document"
+  | "any";
 
 export type FieldType = {
   id: string;
@@ -34,7 +35,14 @@ export type CmsEvent = "find" | "find one" | "create" | "update" | "delete";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-export type Webhooks = { [key in CmsEvent]: { method: HttpMethod; url: string } };
+export interface Webhook {
+  event: string;
+  method: string;
+  url: string;
+  collectionId: string;
+}
+
+export interface WebhookDocument extends Document, Webhook {}
 
 export interface CollectionType {
   id: string;
@@ -44,53 +52,5 @@ export interface CollectionType {
   single: boolean;
   docId: string;
   size: number;
-  lastIndex: number;
-  webhooks?: Webhooks;
+  isSystem: boolean;
 }
-
-const getAuthHeader = () => {
-  const user = store.getState().user;
-  const token = user ? user.token : null;
-  return "Bearer " + token;
-};
-
-export const createCollectionType = (collectionType: CollectionType) => {
-  return fetch(window.location.origin + "/private/collectionTypes", {
-    method: "POST",
-    body: JSON.stringify(collectionType),
-    headers: {
-      Authorization: getAuthHeader(),
-    },
-  }).then((x) => x.json());
-};
-
-export const updateCollectionType = (
-  docId: string,
-  collectionType: Partial<CollectionType>
-): Promise<any | { error: string }> => {
-  return fetch(window.location.origin + "/private/collectionTypes/" + docId, {
-    method: "PUT",
-    body: JSON.stringify(collectionType),
-    headers: {
-      Authorization: getAuthHeader(),
-    },
-  }).then((x) => x.json());
-};
-
-export const deleteCollectionType = (id: string) => {
-  return fetch(window.location.origin + "/private/collectionTypes/" + id, {
-    method: "DELETE",
-    headers: {
-      Authorization: getAuthHeader(),
-    },
-  }).then((x) => x.json());
-};
-
-export const findCollectionTypes = (token?: string) => {
-  const { user } = store.getState();
-  return fetch(window.location.origin + "/private/collectionTypes", {
-    headers: {
-      Authorization: "Bearer " + token || user.token,
-    },
-  }).then((x) => x.json());
-};

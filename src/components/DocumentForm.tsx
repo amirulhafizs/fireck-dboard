@@ -50,6 +50,7 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
     collection: () => [],
     document: (x: FieldType) =>
       x.documentFields.reduce((a, b) => ({ ...a, [b.id]: initialValues[b.type] }), {}),
+    any: () => "",
   };
 
   const dispatch = useDispatch();
@@ -274,6 +275,11 @@ const DocumentForm: React.FC<DocumentFormProps> = ({
                         onValue={(arr) => setFieldValue(x.id, arr)}
                         fields={x.collectionFields}
                       ></SubcollectionField>
+                    ) : x.type === "any" ? (
+                      <JsonEditor
+                        value={values[x.id]}
+                        onChange={(val) => setFieldValue(x.id, val)}
+                      ></JsonEditor>
                     ) : null}
                   </div>
                 ))

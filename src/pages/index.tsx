@@ -10,7 +10,7 @@ const Roles = React.lazy(() => import("pages/Roles"));
 const Appearance = React.lazy(() => import("pages/Appearance"));
 const ImportExport = React.lazy(() => import("pages/ImportExport"));
 const Emails = React.lazy(() => import("pages/Emails"));
-const Webhooks = React.lazy(() => import("pages/Webhooks"));
+const Webhooks = React.lazy(() => import("pages/Webhooks/index"));
 
 export interface PagesProps {
   className?: string;

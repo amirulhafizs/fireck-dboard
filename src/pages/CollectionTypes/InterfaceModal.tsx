@@ -49,6 +49,7 @@ const getType = (type: FieldType, ident: number, identStep: number = 3): string 
     document: (x: FieldType) => docType(x.documentFields),
     script: () => "object",
     "script-V2": () => "object",
+    any: () => "any",
   };
   return `${types[type.type](type)}`;
 };
@@ -87,12 +88,11 @@ const InterfaceModal: React.FC<InterfaceModalProps> = ({ open, collectionType, o
           </div>
           <div className="relative rounded overflow-hidden">
             {copied ? (
-              <div className="absolute z-20 text-white top-1 animate-littlemoveup right-1 cursor-pointer h-6 px-2 text-sm font-medium">
+              <div className="absolute z-20 text-white top-1 animate-littlemoveup right-1 cursor-pointer h-6 px-2 text-xs font-medium">
                 Copied!
               </div>
             ) : (
               <Button
-                noMinWidth
                 onClick={() => {
                   navigator.clipboard.writeText(interfaceString);
                   setCopied(true);
@@ -100,7 +100,7 @@ const InterfaceModal: React.FC<InterfaceModalProps> = ({ open, collectionType, o
                     setCopied(false);
                   }, 2000);
                 }}
-                className="absolute z-20 top-1 right-1 text-xs cursor-pointer h-6 px-3 bg-fireck-4 hover:bg-fireck-4-hover"
+                className="absolute min-w-unset z-20 top-1 right-1 text-xs cursor-pointer h-6 px-3 bg-fireck-4 hover:bg-fireck-4-hover"
               >
                 Copy
               </Button>

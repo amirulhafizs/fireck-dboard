@@ -3,7 +3,7 @@ import PageTitle from "components/PageTitle";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "store";
-import { createCollectionType, CollectionType } from "api/collectionTypes";
+import { CollectionType } from "api/collectionTypes";
 import EmptyScreen from "components/EmptyScreen";
 import { addDocument, updateDocument, getCollection } from "api/collections";
 import EmailEditorModal from "components/EmailEditorModal";
@@ -18,6 +18,8 @@ export interface EmailsProps {}
 
 export type Template = { name: string; html: string; template: Object; docId: string };
 
+const COLLECTION_ID = "EmailsTemplatesReservedCollection";
+
 const Emails: React.FC<EmailsProps> = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [openEditor, setOpenEditor] = useState(false);
@@ -27,7 +29,7 @@ const Emails: React.FC<EmailsProps> = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await getCollection({ collectionId: "EmailTemplatesReservedCollection" });
+        const res = await getCollection({ collectionId: COLLECTION_ID });
 
         setTemplates(res);
       } catch (error) {
@@ -37,15 +39,17 @@ const Emails: React.FC<EmailsProps> = () => {
   }, []);
 
   const emailsColType = useSelector((state: RootState) =>
-    state.systemCollectionTypes.find((x) => x.id === "EmailTemplatesReservedCollection")
+    state.collectionTypes.find((x) => x.id === COLLECTION_ID)
   );
 
   const dispatch = useDispatch();
 
   const onEnable = () => {
     const colType = {
-      id: "EmailTemplatesReservedCollection",
-      name: "EmailTemplatesReservedCollection",
+      id: COLLECTION_ID,
+      name: COLLECTION_ID,
+      docId: COLLECTION_ID,
+      isSystem: true,
       fields: [
         { type: "string", id: "name" },
         { type: "string", id: "html" },
@@ -56,7 +60,7 @@ const Emails: React.FC<EmailsProps> = () => {
       ],
     } as CollectionType;
 
-    createCollectionType(colType);
+    addDocument(COLLECTION_ID, colType);
 
     dispatch({ type: "ADD_COLLECTION_TYPE", payload: colType });
   };
@@ -69,8 +73,8 @@ const Emails: React.FC<EmailsProps> = () => {
   return !emailsColType ? (
     <div className="w-full h-full flex">
       <div className="m-auto">
-        <div className="text-center mb-4 text-28px font-medium">Emails</div>
-        <Button onClick={onEnable} className="bg-orange-300 hover:bg-orange-301">
+        <div className="text-center mb-4 text-28px font-medium text-white">Emails</div>
+        <Button onClick={onEnable} className="bg-fireck-4 hover:bg-fireck-4-hover h-34px">
           Enable
         </Button>
       </div>
@@ -81,8 +85,7 @@ const Emails: React.FC<EmailsProps> = () => {
         <PageTitle className="mb-4 mr-4">Emails</PageTitle>
         <Button
           onClick={() => setOpenEditor(true)}
-          className="bg-orange-300 hover:bg-orange-301 mb-4"
-          noMinWidth
+          className="bg-fireck-4 hover:bg-fireck-4-hover h-34px mb-4 min-w-unset"
         >
           <div className="flex items-center">
             <AddRounded className="mr-3 text-xl"></AddRounded>
@@ -132,7 +135,6 @@ const Emails: React.FC<EmailsProps> = () => {
       {!openEditor ? null : (
         <EmailEditorModal
           onSave={async (template: any) => {
-            console.log("template on save", template);
             if (template.docId) {
               updateDocument("EmailTemplatesReservedCollection", template.docId, template);
               setTemplates((prev) => {

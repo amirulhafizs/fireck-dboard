@@ -1,12 +1,6 @@
 import Button from "components/Button";
 import React, { useEffect } from "react";
-import {
-  updateCollectionType,
-  FieldInputType,
-  FieldType,
-  CollectionType,
-} from "api/collectionTypes";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { RootState } from "store";
 import EditOutlined from "@material-ui/icons/EditOutlined";
 import DeleteOutlineOutlined from "@material-ui/icons/DeleteOutlineOutlined";
@@ -23,6 +17,8 @@ import InterfaceModal from "./InterfaceModal";
 import SimpleBar from "simplebar-react";
 import AddRounded from "@material-ui/icons/AddRounded";
 import SettingsPage from "components/SettingsPage";
+import { updateDocument } from "api/collections";
+import { CollectionType, FieldInputType, FieldType } from "api/collectionTypes";
 
 export interface CollectionsBuilderProps {}
 
@@ -34,6 +30,8 @@ export const reorder = (list: any[], startIndex: number, endIndex: number) => {
   return result;
 };
 
+const COLLECTION_ID = "CollectionTypesReservedCollection";
+
 const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
   const [collectionModalOpen, setCollectionModalOpen] = React.useState(false as boolean);
   const dispatch = useDispatch();
@@ -42,11 +40,13 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
   const [selectedCollection, setSelectedCollection] = React.useState("");
   const [interfaceColType, setInterfaceColType] = React.useState<CollectionType>();
 
-  const { collections } = useSelector((state: RootState) => ({
-    collections: state.collectionTypes,
-  }));
+  const collections = useSelector(
+    (state: RootState) => state.collectionTypes.filter((x) => !x.isSystem),
+    shallowEqual
+  );
 
   useEffect(() => {
+    console.log("col updat");
     if (collections.length) {
       setSelectedCollection(collections[0].docId);
     }
@@ -69,7 +69,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
       let newFields = JSON.parse(JSON.stringify(collection.fields));
       newFields[selectedField] = { ...res };
       dispatch({ type: "UPDATE_COLLECTION_FIELDS", payload: newFields, docId: collection.docId });
-      let res1 = await updateCollectionType(collection.docId, {
+      let res1 = await updateDocument(COLLECTION_ID, collection.docId, {
         ...collection,
         fields: newFields,
       });
@@ -106,7 +106,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
       if (!(typeof res1 === "boolean")) {
         const newFields = [...collection.fields, { type: fieldType, ...res1 }];
         dispatch({ type: "UPDATE_COLLECTION_FIELDS", payload: newFields, docId: collection.docId });
-        let res2 = await updateCollectionType(collection.docId, {
+        let res2 = await updateDocument(COLLECTION_ID, collection.docId, {
           ...collection,
           fields: newFields,
         });
@@ -133,7 +133,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
     const fields = reorder(col.fields, result.source.index, result.destination.index);
 
     dispatch({ type: "UPDATE_COLLECTION_FIELDS", payload: fields, docId: col.docId });
-    updateCollectionType(col.docId, {
+    updateDocument(COLLECTION_ID, col.docId, {
       ...col,
       fields,
     });
@@ -217,7 +217,8 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                                               docId: selectedCollection,
                                             });
 
-                                            updateCollectionType(
+                                            updateDocument(
+                                              COLLECTION_ID,
                                               selectedCollection,
                                               updatedCollection
                                             );
@@ -261,18 +262,16 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
               onClick={() =>
                 setInterfaceColType(collections.find((x) => x.docId === selectedCollection))
               }
-              noMinWidth
-              className="border border-white h-28px text-white mr-3 mb-3 px-5"
+              className="border border-white h-28px text-white mr-3 mb-3 px-5 min-w-unset"
             >
               <div className="flex items-center pointer-events-none">Interface</div>
             </Button>
             <Button
-              noMinWidth
               data-testid="add-new-field-btn"
               onClick={async () => {
                 addField();
               }}
-              className="bg-fireck-4 hover:bg-fireck-4-hover mb-3 h-28px pl-3"
+              className="bg-fireck-4 hover:bg-fireck-4-hover mb-3 h-28px pl-3 min-w-unset"
             >
               <div className="flex items-center pointer-events-none">
                 <AddRounded className="mr-2 text-lg" fontSize="inherit"></AddRounded>

@@ -26,13 +26,13 @@ const SelectMedia: React.FC<SelectMediaProps> = ({ multiple = false, proceed }) 
 
   const { collectionType } = useSelector((state: RootState) => {
     return {
-      collectionType: state.systemCollectionTypes.find((x) => x.id === "FilesReservedCollection"),
+      collectionType: state.collectionTypes.find((x) => x.id === "FilesReservedCollection"),
     };
   });
 
   return (
     <div className="fixed z-30 left-0 top-0 w-full h-full flex overflow-auto bg-black bg-opacity-40">
-      <div className="m-auto p-8 rounded bg-white max-w-846px w-full max-h-552px h-full relative flex-col flex">
+      <div className="m-auto p-8 rounded bg-white max-w-846px w-full max-h-552px h-full relative flex-col flex animate-littlemoveup">
         {!isTopVisible ? (
           <ButtonBase
             className="z-30 absolute shadow-2xl outline-none right-6 bottom-3 w-34px h-34px rounded flex cursor-pointer text-black bg-orange-300 hover:bg-orange-301 items-center justify-center"
@@ -72,9 +72,8 @@ const SelectMedia: React.FC<SelectMediaProps> = ({ multiple = false, proceed }) 
             }}
           />
           <Button
-            noMinWidth
             onClick={() => uploadRef.current.click()}
-            className="bg-fireck-4 hover:bg-fireck-4-hover h-28px mb-4"
+            className="bg-fireck-4 hover:bg-fireck-4-hover h-28px mb-4 min-w-unset"
           >
             <div className="flex items-center">
               <AddRounded className="mr-2 text-lg" fontSize="inherit"></AddRounded>

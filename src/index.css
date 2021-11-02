@@ -3,10 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --secondary-lighter: #4c9394;
-  --secondary-normal: #19393b;
-  --primary-normal: #23f3f3;
-  --primary-darker: #1dcccc;
+  --fireck-1: #091717;
+  --fireck-2: #122122;
+  --fireck-3: #112929;
+  --fireck-4: #23f3f3;
+  --fireck-5: #4c9394;
+  --fireck-1-hover: #173434;
+  --fireck-2-hover: #091717;
+  --fireck-3-hover: #112929;
+  --fireck-4-hover: #1dcccc;
+  --fireck-5-hover: #3b7677;
 }
 
 body {
@@ -96,6 +102,12 @@ code {
   height: 8px !important;
 }
 
-.CodeMirror {
-  height: auto !important;
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  height: 1em;
+  width: 1em;
+  border-radius: 50em;
+  background: url(assets/close.svg) no-repeat 50% 50%;
+  background-size: contain;
+  opacity: 1;
 }

@@ -40,9 +40,8 @@ const Collection: React.FC<CollectionProps> = ({ match }) => {
           )}
         </div>
         <Button
-          noMinWidth
           onClick={() => history.push(`/collections/${id}/add`)}
-          className="bg-fireck-4 hover:bg-fireck-4-hover mb-3 h-34px"
+          className="bg-fireck-4 hover:bg-fireck-4-hover mb-3 h-34px min-w-unset"
         >
           <div className="flex items-center">
             <AddRounded fontSize="inherit" className="text-lg sm:mr-3"></AddRounded>

@@ -13,10 +13,8 @@ export interface AddDocumentProps extends RouteComponentProps<CollectionParams> 
 const AddDocument: React.FC<AddDocumentProps> = ({ match }) => {
   const collectionId = match.params.id;
   const docId = match.params.docId;
-  const collectionType = useSelector(
-    (state: RootState) =>
-      state.collectionTypes.find((x) => x.id === collectionId) ||
-      state.systemCollectionTypes.find((x) => x.id === collectionId)
+  const collectionType = useSelector((state: RootState) =>
+    state.collectionTypes.find((x) => x.id === collectionId)
   );
 
   const [doc, setDoc] = React.useState<Document | null>(null);

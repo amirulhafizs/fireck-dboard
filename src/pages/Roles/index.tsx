@@ -18,7 +18,10 @@ const Roles: React.FC<RolesProps> = () => {
   const [roles, setRoles] = React.useState<RoleDocument[]>([]);
   const [selectedRole, setSelectedRole] = React.useState("");
   const [editRole, setEditRole] = React.useState<RoleDocument>();
-  const collectionTypes = useSelector((state: RootState) => state.collectionTypes);
+  const collectionTypes = useSelector((state: RootState) => [
+    ...state.collectionTypes.filter((x) => x.isSystem),
+    ...state.collectionTypes.filter((x) => !x.isSystem),
+  ]);
   const notify = useNotify();
   const dispatch = useDispatch();
 
@@ -117,6 +120,8 @@ const Roles: React.FC<RolesProps> = () => {
     }
   };
 
+  console.log("role updated");
+
   return (
     <>
       <RoleModal
@@ -144,9 +149,8 @@ const Roles: React.FC<RolesProps> = () => {
               await onUpdate(roleCopy);
               setIsSaving(false);
             }}
-            noMinWidth
             disabled={!hasBeenChanged || isSaving}
-            className={classNames("mb-4 h-28px px-7", {
+            className={classNames("mb-4 min-w-unset h-28px px-7", {
               "bg-white cursor-default text-gray-500": !hasBeenChanged && !isSaving,
               "bg-fireck-4 hover:bg-fireck-4-hover": !(!hasBeenChanged && !isSaving),
             })}

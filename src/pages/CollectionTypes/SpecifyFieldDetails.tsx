@@ -324,7 +324,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
           <Button
             data-testid={`cancel-field-details-btn-${zLevel}`}
             onClick={() => goBack(() => proceed(false))}
-            className="bg-blue-300 hover:bg-blue-400 text-white h-34px"
+            className="bg-fireck-5 hover:bg-fireck-5-hover text-white h-34px"
           >
             {editableField ? "Cancel" : "Back"}
           </Button>
