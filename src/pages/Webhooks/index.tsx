@@ -35,7 +35,14 @@ const Webhooks: React.FC<WebhooksProps> = () => {
   useEffect(() => {
     setFilters(
       collectionTypeDocId
-        ? [{ fieldId: "collectionTypeDocId", operator: "==", value: collectionTypeDocId }]
+        ? [
+            {
+              fieldId: "collectionTypeDocId",
+              operator: "==",
+              value: collectionTypeDocId,
+              hidden: true,
+            },
+          ]
         : []
     );
   }, [colType]);

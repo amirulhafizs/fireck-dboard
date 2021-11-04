@@ -3,6 +3,8 @@ import admin from "firebase-admin";
 import jwt from "jsonwebtoken";
 import nodeFetch from "node-fetch";
 
+const COLLECTIONTYPES_ID = "CollectionTypesReservedCollection";
+
 type WhereFilterOp =
   | "<"
   | "<="
@@ -163,6 +165,14 @@ const doAllow = async (user: User, collectionName: string, permission: Permissio
   return allow;
 };
 
+const getCollectionType = (collectionId) => {
+  return db
+    .collection(COLLECTIONTYPES_ID)
+    .where("id", "==", decodeURI(collectionId))
+    .get()
+    .then((res) => (res.docs.length ? res.docs[0].data() : null)) as Promise<CollectionType>;
+};
+
 const getFirst = (collection: string, where: Where) => {
   return db
     .collection(collection)
@@ -173,11 +183,7 @@ const getFirst = (collection: string, where: Where) => {
 
 const findOne = async (user: User, collectionId: string, docId: string, populateRef: boolean) => {
   try {
-    const collectionType = (await getFirst("CollectionTypesReservedCollection", [
-      "id",
-      "==",
-      collectionId,
-    ])) as CollectionType;
+    const collectionType = await getCollectionType(collectionId);
 
     callWebhook(collectionType, user.token);
 
@@ -204,11 +210,7 @@ const findOne = async (user: User, collectionId: string, docId: string, populate
 
 const _delete = async (user: User, collectionId: string, docId: string) => {
   try {
-    const collectionType = (await getFirst("CollectionTypesReservedCollection", [
-      "id",
-      "==",
-      collectionId,
-    ])) as CollectionType;
+    const collectionType = await getCollectionType(collectionId);
 
     callWebhook(collectionType, user.token);
 
@@ -246,11 +248,7 @@ const find = async (
   populateRef: boolean
 ) => {
   try {
-    let collectionType = (await getFirst("CollectionTypesReservedCollection", [
-      "id",
-      "==",
-      collectionId,
-    ])) as CollectionType;
+    const collectionType = await getCollectionType(collectionId);
 
     callWebhook(collectionType, user.token);
 
@@ -395,11 +393,7 @@ const validateObj = (fields: FieldType[], obj: Object) => {
 
 const create = async (user: User, collectionId: string, data: Object) => {
   try {
-    const collectionType = (await getFirst("CollectionTypesReservedCollection", [
-      "id",
-      "==",
-      collectionId,
-    ])) as CollectionType;
+    const collectionType = await getCollectionType(collectionId);
 
     callWebhook(collectionType, user.token, data);
 
@@ -457,11 +451,7 @@ const create = async (user: User, collectionId: string, data: Object) => {
 
 const update = async (user: User, collectionId: string, docId: string, data: Object) => {
   try {
-    const collectionType = (await getFirst("CollectionTypesReservedCollection", [
-      "id",
-      "==",
-      collectionId,
-    ])) as CollectionType;
+    const collectionType = await getCollectionType(collectionId);
 
     callWebhook(collectionType, user.token, data);
 
@@ -486,11 +476,8 @@ const update = async (user: User, collectionId: string, docId: string, data: Obj
 
 const getType = async (user: User, collectionId: string) => {
   try {
-    const collectionType = await getFirst("CollectionTypesReservedCollection", [
-      "id",
-      "==",
-      collectionId,
-    ]);
+    const collectionType = await getCollectionType(collectionId);
+
     if (await doAllow(user, collectionType.docId, "type")) {
       return collectionType;
     } else {

@@ -46,8 +46,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
   );
 
   useEffect(() => {
-    console.log("col updat");
-    if (collections.length) {
+    if (collections.length && !selectedCollection) {
       setSelectedCollection(collections[0].docId);
     }
   }, [collections]);
@@ -68,13 +67,14 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
     if (!(typeof res === "boolean")) {
       let newFields = JSON.parse(JSON.stringify(collection.fields));
       newFields[selectedField] = { ...res };
-      dispatch({ type: "UPDATE_COLLECTION_FIELDS", payload: newFields, docId: collection.docId });
       let res1 = await updateDocument(COLLECTION_ID, collection.docId, {
         ...collection,
         fields: newFields,
       });
-      if (!res1.error) {
-        return { success: true };
+      if (res1.error) {
+        notify(res1.error, { variant: "error" });
+      } else {
+        dispatch({ type: "UPDATE_COLLECTION_FIELDS", payload: newFields, docId: collection.docId });
       }
     }
 
@@ -105,21 +105,47 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
       });
       if (!(typeof res1 === "boolean")) {
         const newFields = [...collection.fields, { type: fieldType, ...res1 }];
-        dispatch({ type: "UPDATE_COLLECTION_FIELDS", payload: newFields, docId: collection.docId });
+
         let res2 = await updateDocument(COLLECTION_ID, collection.docId, {
           ...collection,
           fields: newFields,
         });
         if (!res2.error) {
+          dispatch({
+            type: "UPDATE_COLLECTION_FIELDS",
+            payload: newFields,
+            docId: collection.docId,
+          });
           notify("Field added!", { variant: "success" });
-          return { success: true };
         } else {
-          notify("Field was not added", { variant: "error" });
+          notify(res2.error, { variant: "error" });
         }
       }
     }
 
     return { success: false };
+  };
+
+  const deleteField = async (fieldIndex: number) => {
+    let res = await confirm({
+      confirmation: "Delete field?",
+    });
+    if (res) {
+      let updatedCollection = JSON.parse(
+        JSON.stringify(collections.find((x) => x.docId === selectedCollection))
+      );
+      updatedCollection.fields.splice(fieldIndex, 1);
+      const res = await updateDocument(COLLECTION_ID, selectedCollection, updatedCollection);
+      if (res.error) {
+        notify(res.error, { variant: "error" });
+      } else {
+        dispatch({
+          type: "UPDATE_COLLECTION_FIELDS",
+          payload: updatedCollection.fields,
+          docId: selectedCollection,
+        });
+      }
+    }
   };
 
   const onDragEnd = async (result: any) => {
@@ -198,32 +224,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                                       <div
                                         className="h-5 w-5 flex items-center justify-center rounded cursor-pointer hover:bg-red-FF0000 hover:text-white"
                                         data-testid={`delete-for-field-${x.id}`}
-                                        onClick={async () => {
-                                          let res = await confirm({
-                                            confirmation: "Delete field?",
-                                          });
-                                          if (res) {
-                                            let updatedCollection = JSON.parse(
-                                              JSON.stringify(
-                                                collections.find(
-                                                  (x) => x.docId === selectedCollection
-                                                )
-                                              )
-                                            );
-                                            updatedCollection.fields.splice(i, 1);
-                                            dispatch({
-                                              type: "UPDATE_COLLECTION_FIELDS",
-                                              payload: updatedCollection.fields,
-                                              docId: selectedCollection,
-                                            });
-
-                                            updateDocument(
-                                              COLLECTION_ID,
-                                              selectedCollection,
-                                              updatedCollection
-                                            );
-                                          }
-                                        }}
+                                        onClick={() => deleteField(i)}
                                       >
                                         <DeleteOutlineOutlined
                                           classes={{ root: "pointer-events-none text-lg" }}
@@ -285,7 +286,10 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
       <CollectionModal
         editingCollectionDocId={editingCollectionDocId}
         collections={collections}
-        onCreate={(val) => dispatch({ type: "ADD_COLLECTION_TYPE", payload: val })}
+        onCreate={(val) => {
+          dispatch({ type: "ADD_COLLECTION_TYPE", payload: val });
+          setSelectedCollection(val.docId);
+        }}
         onUpdate={(val) => {
           dispatch({ type: "UPDATE_COLLECTION_TYPE", payload: val, docId: val.docId });
         }}

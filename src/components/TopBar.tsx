@@ -25,7 +25,7 @@ const TopBar = () => {
               className="text-2xl"
             ></KeyboardArrowLeftRounded>
           </ButtonBase>
-          <span className="capitalize pl-3 ">{match?.params.id}</span>
+          <span className="capitalize pl-3 ">{decodeURI(match?.params.id || "")}</span>
         </div>
         <ButtonBase
           onClick={() => window.open("https://fireck-docs.netlify.app", "_blank")}

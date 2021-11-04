@@ -49,16 +49,23 @@ const AddDocument: React.FC<AddDocumentProps> = ({ match }) => {
       onSubmit={async (vals) => {
         if (vals) {
           if (docId != null) {
-            await updateDocument(collectionType.id, docId, vals);
-            notify("Document updated!", { variant: "success" });
+            const res = await updateDocument(collectionType.id, docId, vals);
+            if (res.erorr) {
+              notify(res.error, { variant: "error" });
+            } else {
+              notify("Document updated!", { variant: "success" });
+            }
           } else {
             const res = await addDocument(collectionType.id, vals);
-            console.log("Add doc res", res);
-            if (collectionType.single) {
-              notify("Document updated!", { variant: "success" });
-              return;
+            if (res.error) {
+              notify(res.error, { variant: "error" });
+            } else {
+              if (collectionType.single) {
+                notify("Document updated!", { variant: "success" });
+              } else {
+                notify("Document added!", { variant: "success" });
+              }
             }
-            notify("Document added!", { variant: "success" });
           }
         }
 

@@ -93,6 +93,7 @@ export const updateDocument = (
   docId: string,
   doc: { [index: string]: any }
 ) => {
+  console.log("DOC upd", doc);
   try {
     return fetch(window.location.origin + `/api/${collectionType}/${docId}`, {
       method: "PUT",
@@ -100,6 +101,6 @@ export const updateDocument = (
       body: JSON.stringify(doc),
     }).then((x) => x.json());
   } catch (error) {
-    return { error };
+    return Promise.resolve({ error });
   }
 };

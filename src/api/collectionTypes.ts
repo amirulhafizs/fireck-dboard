@@ -1,4 +1,5 @@
-import { Document } from "./collections";
+import { Document, addDocument, getCollection, updateDocument } from "./collections";
+import { RoleDocument } from "./roles";
 
 export type FieldInputType =
   | "string"
@@ -54,3 +55,57 @@ export interface CollectionType {
   size: number;
   isSystem: boolean;
 }
+
+export const createCollectionType = async (type: CollectionType) => {
+  try {
+    const ROLES_ID = "RolesReservedCollection";
+    const COLLECTIONS_ID = "CollectionTypesReservedCollection";
+
+    const finalType = {
+      ...type,
+      fields: [
+        ...type.fields,
+        {
+          id: "createdAt",
+          type: "date",
+          displayOnTable: true,
+          isDefault: true,
+        },
+        {
+          id: "modifiedAt",
+          type: "date",
+          displayOnTable: true,
+          isDefault: true,
+        },
+        {
+          id: "docId",
+          type: "string",
+          displayOnTable: true,
+          isDefault: true,
+        },
+      ],
+    };
+
+    let doc = await addDocument(COLLECTIONS_ID, finalType);
+
+    if (!doc.error && doc.docId) {
+      const roles: RoleDocument[] = await getCollection({
+        collectionId: ROLES_ID,
+        limit: 1000,
+      });
+
+      roles.forEach((x) =>
+        updateDocument(ROLES_ID, x.docId, {
+          ...x,
+          permissions: { ...x.permissions, [doc.docId]: x.defaultPermissions },
+        }).then((res: any) => console.log(res))
+      );
+    }
+
+    return doc;
+  } catch (error: any) {
+    return Promise.resolve({ error: error.toString() });
+  }
+
+  return;
+};

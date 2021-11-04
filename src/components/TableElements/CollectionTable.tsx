@@ -27,7 +27,7 @@ export interface TableProps {
   hideFilters?: boolean;
 }
 
-export type FilterType = { fieldId: string; operator: string; value: string };
+export type FilterType = { fieldId: string; operator: string; value: string; hidden?: boolean };
 
 const Table: React.FC<TableProps> = ({
   collectionType,
@@ -125,30 +125,32 @@ const Table: React.FC<TableProps> = ({
               collectionType={collectionType}
               onValue={(val: FilterType) => setFilters((prev) => [val, ...prev])}
             ></AddFilter>
-            {filters.map((f, i) => (
-              <div
-                key={`f-${i}`}
-                className={classNames(
-                  "rounded min-h-28px border leading-28px pl-3 text-sm pr-3 flex mr-3 mb-3 relative",
-                  { "text-white border-white": groundColor === "black" },
-                  { "text-black border-black": groundColor === "white" }
-                )}
-              >
-                {f.fieldId} {f.operator} {f.value}{" "}
-                <span
-                  onClick={() =>
-                    setFilters((prev) => {
-                      let arr = [...prev];
-                      arr.splice(i, 1);
-                      return arr;
-                    })
-                  }
-                  className="text-xs leading-28px ml-3 cursor-pointer"
+            {filters.map((f, i) =>
+              f.hidden ? null : (
+                <div
+                  key={`f-${i}`}
+                  className={classNames(
+                    "rounded min-h-28px border leading-28px pl-3 text-sm pr-3 flex mr-3 mb-3 relative",
+                    { "text-white border-white": groundColor === "black" },
+                    { "text-black border-black": groundColor === "white" }
+                  )}
                 >
-                  ✕
-                </span>
-              </div>
-            ))}
+                  {f.fieldId} {f.operator} {f.value}{" "}
+                  <span
+                    onClick={() =>
+                      setFilters((prev) => {
+                        let arr = [...prev];
+                        arr.splice(i, 1);
+                        return arr;
+                      })
+                    }
+                    className="text-xs leading-28px ml-3 cursor-pointer"
+                  >
+                    ✕
+                  </span>
+                </div>
+              )
+            )}
           </div>
         )}
 

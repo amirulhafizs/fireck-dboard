@@ -2,7 +2,7 @@ import Modal from "@material-ui/core/Modal";
 import Input from "components/Input";
 import React from "react";
 import Button from "components/Button";
-import { CollectionType } from "api/collectionTypes";
+import { CollectionType, createCollectionType } from "api/collectionTypes";
 import { useNotify } from "components/NotificationsProvider";
 import { confirm } from "components/Confirm";
 import { useFormik } from "formik";
@@ -85,7 +85,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
 
         const res = editingCollectionDocId.length
           ? await updateDocument(COLLECTION_ID, values.docId, { ...values, id })
-          : await addDocument(COLLECTION_ID, { ...values, id });
+          : await createCollectionType({ ...values, id });
         const actionType = editingCollectionDocId.length ? "updated" : "created";
         if (!res.error) {
           if (editingCollectionDocId.length) {
@@ -97,7 +97,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
           onClose();
           notify("Collection type " + actionType + "!", { variant: "success" });
         } else {
-          notify("Collection type was not " + actionType, { variant: "error" });
+          notify(res.error, { variant: "error" });
         }
       },
       initialValues: formIntialState,
@@ -184,7 +184,7 @@ const AddNewCollection: React.FC<AddNewCollectionProps> = ({
                     onDelete(deleteDocId);
                     notify("Collection type deleted!", { variant: "success" });
                   } else {
-                    notify("Collection type was not deleted", { variant: "error" });
+                    notify(res.error, { variant: "error" });
                   }
                   onClose();
                 }
