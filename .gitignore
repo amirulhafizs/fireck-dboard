@@ -9,7 +9,7 @@
 /coverage
 
 # src
-
+src
 public
 tsconfig.json
 log.json
