@@ -4,6 +4,9 @@ import jwt from "jsonwebtoken";
 import nodeFetch from "node-fetch";
 import { validateObj } from "./validateObj";
 import { CollectionType } from "../../src/api/collectionTypes";
+import { formatBytes } from "../../src/helper";
+
+formatBytes(100);
 
 const COLLECTIONTYPES_ID = "CollectionTypesReservedCollection";
 
