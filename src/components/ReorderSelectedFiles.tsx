@@ -5,11 +5,12 @@ import DragIndicatorRounded from "@material-ui/icons/DragIndicatorRounded";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import OpenInNew from "@material-ui/icons/OpenInNew";
 import DeleteIcon from "@material-ui/icons/Delete";
+import CloseRounded from "@material-ui/icons/CloseRounded";
 
 export interface ReorderSelectedFilesProps {
   selectedFiles: string[];
   setSelectedFiles: Function;
-  onClose: Function;
+  onClose: () => void;
 }
 
 const reorder = (list: any[], startIndex: number, endIndex: number) => {
@@ -37,16 +38,20 @@ const ReorderSelectedFiles: React.FC<ReorderSelectedFilesProps> = ({
   };
   return (
     <div
-      className="fixed z-30 left-0 top-0 w-full h-full flex overflow-auto bg-black bg-opacity-40"
-      onMouseDown={() => onClose()}
+      className="fixed z-30 left-0 top-0 w-full h-full flex overflow-auto bg-black bg-opacity-40 p-7"
+      onMouseDown={onClose}
     >
       <div
         onMouseDown={(e) => e.stopPropagation()}
-        className="m-auto rounded bg-white max-w-552px w-full max-h-552px h-full relative flex-col flex"
+        className="m-auto rounded bg-white max-w-552px w-full max-h-552px relative flex-col flex"
       >
+        <CloseRounded
+          className="absolute right-0 top-0 cursor-pointer"
+          onClick={onClose}
+        ></CloseRounded>
         <div className="flex justify-between flex-wrap mb-4 px-9 pt-9 flex-shrink-0">
           <div className="font-medium text-2xl mr-4 mb-4">Reorder files</div>
-          <Button className="mb-4 bg-orange-300 hover:bg-orange-301" onClick={() => onClose()}>
+          <Button className="mb-4 bg-fireck-4 hover:bg-fireck-4-hover" onClick={onClose}>
             Finish
           </Button>
         </div>
@@ -54,7 +59,7 @@ const ReorderSelectedFiles: React.FC<ReorderSelectedFilesProps> = ({
           <Droppable droppableId="droppable">
             {(provided, snapshot) => (
               <div
-                className="flex-grow overflow-auto h-0 px-9 pb-9"
+                className="px-9 pb-9 flex-grow overflow-auto"
                 {...provided.droppableProps}
                 ref={provided.innerRef}
               >
@@ -65,25 +70,25 @@ const ReorderSelectedFiles: React.FC<ReorderSelectedFilesProps> = ({
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        className="bg-gray-300 flex items-center rounded pl-4 py-4 pr-7 mb-3 justify-between"
+                        className="bg-gray-300 flex items-center rounded p-2 mb-3 justify-between"
                       >
                         <div className="flex items-center">
                           <DragIndicatorRounded className="mr-4" />
-                          <div className="bg-blue-300 rounded">
+                          <div className="bg-fireck-5 rounded">
                             <div
-                              className="bg-center bg-contain bg-no-repeat w-24"
-                              style={{ paddingTop: "61%", backgroundImage: `url(${item})` }}
+                              className="bg-center bg-cover bg-no-repeat w-11 h-11"
+                              style={{ backgroundImage: `url(${item})` }}
                             ></div>
                           </div>
                         </div>
                         <div className="flex">
                           <ButtonBase
                             onClick={() => window.open(item, "_blank")}
-                            className="outline-none mr-2 h-26px w-26px rounded bg-orange-300 hover:bg-orange-301"
+                            className="outline-none mr-2 h-26px w-26px rounded bg-fireck-4 hover:bg-fireck-4-hover"
                           >
                             <OpenInNew fontSize="small"></OpenInNew>
                           </ButtonBase>
-                          <ButtonBase className="outline-none h-26px w-26px rounded bg-orange-300 hover:bg-orange-301">
+                          <ButtonBase className="outline-none h-26px w-26px rounded bg-fireck-4 hover:bg-fireck-4-hover">
                             <DeleteIcon
                               fontSize="small"
                               onClick={() => {

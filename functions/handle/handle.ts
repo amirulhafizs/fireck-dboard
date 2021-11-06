@@ -2,6 +2,8 @@ import { Handler } from "@netlify/functions";
 import admin from "firebase-admin";
 import jwt from "jsonwebtoken";
 import nodeFetch from "node-fetch";
+import { validateObj } from "./validateObj";
+import { CollectionType } from "../../src/api/collectionTypes";
 
 const COLLECTIONTYPES_ID = "CollectionTypesReservedCollection";
 
@@ -32,20 +34,20 @@ type CmsEvent = "find" | "find one" | "create" | "update" | "delete";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-interface CollectionType {
-  id: string;
-  name: string;
-  fields: Array<FieldType>;
-  draftable: boolean;
-  single: boolean;
-  docId: string;
-  size: number;
-  lastIndex: number;
-  displayDocIdOnTable: boolean;
-  webhooks: { [key in CmsEvent]: { method: HttpMethod; url: string } };
-}
+// interface CollectionType {
+//   id: string;
+//   name: string;
+//   fields: Array<FieldType>;
+//   draftable: boolean;
+//   single: boolean;
+//   docId: string;
+//   size: number;
+//   lastIndex: number;
+//   displayDocIdOnTable: boolean;
+//   webhooks: { [key in CmsEvent]: { method: HttpMethod; url: string } };
+// }
 
-type FieldType = {
+export type FieldType = {
   id: string;
   type: FieldInputType;
   enumOptions: string[];
@@ -58,7 +60,7 @@ type FieldType = {
   documentFields: FieldType[];
 };
 
-type FieldInputType =
+export type FieldInputType =
   | "string"
   | "number"
   | "boolean"
@@ -132,18 +134,18 @@ const populateRelationFields = async (relationFields: FieldType[], obj: Object) 
 };
 
 const callWebhook = (collectionType: CollectionType, token: string, body?: any) => {
-  if (collectionType.webhooks) {
-    const { url, method } = collectionType.webhooks["find"];
-    if (url) {
-      nodeFetch(url, {
-        method: method,
-        headers: {
-          Authorization: token ? `Bearer ${token}` : undefined,
-        },
-        body: body ? JSON.stringify(body) : undefined,
-      }).catch((error) => console.log(error));
-    }
-  }
+  // if (collectionType.webhooks) {
+  //   const { url, method } = collectionType.webhooks["find"];
+  //   if (url) {
+  //     nodeFetch(url, {
+  //       method: method,
+  //       headers: {
+  //         Authorization: token ? `Bearer ${token}` : undefined,
+  //       },
+  //       body: body ? JSON.stringify(body) : undefined,
+  //     }).catch((error) => console.log(error));
+  //   }
+  // }
 };
 
 const doAllow = async (user: User, collectionName: string, permission: Permission) => {
@@ -343,52 +345,6 @@ const find = async (
   } catch (error) {
     return { error: error.toString() };
   }
-};
-
-const isValid: { [key in FieldInputType]: (a: any, type: FieldType) => boolean } = {
-  media: (value, type) =>
-    type.mediaSingle
-      ? typeof value === "string"
-      : Array.isArray(value) && !value.find((x) => typeof x !== "string"),
-  string: (value, type) => typeof value === "string",
-  number: (value, type) => !isNaN(value),
-  document: (value, type) => typeof value === "object",
-  collection: (value, type) => Array.isArray(value),
-  boolean: (value, type) => typeof value === "boolean",
-  array: (value, type) => Array.isArray(value),
-  "rich-text": (value, type) => typeof value === "string",
-  json: (value, type) => typeof value === "object",
-  password: (value, type) => typeof value === "string",
-  relation: (value, type) =>
-    type.relationOneToOne
-      ? typeof value === "string"
-      : Array.isArray(value) && !value.find((x) => typeof x !== "string"),
-  date: (value, type) => typeof value === "string",
-  enum: (value, type) => type.enumOptions.includes(value),
-  map: (value, type) => typeof value === "object",
-  any: () => true,
-};
-
-const validateObj = (fields: FieldType[], obj: Object) => {
-  const newObj = JSON.parse(JSON.stringify(obj));
-  Object.keys(obj).forEach((key) => {
-    const field = fields.find((x) => x.id === key);
-    if (!field || !isValid[field.type](obj[key], field)) {
-      delete newObj[key];
-    } else {
-      if (field.type === "collection") {
-        const collection = [];
-        obj[key].forEach((x) => {
-          collection.push(validateObj(field.collectionFields, x));
-        });
-        newObj[key] = collection;
-      } else if (field.type === "document") {
-        newObj[key] = validateObj(field.documentFields, obj[key]);
-      }
-    }
-  });
-
-  return newObj;
 };
 
 const create = async (user: User, collectionId: string, data: Object) => {

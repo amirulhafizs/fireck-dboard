@@ -82,7 +82,7 @@ const RoleModal: React.FC<RoleModalProps> = ({
                   classes={{ label: "font-poppins line-clamp-1" }}
                   control={
                     <Checkbox
-                      classes={{ checked: "text-blue-300" }}
+                      classes={{ checked: "text-fireck-1" }}
                       className="mr-3"
                       checked={values.defaultPermissions.includes(p)}
                       onChange={(e) => {

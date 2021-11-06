@@ -1,4 +1,3 @@
-import InsertPhoto from "@material-ui/icons/InsertPhoto";
 import React from "react";
 import DeleteRounded from "@material-ui/icons/DeleteRounded";
 import ButtonBase from "@material-ui/core/ButtonBase";
@@ -43,7 +42,7 @@ const SingleMediaInput: React.FC<SingleMediaInputProps> = ({ selectedFile, setSe
         <div className="absolute top-0 right-0 flex p-3">
           <ButtonBase
             onClick={() => setSelectedFile(null)}
-            className="outline-none h-26px w-26px rounded bg-orange-300 hover:bg-orange-301"
+            className="outline-none h-26px w-26px rounded bg-fireck-4 hover:bg-fireck-4-hover"
           >
             <DeleteRounded fontSize="small"></DeleteRounded>
           </ButtonBase>

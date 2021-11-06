@@ -122,6 +122,7 @@ const handler = async (event) => {
     const authHead = event.headers.authorization;
     const token =
       authHead && authHead.startsWith("Bearer ") ? authHead.replace("Bearer ", "") : null;
+    console.log("TO", token);
 
     const path = event.path.replace("/private/import-export/", "");
     const method = event.httpMethod;

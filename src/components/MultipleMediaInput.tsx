@@ -57,14 +57,14 @@ const MediaInput: React.FC<MediaInputProps> = ({ selectedFiles, setSelectedFiles
         <div className="absolute left-0 top-0 w-full h-full">
           <div className="relative flex items-center justify-between h-full">
             <div className="absolute left-0 top-0 p-3">
-              <div className="h-26px rounded bg-orange-300 px-3 text-sm leading-26px">
+              <div className="h-26px rounded bg-fireck-4 px-3 text-sm leading-26px">
                 {activeIndex + 1}/{selectedFiles.length}
               </div>
             </div>
             <div className="absolute top-0 right-0 flex p-3">
               <ButtonBase
                 onClick={selectFiles}
-                className="outline-none h-26px w-26px mr-2 rounded bg-orange-300 hover:bg-orange-301"
+                className="outline-none h-26px w-26px mr-2 rounded bg-fireck-4 hover:bg-fireck-4-hover"
               >
                 <AddRounded fontSize="small"></AddRounded>
               </ButtonBase>
@@ -72,7 +72,7 @@ const MediaInput: React.FC<MediaInputProps> = ({ selectedFiles, setSelectedFiles
                 onClick={() => {
                   setOpenReordering(true);
                 }}
-                className="outline-none h-26px w-26px rounded bg-orange-300 hover:bg-orange-301"
+                className="outline-none h-26px w-26px rounded bg-fireck-4 hover:bg-fireck-4-hover"
               >
                 <EditRounded fontSize="small"></EditRounded>
               </ButtonBase>
@@ -88,13 +88,13 @@ const MediaInput: React.FC<MediaInputProps> = ({ selectedFiles, setSelectedFiles
               </Modal>
             </div>
             <ButtonBase
-              className="bg-orange-300 hover:bg-orange-301 p-4 outline-none"
+              className="bg-fireck-4 hover:bg-fireck-4-hover p-4 outline-none"
               onClick={() => setActiveIndex((prev) => (prev > 0 ? prev - 1 : prev))}
             >
               <ArrowBackIosRounded></ArrowBackIosRounded>
             </ButtonBase>
             <ButtonBase
-              className="bg-orange-300 hover:bg-orange-301 p-4 outline-none"
+              className="bg-fireck-4 hover:bg-fireck-4-hover p-4 outline-none"
               onClick={() =>
                 setActiveIndex((prev) => (prev < selectedFiles.length - 1 ? prev + 1 : prev))
               }
