@@ -424,6 +424,7 @@ const handler: Handler = async (event) => {
         const orderBy = (
           params.orderBy ? params.orderBy.split(";").map((x) => x.split(",")) : []
         ) as OrderBy[];
+        console.log("WHERE handle", where);
         const limit = params.limit ? parseInt(params.limit) : 100;
         const populateRef = params.populateRef === "false" ? false : true;
 
