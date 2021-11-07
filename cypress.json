@@ -1,5 +1,9 @@
 {
   "viewportHeight": 900,
   "viewportWidth": 1200,
-  "projectId": "k6x7hc"
+  "projectId": "k6x7hc",
+  "component": {
+    "testFiles": "**/*.test.{js,ts,jsx,tsx}",
+    "componentFolder": "src/pages"
+  }
 }

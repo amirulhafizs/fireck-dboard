@@ -2,49 +2,8 @@ import bcrypt from "bcryptjs";
 import admin from "firebase-admin";
 import jwt from "jsonwebtoken";
 import nodeFetch from "node-fetch";
-
-type FieldType = {
-  id: string;
-  type: FieldInputType;
-  enumOptions: string[];
-  mediaSingle: boolean;
-  relatedCollectionTypeDocId: string;
-  relationOneToOne: boolean;
-  displayOnTable: boolean;
-  stringLong: boolean;
-  collectionFields: FieldType[];
-  documentFields: FieldType[];
-  isDefault: boolean;
-};
-
-type FieldInputType =
-  | "string"
-  | "number"
-  | "boolean"
-  | "array"
-  | "map"
-  | "rich-text"
-  | "media"
-  | "date"
-  | "enum"
-  | "password"
-  | "relation"
-  | "json"
-  | "collection"
-  | "document";
-
-interface CollectionType {
-  id: string;
-  name: string;
-  fields: Array<Partial<FieldType>>;
-  draftable: boolean;
-  single: boolean;
-  docId: string;
-  size: number;
-  isSystem: boolean;
-  createdAt: string;
-  modifiedAt: string;
-}
+import { CollectionType, AnyField } from "../../src/api/collectionTypes";
+import { Handler, HandlerEvent } from "@netlify/functions";
 
 if (admin.apps.length === 0) {
   try {
@@ -170,7 +129,7 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
     const formatCollectionType = (
       colId: string,
       name: string,
-      current: { fields: Partial<FieldType>[] }
+      current: { fields: AnyField[] }
     ): CollectionType => {
       return {
         ...current,
@@ -186,23 +145,24 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
       };
     };
 
-    const createdAt: Partial<FieldType> = {
+    const createdAt: AnyField = {
       id: "createdAt",
       type: "date",
       displayOnTable: true,
       isDefault: true,
     };
 
-    const modifiedAt: Partial<FieldType> = {
+    const modifiedAt: AnyField = {
       id: "modifiedAt",
       type: "date",
       displayOnTable: true,
       isDefault: true,
     };
 
-    const docId: Partial<FieldType> = {
+    const docId: AnyField = {
       id: "docId",
       type: "string",
+      stringLong: false,
       displayOnTable: true,
       isDefault: true,
     };
@@ -214,12 +174,19 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
       .set(
         formatCollectionType(collectionTypesColName, "Collection types", {
           fields: [
-            { id: "id", type: "string", displayOnTable: true },
-            { id: "name", type: "string", displayOnTable: true },
-            { id: "fields", type: "array", displayOnTable: true },
-            { id: "draftable", type: "boolean", displayOnTable: true },
-            { id: "single", type: "boolean", displayOnTable: true },
-            { id: "size", type: "number", displayOnTable: true },
+            { id: "id", type: "string", displayOnTable: true, isDefault: false, stringLong: false },
+            {
+              id: "name",
+              type: "string",
+              displayOnTable: true,
+              isDefault: false,
+              stringLong: false,
+            },
+            { id: "fields", type: "array", displayOnTable: true, isDefault: false },
+            { id: "draftable", type: "boolean", displayOnTable: true, isDefault: false },
+            { id: "single", type: "boolean", displayOnTable: true, isDefault: false },
+            { id: "size", type: "number", displayOnTable: true, isDefault: false },
+            { id: "isSystem", type: "boolean", displayOnTable: false, isDefault: false },
             docId,
             createdAt,
             modifiedAt,
@@ -241,7 +208,7 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
             createdAt,
             modifiedAt,
             { ...docId, displayOnTable: false },
-          ] as FieldType[],
+          ] as AnyField[],
         })
       );
 
@@ -258,7 +225,7 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
             { ...createdAt, displayOnTable: false },
             { ...modifiedAt, displayOnTable: false },
             { ...docId, displayOnTable: false },
-          ] as FieldType[],
+          ] as AnyField[],
         })
       );
 
@@ -276,7 +243,7 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
               modifiedAt,
               createdAt,
               docId,
-            ] as FieldType[],
+            ] as AnyField[],
           })
         );
 
@@ -321,7 +288,7 @@ const setInitialDatabaseMetadata = async (apiUrl: string, jwtToken: string) => {
               modifiedAt,
               createdAt,
               docId,
-            ] as FieldType[],
+            ] as AnyField[],
           })
         );
 
@@ -510,7 +477,7 @@ const setDeployment = async () => {
     .set({ date: new Date().toJSON() });
 };
 
-const handler = async (event) => {
+const handler: Handler = async (event) => {
   const host = event.headers.host;
   const protocol = host.startsWith("localhost") ? "http" : "https";
   const apiUrl = `${protocol}://${host}`;

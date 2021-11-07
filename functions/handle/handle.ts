@@ -1,14 +1,13 @@
 import { Handler } from "@netlify/functions";
 import admin from "firebase-admin";
 import jwt from "jsonwebtoken";
-import nodeFetch from "node-fetch";
 import { validateObj } from "./validateObj";
-import { CollectionType } from "../../src/api/collectionTypes";
-import { formatBytes } from "../../src/helper";
-
-formatBytes(100);
+import { CollectionType, RelationField } from "../../src/api/collectionTypes";
+import nodeFetch from "node-fetch";
 
 const COLLECTIONTYPES_ID = "CollectionTypesReservedCollection";
+
+let API_URL = "";
 
 type WhereFilterOp =
   | "<"
@@ -27,58 +26,9 @@ interface User {
   token?: string;
 }
 
-type Where = [string, WhereFilterOp, any];
-
 type OrderBy = [string, ("asc" | "desc")?];
 
 type Permission = "find" | "find one" | "create" | "update" | "delete" | "count" | "type";
-
-type CmsEvent = "find" | "find one" | "create" | "update" | "delete";
-
-type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-
-// interface CollectionType {
-//   id: string;
-//   name: string;
-//   fields: Array<FieldType>;
-//   draftable: boolean;
-//   single: boolean;
-//   docId: string;
-//   size: number;
-//   lastIndex: number;
-//   displayDocIdOnTable: boolean;
-//   webhooks: { [key in CmsEvent]: { method: HttpMethod; url: string } };
-// }
-
-export type FieldType = {
-  id: string;
-  type: FieldInputType;
-  enumOptions: string[];
-  mediaSingle: boolean;
-  relatedCollectionTypeDocId: string;
-  relationOneToOne: boolean;
-  displayOnTable: boolean;
-  stringLong: boolean;
-  collectionFields: FieldType[];
-  documentFields: FieldType[];
-};
-
-export type FieldInputType =
-  | "string"
-  | "number"
-  | "boolean"
-  | "array"
-  | "map"
-  | "rich-text"
-  | "media"
-  | "date"
-  | "enum"
-  | "password"
-  | "relation"
-  | "json"
-  | "collection"
-  | "document"
-  | "any";
 
 const headers = {
   "Access-Control-Allow-Origin": "*",
@@ -100,7 +50,7 @@ if (admin.apps.length === 0) {
 
 const db = admin.firestore();
 
-const populateRelationFields = async (relationFields: FieldType[], obj: Object) => {
+const populateRelationFields = async (relationFields: RelationField[], obj: Object) => {
   const promises = [];
   relationFields.forEach((relField) => {
     if (relField.relationOneToOne) {
@@ -136,19 +86,19 @@ const populateRelationFields = async (relationFields: FieldType[], obj: Object) 
   return obj;
 };
 
-const callWebhook = (collectionType: CollectionType, token: string, body?: any) => {
-  // if (collectionType.webhooks) {
-  //   const { url, method } = collectionType.webhooks["find"];
-  //   if (url) {
-  //     nodeFetch(url, {
-  //       method: method,
-  //       headers: {
-  //         Authorization: token ? `Bearer ${token}` : undefined,
-  //       },
-  //       body: body ? JSON.stringify(body) : undefined,
-  //     }).catch((error) => console.log(error));
-  //   }
-  // }
+const callWebhooks = (event: string, collectionTypeDocId: string, token: string, body?: any) => {
+  nodeFetch(API_URL + "/private/webhooks", {
+    method: "POST",
+    headers: {
+      Authorization: token ? `Bearer ${token}` : undefined,
+    },
+    body: JSON.stringify({
+      secret: process.env["APP_SECRET"],
+      body: body ? body : undefined,
+      collectionTypeDocId,
+      event,
+    }),
+  }).catch((error) => console.log(error));
 };
 
 const doAllow = async (user: User, collectionName: string, permission: Permission) => {
@@ -178,26 +128,18 @@ const getCollectionType = (collectionId) => {
     .then((res) => (res.docs.length ? res.docs[0].data() : null)) as Promise<CollectionType>;
 };
 
-const getFirst = (collection: string, where: Where) => {
-  return db
-    .collection(collection)
-    .where(...where)
-    .get()
-    .then((res) => (res.docs.length ? res.docs[0].data() : null));
-};
-
 const findOne = async (user: User, collectionId: string, docId: string, populateRef: boolean) => {
   try {
     const collectionType = await getCollectionType(collectionId);
 
-    callWebhook(collectionType, user.token);
+    callWebhooks("find one", collectionType.docId, user.token);
 
     if (await doAllow(user, collectionType.docId, "find one")) {
       let snapshot = await db.collection(collectionType.docId).doc(docId).get();
 
-      const relationFields = populateRef
-        ? collectionType.fields.filter((x) => x.type === "relation")
-        : [];
+      const relationFields = (
+        populateRef ? collectionType.fields.filter((x) => x.type === "relation") : []
+      ) as RelationField[];
 
       return !snapshot.exists
         ? null
@@ -217,7 +159,7 @@ const _delete = async (user: User, collectionId: string, docId: string) => {
   try {
     const collectionType = await getCollectionType(collectionId);
 
-    callWebhook(collectionType, user.token);
+    callWebhooks("delete", collectionType.docId, user.token);
 
     if (await doAllow(user, collectionType.docId, "delete")) {
       const promises = [];
@@ -255,11 +197,13 @@ const find = async (
   try {
     const collectionType = await getCollectionType(collectionId);
 
-    callWebhook(collectionType, user.token);
+    callWebhooks("find", collectionType.docId, user.token);
 
     if (await doAllow(user, collectionType.docId, "find")) {
       if (collectionType.single) {
-        let relationFields = collectionType.fields.filter((x) => x.type === "relation");
+        let relationFields = collectionType.fields.filter(
+          (x) => x.type === "relation"
+        ) as RelationField[];
 
         const data = (
           await db.collection("DocumentsReservedCollection").doc(collectionType.docId).get()
@@ -329,7 +273,9 @@ const find = async (
         return [];
       }
 
-      let relationFields = collectionType.fields.filter((x) => x.type === "relation");
+      let relationFields = collectionType.fields.filter(
+        (x) => x.type === "relation"
+      ) as RelationField[];
 
       if (relationFields.length && populateRef) {
         const results = [];
@@ -354,7 +300,7 @@ const create = async (user: User, collectionId: string, data: Object) => {
   try {
     const collectionType = await getCollectionType(collectionId);
 
-    callWebhook(collectionType, user.token, data);
+    callWebhooks("create", collectionType.docId, user.token, data);
 
     if (await doAllow(user, collectionType.docId, "create")) {
       const nowDate = new Date().toJSON();
@@ -412,7 +358,7 @@ const update = async (user: User, collectionId: string, docId: string, data: Obj
   try {
     const collectionType = await getCollectionType(collectionId);
 
-    callWebhook(collectionType, user.token, data);
+    callWebhooks("update", collectionType.docId, user.token, data);
 
     if (await doAllow(user, collectionType.docId, "update")) {
       if (collectionType.single) {
@@ -457,6 +403,9 @@ const getUserFromToken = (token: string | undefined) => {
 
 const handler: Handler = async (event) => {
   try {
+    const host = event.headers.host;
+    const protocol = host.startsWith("localhost") ? "http" : "https";
+    API_URL = `${protocol}://${host}`;
     const authHead = event.headers.authorization;
     const token =
       authHead && authHead.startsWith("Bearer ") ? authHead.replace("Bearer ", "") : null;

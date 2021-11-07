@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --fireck-1: #091717;
+  --fireck-2: #122122;
+  --fireck-3: #112929;
+  --fireck-4: #23f3f3;
+  --fireck-5: #4c9394;
+  --fireck-1-hover: #173434;
+  --fireck-2-hover: #091717;
+  --fireck-3-hover: #112929;
+  --fireck-4-hover: #1dcccc;
+  --fireck-5-hover: #3b7677;
+}
+
+body {
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.loader {
+  position: relative;
+  margin: 0 auto;
+}
+
+.loader::before {
+  content: "";
+  display: block;
+  padding-top: 100%;
+}
+
+.loader-circular {
+  animation: rotate 2s linear infinite;
+  height: 100%;
+  transform-origin: center center;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+.loader-path {
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  animation: dash 1.5s ease-in-out infinite;
+  stroke: #23f3f3;
+  stroke-width: 4px;
+  stroke-linecap: round;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -124px;
+  }
+}
+
+.scrollbar-light .simplebar-scrollbar.simplebar-visible:before {
+  opacity: 0.2 !important;
+}
+
+.scrollbar-dark .simplebar-scrollbar.simplebar-visible:before {
+  opacity: 0.08 !important;
+  background: white;
+}
+
+.scrollbar-thin .simplebar-track.simplebar-vertical {
+  width: 8px !important;
+}
+
+.scrollbar-thin .simplebar-track.simplebar-horizontal {
+  height: 8px !important;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  height: 1em;
+  width: 1em;
+  border-radius: 50em;
+  background: url(assets/close.svg) no-repeat 50% 50%;
+  background-size: contain;
+  opacity: 1;
+}
