@@ -129,6 +129,12 @@ const AddFilterModal: React.FC<AddFilterModalProps> = ({
                     Value
                   </Label>
                   <Input
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSubmit();
+                      }
+                    }}
                     groundColor="white"
                     placeholder={
                       ["in", "not in", "array-contains-any"].includes(values.operator)

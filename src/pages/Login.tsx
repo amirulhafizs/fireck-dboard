@@ -37,7 +37,7 @@ const Login: React.FC<LoginProps> = () => {
   });
   return (
     <div className="fixed left-0 top-0 w-full h-full flex overflow-auto p-sm-12 p-7 bg-fireck-1">
-      <img alt="" src={logo || Logo} className="absolute left-6 top-6"></img>
+      <img alt="" src={logo || Logo} className="absolute left-7 top-5"></img>
       <div style={{ maxWidth: 380 }} className="m-auto w-full md:py-10 py-16">
         <form onSubmit={handleSubmit} className="border-2 border-white rounded-lg p-9 text-sm">
           <div className="text-center mb-7">

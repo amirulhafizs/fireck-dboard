@@ -8,6 +8,7 @@ import { useHistory } from "react-router-dom";
 import Button from "components/Button";
 import WebhookModal from "./WebhookModal";
 import { addDocument, updateDocument } from "api/collections";
+import { useNotify } from "components/NotificationsProvider";
 
 export interface WebhooksProps {}
 
@@ -24,6 +25,7 @@ const Webhooks: React.FC<WebhooksProps> = () => {
 
   const [collectionTypeDocId, setCollectionTypeDocId] = useState("");
   const colType = collectionTypes.find((x) => x.docId === collectionTypeDocId);
+  const notify = useNotify();
 
   useEffect(() => {
     if (collectionTypes.length) {
@@ -60,12 +62,17 @@ const Webhooks: React.FC<WebhooksProps> = () => {
           initialValue={editWebhook}
           onClose={closeModal}
           onValue={async (val) => {
+            let res;
             if (val.docId) {
-              await updateDocument(COLLECTION_ID, val.docId, val);
+              res = await updateDocument(COLLECTION_ID, val.docId, val);
             } else {
-              await addDocument(COLLECTION_ID, val);
+              res = await addDocument(COLLECTION_ID, val);
             }
-            setTableRefreshCounter((prev) => prev + 1);
+            if (res.error) {
+              notify(res.error, { variant: "error" });
+            } else {
+              setTableRefreshCounter((prev) => prev + 1);
+            }
           }}
         ></WebhookModal>
       )}
@@ -96,6 +103,7 @@ const Webhooks: React.FC<WebhooksProps> = () => {
         entityButtons={
           <div className="flex">
             <Button
+              type="button"
               onClick={() => setModalOpen(true)}
               className="bg-fireck-4 hover:bg-fireck-4-hover h-28px px-6 min-w-unset"
             >

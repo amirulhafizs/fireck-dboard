@@ -43,7 +43,7 @@ const FirebaseSettings: React.FC<PropsFromRedux> = ({
 
   return (
     <div className="fixed left-0 top-0 w-full h-full flex overflow-auto bg-fireck-1 p-12">
-      <img alt="" src={Logo} width={135} className="absolute left-8 top-8"></img>
+      <img alt="" src={Logo} className="absolute left-7 top-5"></img>
       <div className="m-auto py-16 max-w-922px w-full">
         <div className="w-full md:flex">
           {adminSdkState === "not connected" ? (

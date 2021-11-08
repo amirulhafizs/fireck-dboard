@@ -1,5 +1,5 @@
 import React from "react";
-import DeleteRounded from "@material-ui/icons/DeleteRounded";
+import DeleteRounded from "@material-ui/icons/DeleteOutlineOutlined";
 import ButtonBase from "@material-ui/core/ButtonBase";
 import { callComponent } from "api/callComponent";
 import SelectMedia, { SelectMediaProps } from "pages/Media/SelectMedia";

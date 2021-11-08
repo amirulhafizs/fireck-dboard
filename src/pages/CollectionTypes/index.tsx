@@ -19,6 +19,7 @@ import AddRounded from "@material-ui/icons/AddRounded";
 import SettingsPage from "components/SettingsPage";
 import { updateDocument } from "api/collections";
 import { CollectionType, FieldInputType, AnyField } from "api/collectionTypes";
+import { getCollectionField } from "./GetCollectionField";
 
 export interface CollectionsBuilderProps {}
 
@@ -51,22 +52,22 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
     }
   }, [collections]);
 
-  const editField = async (fieldType: FieldInputType, selectedField: number) => {
+  const editField = async (selectedField: number) => {
     const collection = collections.find((x) => x.docId === selectedCollection);
     if (!collection) return;
-    let res = await callComponent<SpecifyFieldDetailsProps, AnyField | boolean>({
-      Component: SpecifyFieldDetails,
-      props: {
-        fieldType,
-        editableField: collection.fields[selectedField],
-        zLevel: 0,
-        goBack: (closer) => closer(),
-      },
+    let editableField = collection.fields[selectedField];
+
+    const field = await getCollectionField({
+      editableField,
+      zLevel: 0,
+      existingFieldNames: collection.fields
+        .filter((x) => x.id !== editableField.id)
+        .map((x) => x.id),
     });
 
-    if (!(typeof res === "boolean")) {
+    if (field) {
       let newFields = JSON.parse(JSON.stringify(collection.fields));
-      newFields[selectedField] = { ...res };
+      newFields[selectedField] = field;
       let res1 = await updateDocument(COLLECTION_ID, collection.docId, {
         ...collection,
         fields: newFields,
@@ -84,43 +85,27 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
   const addField = async () => {
     const collection = collections.find((x) => x.docId === selectedCollection);
     if (!collection) return;
-    let res = await callComponent<SelectFieldTypeProps, FieldInputType | boolean>({
-      Component: SelectFieldType,
-      props: {},
+    const field = await getCollectionField({
+      zLevel: 0,
+      existingFieldNames: collection.fields.map((x) => x.id),
     });
+    if (field) {
+      const newFields = [...collection.fields, field];
 
-    if (!(typeof res === "boolean")) {
-      const fieldType = res;
-      let res1 = await callComponent<SpecifyFieldDetailsProps, Omit<AnyField, "type"> | boolean>({
-        Component: SpecifyFieldDetails,
-        props: {
-          fieldType,
-          existingFieldNames: collection.fields.map((x) => x.id),
-          zLevel: 0,
-          goBack: (closer) => {
-            closer();
-            addField();
-          },
-        },
+      let res2 = await updateDocument(COLLECTION_ID, collection.docId, {
+        ...collection,
+        fields: newFields,
       });
-      if (!(typeof res1 === "boolean")) {
-        const newFields = [...collection.fields, { type: fieldType, ...res1 }];
 
-        let res2 = await updateDocument(COLLECTION_ID, collection.docId, {
-          ...collection,
-          fields: newFields,
+      if (!res2.error) {
+        dispatch({
+          type: "UPDATE_COLLECTION_FIELDS",
+          payload: newFields,
+          docId: collection.docId,
         });
-
-        if (!res2.error) {
-          dispatch({
-            type: "UPDATE_COLLECTION_FIELDS",
-            payload: newFields,
-            docId: collection.docId,
-          });
-          notify("Field added!", { variant: "success" });
-        } else {
-          notify(res2.error, { variant: "error" });
-        }
+        notify("Field added!", { variant: "success" });
+      } else {
+        notify(res2.error, { variant: "error" });
       }
     }
 
@@ -214,7 +199,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                                         data-testid={`edit-for-field-${x.id}`}
                                         className="h-5 w-5 flex items-center justify-center rounded cursor-pointer hover:bg-white"
                                         onClick={() => {
-                                          editField(x.type, i);
+                                          editField(i);
                                         }}
                                       >
                                         <EditOutlined

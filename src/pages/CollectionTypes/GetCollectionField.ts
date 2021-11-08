@@ -6,36 +6,44 @@ import SpecifyFieldDetails, { SpecifyFieldDetailsProps } from "./SpecifyFieldDet
 export const getCollectionField = async ({
   editableField,
   existingFieldNames,
+  initialFieldInputType,
   zLevel,
 }: {
   editableField?: AnyField;
   existingFieldNames?: string[];
+  initialFieldInputType?: FieldInputType;
   zLevel: number;
-}) => {
+}): Promise<AnyField | null> => {
   let res = editableField
     ? editableField.type
-    : await callComponent<SelectFieldTypeProps, FieldInputType | boolean>({
+    : await callComponent<SelectFieldTypeProps, FieldInputType | null>({
         Component: SelectFieldType,
-        props: {},
+        props: initialFieldInputType ? { initialFieldInputType } : {},
       });
 
-  if (typeof res === "boolean") return null;
+  if (res == null) return res;
 
   const fieldType = res;
-  let res1 = await callComponent<SpecifyFieldDetailsProps, AnyField | boolean>({
+  let res1: AnyField | null | "back" = await callComponent<
+    SpecifyFieldDetailsProps,
+    AnyField | null | "back"
+  >({
     Component: SpecifyFieldDetails,
     props: {
       fieldType,
       editableField,
       existingFieldNames,
       zLevel,
-      goBack: (closer) => {
-        closer();
-        getCollectionField({ editableField, existingFieldNames, zLevel });
-      },
     },
   });
-  if (typeof res1 === "boolean") return null;
-
-  return res1;
+  if (res1 === "back") {
+    return getCollectionField({
+      editableField,
+      existingFieldNames,
+      zLevel,
+      initialFieldInputType: fieldType,
+    });
+  } else {
+    return res1;
+  }
 };

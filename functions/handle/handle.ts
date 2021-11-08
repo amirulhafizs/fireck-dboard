@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { validateObj } from "./validateObj";
 import { CollectionType, RelationField } from "../../src/api/collectionTypes";
 import nodeFetch from "node-fetch";
+import queryString from "query-string";
 
 const COLLECTIONTYPES_ID = "CollectionTypesReservedCollection";
 
@@ -401,7 +402,7 @@ const getUserFromToken = (token: string | undefined) => {
   }
 };
 
-const handler: Handler = async (event) => {
+const handler: Handler = async (event, ctx) => {
   try {
     const host = event.headers.host;
     const protocol = host.startsWith("localhost") ? "http" : "https";
@@ -419,12 +420,11 @@ const handler: Handler = async (event) => {
 
     switch (method) {
       case "GET": {
-        const params = event.queryStringParameters;
+        const params = queryString.parse(event.rawQuery) as { [key: string]: string };
         const where = params.where ? params.where.split(";").map((x) => x.split(",")) : [];
         const orderBy = (
           params.orderBy ? params.orderBy.split(";").map((x) => x.split(",")) : []
         ) as OrderBy[];
-        console.log("WHERE handle", where);
         const limit = params.limit ? parseInt(params.limit) : 100;
         const populateRef = params.populateRef === "false" ? false : true;
 

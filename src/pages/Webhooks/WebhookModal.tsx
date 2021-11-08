@@ -112,6 +112,12 @@ const WebhookModal: React.FC<WebhookModalProps> = ({
                 Url
               </Label>
               <Input
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSubmit();
+                  }
+                }}
                 groundColor="white"
                 placeholder={"url"}
                 className="placeholder-black h-34px"

@@ -1,15 +1,22 @@
 import FieldTypes from "components/FieldTypes";
-import React from "react";
+import React, { useEffect } from "react";
 import { FieldInputType } from "api/collectionTypes";
 import Button from "components/Button";
 import CloseRounded from "@material-ui/icons/CloseRounded";
 
 export interface SelectFieldTypeProps {
   proceed: Function;
+  initialFieldInputType?: FieldInputType;
 }
 
-const SelectFieldType: React.FC<SelectFieldTypeProps> = ({ proceed }) => {
+const SelectFieldType: React.FC<SelectFieldTypeProps> = ({ proceed, initialFieldInputType }) => {
   const [fieldType, setFieldType] = React.useState("string" as FieldInputType);
+
+  useEffect(() => {
+    if (initialFieldInputType) {
+      setFieldType(initialFieldInputType);
+    }
+  }, [initialFieldInputType]);
 
   return (
     <div className="fixed left-0 top-0 w-full h-full flex overflow-auto bg-black bg-opacity-40 p-7">
@@ -19,7 +26,7 @@ const SelectFieldType: React.FC<SelectFieldTypeProps> = ({ proceed }) => {
       >
         <CloseRounded
           className="cursor-pointer absolute top-0 right-0"
-          onClick={() => proceed(false)}
+          onClick={() => proceed(null)}
         ></CloseRounded>
         <div className="text-22px font-medium mb-7">Select field type</div>
         <div className="mb-6">
@@ -47,7 +54,7 @@ const SelectFieldType: React.FC<SelectFieldTypeProps> = ({ proceed }) => {
           <Button
             data-testid="cancel-field-type-btn"
             onClick={() => {
-              proceed(false);
+              proceed(null);
             }}
             className="bg-fireck-5 hover:bg-fireck-5-hover text-white h-34px"
           >

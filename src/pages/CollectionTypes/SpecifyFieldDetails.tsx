@@ -17,9 +17,9 @@ import EditOutlined from "@material-ui/icons/EditOutlined";
 import { confirm } from "components/Confirm";
 import Delete from "@material-ui/icons/DeleteOutlineOutlined";
 import { getCollectionField } from "./GetCollectionField";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { reorder } from ".";
 import CloseRounded from "@material-ui/icons/CloseRounded";
+import DraggableList from "components/DraggableList";
 
 export interface SpecifyFieldDetailsProps {
   editableField?: AnyField;
@@ -27,7 +27,6 @@ export interface SpecifyFieldDetailsProps {
   fieldType: FieldInputType;
   proceed: Function;
   zLevel: number;
-  goBack: (closer: () => void) => void;
 }
 
 type CustomErrors = { id?: string; enumOptions?: string; relatedCollectionTypeDocId?: string };
@@ -38,7 +37,6 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
   proceed,
   fieldType,
   zLevel,
-  goBack,
 }) => {
   const baseIntialValues: BaseField = {
     id: "",
@@ -125,7 +123,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
       >
         <CloseRounded
           className="absolute top-0 right-0 cursor-pointer"
-          onClick={() => proceed(false)}
+          onClick={() => proceed(null)}
         ></CloseRounded>
         <div className="text-22px font-medium mb-9 flex items-center">
           {SelectedFieldType ? <SelectedFieldType.Badge></SelectedFieldType.Badge> : null}
@@ -264,90 +262,88 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
                     existingFieldNames: values.collectionFields.map((x) => x.id),
                     zLevel: zLevel + 1,
                   });
+                  console.log("FINAL FIELD", field);
                   if (!field) return;
                   const fields = [...values.collectionFields, field];
                   setFieldValue("collectionFields", fields);
                 }}
               ></AddCircleOutlineRounded>
             </div>
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="droppable-sub">
-                {(provided, snapshot) => (
-                  <div
-                    className=" max-h-247px overflow-auto"
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                  >
-                    {values.collectionFields.map((x, i) => {
-                      const Badge = FieldTypes.find((t) => t.type === x.type)?.Badge;
-                      return (
-                        <Draggable key={x.id} draggableId={x.id + 1} index={i}>
-                          {(provided, snapshot) => (
-                            <div
-                              key={`field-${i}`}
-                              className="rounded bg-gray-300 px-3 py-2 flex mb-2 items-center"
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <div className="line-clamp-1 w-5/12 px-3">{x.id}</div>
-                              <div className="flex w-4/12 flex-shrink-0">
-                                {Badge ? <Badge></Badge> : null}
-                                <span className="ml-3 hidden sm:block line-clamp-1">{x.type}</span>
-                              </div>
-                              <div className="flex items-center flex-grow justify-end">
-                                <IconButton
-                                  variant="transparent"
-                                  onClick={async () => {
-                                    const field = await getCollectionField({
-                                      zLevel: zLevel + 1,
-                                      editableField: x,
-                                      existingFieldNames: values.collectionFields
-                                        .map((f) => f.id)
-                                        .filter((f) => f !== x.id),
-                                    });
+            <DraggableList
+              items={values.collectionFields.map((x) => ({
+                field: x,
+                Badge: FieldTypes.find((t) => t.type === x.type)?.Badge,
+              }))}
+              onDragEnd={onDragEnd}
+              containerClassName="max-h-247px overflow-auto"
+              Item={({
+                Badge,
+                field,
+                index,
+                ...rest
+              }: {
+                Badge: React.FC;
+                field: AnyField;
+                index: number;
+                rest: any;
+              }) => {
+                return (
+                  <div className="pb-2">
+                    <div className="rounded bg-gray-300 px-3 py-2 flex items-center" {...rest}>
+                      <div className="line-clamp-1 w-5/12 px-3">{field.id}</div>
+                      <div className="flex w-4/12 flex-shrink-0">
+                        {Badge ? <Badge></Badge> : null}
+                        <span className="ml-3 hidden sm:block line-clamp-1">{field.type}</span>
+                      </div>
+                      <div className="flex items-center flex-grow justify-end text-base">
+                        <IconButton
+                          className="mr-1"
+                          variant="transparent"
+                          onClick={async () => {
+                            const editedField = await getCollectionField({
+                              zLevel: zLevel + 1,
+                              editableField: field,
+                              existingFieldNames: values.collectionFields
+                                .map((f) => f.id)
+                                .filter((f) => f !== field.id),
+                            });
 
-                                    if (!field) return;
+                            if (!editedField) return;
 
-                                    let fields = [...values.collectionFields];
-                                    fields[i] = field;
-                                    setFieldValue("collectionFields", fields);
-                                  }}
-                                >
-                                  <EditOutlined fontSize="small"></EditOutlined>
-                                </IconButton>
-                                <IconButton
-                                  variant="transparent"
-                                  onClick={async () => {
-                                    let res = await confirm({
-                                      confirmation: "Do you really want to delete the field?",
-                                    });
-                                    if (res) {
-                                      const fields = [...values.collectionFields];
-                                      fields.splice(i, 1);
-                                      setFieldValue("collectionFields", fields);
-                                    }
-                                  }}
-                                >
-                                  <Delete fontSize="small"></Delete>
-                                </IconButton>
-                              </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      );
-                    })}
-                    {provided.placeholder}
+                            let fields = [...values.collectionFields];
+                            fields[index] = editedField;
+                            setFieldValue("collectionFields", fields);
+                          }}
+                        >
+                          <EditOutlined fontSize="inherit"></EditOutlined>
+                        </IconButton>
+                        <IconButton
+                          variant="transparent"
+                          onClick={async () => {
+                            let res = await confirm({
+                              confirmation: "Delete field?",
+                            });
+                            if (res) {
+                              const fields = [...values.collectionFields];
+                              fields.splice(index, 1);
+                              setFieldValue("collectionFields", fields);
+                            }
+                          }}
+                        >
+                          <Delete fontSize="inherit"></Delete>
+                        </IconButton>
+                      </div>
+                    </div>
                   </div>
-                )}
-              </Droppable>
-            </DragDropContext>
+                );
+              }}
+            ></DraggableList>
           </div>
         ) : null}
         <div className="flex justify-between">
           <Button
             data-testid={`cancel-field-details-btn-${zLevel}`}
-            onClick={() => goBack(() => proceed(false))}
+            onClick={() => proceed(editableField ? null : "back")}
             className="bg-fireck-5 hover:bg-fireck-5-hover text-white h-34px"
           >
             {editableField ? "Cancel" : "Back"}

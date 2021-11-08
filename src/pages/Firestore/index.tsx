@@ -14,7 +14,7 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setFirestoreWorks, setAut
 
   return (
     <div className="fixed left-0 top-0 w-full h-full flex overflow-auto p-sm-12 p-7 bg-fireck-1">
-      <img alt="" src={Logo} width={135} className="absolute left-8 top-8"></img>
+      <img alt="" src={Logo} className="absolute left-7 top-5"></img>
       <div className="m-auto max-w-922px w-full md:py-10 py-16">
         <div className="w-full md:flex ">
           <div className="p-12 bg-white md:w-7/12 justify-between items-center flex flex-col">
