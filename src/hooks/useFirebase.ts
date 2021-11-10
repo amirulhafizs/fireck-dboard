@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { RootState } from "store";
 import { useEffect, useState } from "react";
+import { initializeApp } from "firebase/app";
 
 const useFirebase = () => {
   const [firebase, setFirebase] = useState<any>(null);
@@ -13,15 +14,6 @@ const useFirebase = () => {
   const [firebaseInitialized, setFirebaseInitialized] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      const fbase = (await import("firebase/app")).default;
-      await import("firebase/auth");
-      await import("firebase/storage");
-      setFirebase(fbase);
-    })();
-  }, []);
-
-  useEffect(() => {
     if (firebaseUserToken && firebase && firebaseInitialized) {
       firebase
         .auth()
@@ -30,16 +22,17 @@ const useFirebase = () => {
           console.log(er.toJSON());
         });
     }
-  }, [firebaseUserToken, firebase, firebaseInitialized]);
+  }, [firebaseUserToken, firebaseInitialized]);
 
   useEffect(() => {
     if (firebaseAppApiKey && projectId && firebase && !firebase.apps.length) {
-      firebase.initializeApp({
+      let fbase = initializeApp({
         apiKey: firebaseAppApiKey,
         authDomain: `${projectId}.firebaseapp.com`,
         projectId: projectId,
         storageBucket: `${projectId}.appspot.com`,
       });
+      setFirebase(fbase);
       setFirebaseInitialized(true);
     }
   }, [firebaseAppApiKey, projectId, firebase]);

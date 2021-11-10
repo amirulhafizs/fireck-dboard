@@ -2,14 +2,14 @@ import { Document } from "api/collections";
 import { AnyField } from "api/collectionTypes";
 import FilesCell from "components/TableElements/FilesCell";
 import React from "react";
-import ExpandMoreRounded from "@material-ui/icons/ExpandMoreRounded";
+import ExpandMoreRounded from "@mui/icons-material/ExpandMoreRounded";
 import { confirm } from "components/Confirm";
 import AddFilter from "components/TableElements/AddFilter";
 import Button from "components/Button";
 import SimpleBar from "simplebar-react";
 import classNames from "classnames";
 import { InView } from "react-intersection-observer";
-import Checkbox from "@material-ui/core/Checkbox";
+import Checkbox from "@mui/material/Checkbox";
 import moment from "moment";
 import { getSubcollectionDocument } from "./SubcollectionDocument";
 

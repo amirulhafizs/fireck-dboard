@@ -1,10 +1,10 @@
 import Button from "components/Button";
 import React from "react";
-import DragIndicatorRounded from "@material-ui/icons/DragIndicatorRounded";
-import ButtonBase from "@material-ui/core/ButtonBase";
-import OpenInNew from "@material-ui/icons/OpenInNew";
-import DeleteIcon from "@material-ui/icons/DeleteOutlineOutlined";
-import CloseRounded from "@material-ui/icons/CloseRounded";
+import DragIndicatorRounded from "@mui/icons-material/DragIndicatorRounded";
+import ButtonBase from "@mui/material/ButtonBase";
+import OpenInNew from "@mui/icons-material/OpenInNew";
+import DeleteIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import CloseRounded from "@mui/icons-material/CloseRounded";
 import DraggableList from "./DraggableList";
 
 export interface ReorderSelectedFilesProps {

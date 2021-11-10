@@ -1,5 +1,5 @@
 import { IoAlertCircleOutline } from "react-icons/io5";
-import Tooltip from "@material-ui/core/Tooltip";
+import Tooltip from "@mui/material/Tooltip";
 import React, { SelectHTMLAttributes } from "react";
 import classNames from "classnames";
 

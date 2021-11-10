@@ -8,13 +8,6 @@
 # testing
 /coverage
 
-# src
-public
-tsconfig.json
-log.json
-craco.config.js
-docs.html
-
 # netlify
 .netlify
 

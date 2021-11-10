@@ -1,5 +1,5 @@
-import ErrorRounded from "@material-ui/icons/ErrorRounded";
-import Tooltip from "@material-ui/core/Tooltip";
+import ErrorRounded from "@mui/icons-material/ErrorRounded";
+import Tooltip from "@mui/material/Tooltip";
 import React, { InputHTMLAttributes } from "react";
 
 const WarningIcon = React.forwardRef(function MyComponent(props: any, ref: any) {

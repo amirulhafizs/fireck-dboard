@@ -1,4 +1,10 @@
-import firebase from "firebase";
+import {
+  deleteObject,
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
 import { getFileExtension } from "helper";
 import store from "store";
 import shortuuid from "short-uuid";
@@ -9,17 +15,14 @@ export const uploadFileToStorage = (
 ): Promise<{ downloadUrl: string; fileName: string } | { error: string }> => {
   return new Promise((resolve, reject) => {
     try {
-      const storage = firebase.storage();
-
-      const metadata = {
-        contentType: file.type,
-      };
+      const storage = getStorage();
 
       const nameParts = file.name.split(".");
 
       const fileName = shortuuid.generate() + "." + nameParts[nameParts.length - 1];
-      let ref = storage.ref(fileName);
-      const uploadTask = ref.put(file, metadata);
+      let fileRef = ref(storage, fileName);
+
+      const uploadTask = uploadBytesResumable(fileRef, file);
       uploadTask.on(
         "state_changed",
         (snapshot) => {},
@@ -27,7 +30,7 @@ export const uploadFileToStorage = (
           resolve({ error: error.message });
         },
         () => {
-          uploadTask.snapshot.ref.getDownloadURL().then((downloadUrl) => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
             resolve({ downloadUrl, fileName });
           });
         }
@@ -110,8 +113,8 @@ export const getFilesCount = async () => {
 
 export const deleteFile = (docId: string, storagePath: string) => {
   try {
-    const storage = firebase.storage();
-    storage.ref(storagePath).delete();
+    const storage = getStorage();
+    deleteObject(ref(storage, storagePath));
 
     return deleteDocument("FilesReservedCollection", docId);
   } catch (error) {

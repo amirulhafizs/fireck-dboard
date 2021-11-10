@@ -3,7 +3,7 @@ import { CollectionType, AnyField } from "api/collectionTypes";
 import { deleteDocument } from "api/collections";
 import FilesCell from "./FilesCell";
 import React, { useEffect } from "react";
-import ExpandMoreRounded from "@material-ui/icons/ExpandMoreRounded";
+import ExpandMoreRounded from "@mui/icons-material/ExpandMoreRounded";
 import { useHistory } from "react-router-dom";
 import { confirm } from "components/Confirm";
 import AddFilter from "./AddFilter";
@@ -12,7 +12,7 @@ import SimpleBar from "simplebar-react";
 import classNames from "classnames";
 import useFetch from "hooks/useFetch";
 import { InView } from "react-intersection-observer";
-import Checkbox from "@material-ui/core/Checkbox";
+import Checkbox from "@mui/material/Checkbox";
 import moment from "moment";
 
 export interface TableProps {

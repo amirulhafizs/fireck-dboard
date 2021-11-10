@@ -1,0 +1,2 @@
+(this["webpackJsonpfireck-cms"]=this["webpackJsonpfireck-cms"]||[]).push([[18],{1016:function(c,t,e){"use strict";e.r(t);var n=e(0),s=e.n(n),a=e(74),i=e(20),o=e(30),u=e(1);t.default=function(){var c=Object(o.k)();return s.a.useEffect((function(){var t=window.location.hash;t&&Object(a.e)(t,(function(t){i.a.dispatch({type:"SET_NETLIFY_ACCESS_TOKEN",payload:t}),c.push("/")}))}),[c]),Object(u.jsx)("div",{})}}}]);
+//# sourceMappingURL=18.621f7761.chunk.js.map

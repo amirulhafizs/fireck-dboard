@@ -1,0 +1,25 @@
+{
+  "short_name": "Fireck",
+  "name": "Fireck - Firebase Headless CMS",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "logo_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#23F3F3",
+  "background_color": "#091717"
+}

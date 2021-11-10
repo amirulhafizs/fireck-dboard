@@ -291,7 +291,7 @@ const SpecifyFieldDetails: React.FC<SpecifyFieldDetailsProps> = ({
                   <div className="pb-2">
                     <div className="rounded bg-gray-300 px-3 py-2 flex items-center" {...rest}>
                       <div className="line-clamp-1 w-5/12 px-3">{field.id}</div>
-                      <div className="flex w-4/12 flex-shrink-0">
+                      <div className="flex w-4/12 flex-shrink-0 items-center">
                         {Badge ? <Badge></Badge> : null}
                         <span className="ml-3 hidden sm:block line-clamp-1">{field.type}</span>
                       </div>

@@ -1,17 +1,17 @@
 import Logo from "assets/logo.svg";
-import VpnKeyRounded from "@material-ui/icons/VpnKeyRounded";
-import PanoramaRounded from "@material-ui/icons/PanoramaRounded";
-import BrushRounded from "@material-ui/icons/BrushRounded";
-import Palette from "@material-ui/icons/Palette";
+import VpnKeyRounded from "@mui/icons-material/VpnKeyRounded";
+import PanoramaRounded from "@mui/icons-material/PanoramaRounded";
+import BrushRounded from "@mui/icons-material/BrushRounded";
+import Palette from "@mui/icons-material/Palette";
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import SimpleBar from "simplebar-react";
-import Drawer from "@material-ui/core/Drawer";
+import Drawer from "@mui/material/Drawer";
 import { useSelector, shallowEqual } from "react-redux";
 import { RootState } from "store";
-import ImportExportRounded from "@material-ui/icons/ImportExportRounded";
+import ImportExportRounded from "@mui/icons-material/ImportExportRounded";
 import { ReactComponent as Webhook } from "assets/webhook.svg";
-import EmailIcon from "@material-ui/icons/Email";
+import EmailIcon from "@mui/icons-material/Email";
 
 import Section from "./Section";
 

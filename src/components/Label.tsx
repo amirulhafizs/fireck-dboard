@@ -1,6 +1,6 @@
 import React from "react";
-import ErrorRounded from "@material-ui/icons/ErrorRounded";
-import Tooltip from "@material-ui/core/Tooltip";
+import ErrorRounded from "@mui/icons-material/ErrorRounded";
+import Tooltip from "@mui/material/Tooltip";
 import classNames from "classnames";
 
 export interface LabelProps {

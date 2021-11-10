@@ -1,14 +1,14 @@
-import PhotoLibrary from "@material-ui/icons/PhotoLibrary";
+import PhotoLibrary from "@mui/icons-material/PhotoLibrary";
 import React from "react";
-import ArrowBackIosRounded from "@material-ui/icons/ArrowBackIosRounded";
-import ArrowForwardIosRounded from "@material-ui/icons/ArrowForwardIosRounded";
-import AddRounded from "@material-ui/icons/AddRounded";
-import EditRounded from "@material-ui/icons/EditRounded";
-import ButtonBase from "@material-ui/core/ButtonBase";
+import ArrowBackIosRounded from "@mui/icons-material/ArrowBackIosRounded";
+import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
+import AddRounded from "@mui/icons-material/AddRounded";
+import EditRounded from "@mui/icons-material/EditRounded";
+import ButtonBase from "@mui/material/ButtonBase";
 import { callComponent } from "api/callComponent";
 import SelectMedia, { SelectMediaProps } from "pages/Media/SelectMedia";
 import ReorderSelectedFiles from "components/ReorderSelectedFiles";
-import Modal from "@material-ui/core/Modal";
+import Modal from "@mui/material/Modal";
 import { ReactComponent as MediaIcon } from "assets/media.svg";
 
 export interface MediaInputProps {

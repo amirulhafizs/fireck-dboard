@@ -1,16 +1,16 @@
-import ButtonBase from "@material-ui/core/ButtonBase";
+import ButtonBase from "@mui/material/ButtonBase";
 import React from "react";
 import { uploadFile } from "api/files";
 import Button from "components/Button";
-import AddRounded from "@material-ui/icons/AddRounded";
-import ExpandLessRounded from "@material-ui/icons/ExpandLessRounded";
+import AddRounded from "@mui/icons-material/AddRounded";
+import ExpandLessRounded from "@mui/icons-material/ExpandLessRounded";
 import { InView } from "react-intersection-observer";
 import { callComponent } from "api/callComponent";
 import { useSelector } from "react-redux";
 import { RootState } from "store";
 import CollectionTable from "components/TableElements/CollectionTable";
 import { MediaDocumentFormatters } from ".";
-import CloseRounded from "@material-ui/icons/CloseRounded";
+import CloseRounded from "@mui/icons-material/CloseRounded";
 
 export interface SelectMediaProps {
   multiple?: boolean;

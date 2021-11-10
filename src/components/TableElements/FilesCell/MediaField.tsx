@@ -1,5 +1,5 @@
 import TooltipChild from "components/TooltipChild";
-import Tooltip from "@material-ui/core/Tooltip";
+import Tooltip from "@mui/material/Tooltip";
 
 interface MediaFieldProps {
   src: string;

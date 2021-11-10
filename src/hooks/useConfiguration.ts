@@ -148,6 +148,7 @@ const useConfiguration = () => {
         console.log(error);
       }
     };
+
     if (netlifyAccessToken && siteId && adminSdkState !== "connected") {
       fn();
       intervalRef.current = setInterval(fn, 5000);
@@ -178,17 +179,6 @@ const useConfiguration = () => {
       }
     })();
   }, [isAdminSet]);
-
-  React.useEffect(() => {
-    (async () => {
-      try {
-        const res = await getAllIntegrations();
-        dispatch({ type: "UPDATE_INTEGRATIONS", payload: res });
-      } catch (error) {
-        console.log(error);
-      }
-    })();
-  }, [dispatch, user]);
 
   return {
     checkCompleted,

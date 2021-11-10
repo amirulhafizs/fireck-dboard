@@ -3,14 +3,14 @@ import { useRef, useState } from "react";
 import { useNotify } from "components/NotificationsProvider";
 import store from "store";
 import Button from "components/Button";
-import Modal from "@material-ui/core/Modal";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
+import Modal from "@mui/material/Modal";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 import { getAppearance } from "api/adminUsers";
 import { setColors } from "hooks/useConfiguration";
 import PageTitle from "components/PageTitle";
 import { getCollection } from "api/collections";
-import CloseRounded from "@material-ui/icons/CloseRounded";
+import CloseRounded from "@mui/icons-material/CloseRounded";
 
 export interface ImportExportProps {}
 

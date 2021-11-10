@@ -1,4 +1,4 @@
-import Modal from "@material-ui/core/Modal";
+import Modal from "@mui/material/Modal";
 import Input from "components/Input";
 import Select from "components/Select";
 import Button from "components/Button";
@@ -6,7 +6,7 @@ import { CollectionType } from "api/collectionTypes";
 import React from "react";
 import { useFormik } from "formik";
 import Label from "components/Label";
-import CloseRounded from "@material-ui/icons/CloseRounded";
+import CloseRounded from "@mui/icons-material/CloseRounded";
 
 export interface AddFilterModalProps {
   collectionType: Pick<CollectionType, "fields">;

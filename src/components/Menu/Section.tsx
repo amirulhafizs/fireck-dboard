@@ -1,11 +1,11 @@
 import { SectionType } from "./index";
 import SimpleBar from "simplebar-react";
-import SearchRounded from "@material-ui/icons/SearchRounded";
-import ButtonBase from "@material-ui/core/ButtonBase";
+import SearchRounded from "@mui/icons-material/SearchRounded";
+import ButtonBase from "@mui/material/ButtonBase";
 import classNames from "classnames";
 import { useHistory, useLocation } from "react-router-dom";
 import { useState } from "react";
-import CloseRounded from "@material-ui/icons/CloseRounded";
+import CloseRounded from "@mui/icons-material/CloseRounded";
 
 interface SectionProps {
   section: SectionType;

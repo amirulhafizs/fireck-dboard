@@ -3,15 +3,15 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "store";
 import CollectionTable from "./TableElements/CollectionTable";
-import Modal from "@material-ui/core/Modal";
+import Modal from "@mui/material/Modal";
 import IconButton from "./IconButton";
-import Link from "@material-ui/icons/Link";
-import AddRounded from "@material-ui/icons/AddRounded";
+import Link from "@mui/icons-material/Link";
+import AddRounded from "@mui/icons-material/AddRounded";
 import { ReactComponent as OneToOneIcon } from "assets/one-to-one.svg";
 import { ReactComponent as OneToManyIcon } from "assets/one-to-many.svg";
-import CloseRounded from "@material-ui/icons/CloseRounded";
+import CloseRounded from "@mui/icons-material/CloseRounded";
 import { confirm } from "components/Confirm";
-import DeleteOutlineOutlined from "@material-ui/icons/DeleteOutlineOutlined";
+import DeleteOutlineOutlined from "@mui/icons-material/DeleteOutlineOutlined";
 import SimpleBar from "simplebar-react";
 
 export interface RelationFieldProps {

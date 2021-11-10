@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
 import Switch from "@material-ui/core/Switch";
 import { ChangeEvent } from "react";
 
@@ -11,15 +11,19 @@ export interface SwitchProps {
 const useStyles = makeStyles({
   switchBase: {
     "&$checked": {
-      color: getComputedStyle(document.documentElement).getPropertyValue("--fireck-4"),
+      color: `${getComputedStyle(document.documentElement).getPropertyValue(
+        "--fireck-4"
+      )} !important`,
     },
     "&$checked + $track": {
-      backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--fireck-4"),
+      backgroundColor: `${getComputedStyle(document.documentElement).getPropertyValue(
+        "--fireck-4"
+      )} !important`,
     },
   },
   checked: {},
   track: (props: any) => ({
-    background: props.groundColor === "white" ? "black" : "white",
+    background: `${props.groundColor === "white" ? "black" : "white"} !important`,
   }),
 });
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import EditIcon from "@material-ui/icons/Create";
-import DeleteIcon from "@material-ui/icons/Delete";
-import ButtonBase from "@material-ui/core/ButtonBase";
+import EditIcon from "@mui/icons-material/Create";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ButtonBase from "@mui/material/ButtonBase";
 
 export interface EmailTemplateCardProps {
   name: string;

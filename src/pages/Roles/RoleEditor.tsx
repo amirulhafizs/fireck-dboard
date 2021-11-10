@@ -1,9 +1,9 @@
 import React, { Dispatch, SetStateAction } from "react";
-import Checkbox from "@material-ui/core/Checkbox";
+import Checkbox from "@mui/material/Checkbox";
 import { permissions, RoleDocument, CollectionPermission } from "api/roles";
 import { CollectionType } from "api/collectionTypes";
 import SimpleBar from "simplebar-react";
-import Star from "@material-ui/icons/Star";
+import Star from "@mui/icons-material/Star";
 
 export interface RoleEditorProps {
   roleCopy: RoleDocument | undefined;

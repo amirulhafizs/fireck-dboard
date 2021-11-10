@@ -45,9 +45,9 @@ const FirebaseSettings: React.FC<PropsFromRedux> = ({
     <div className="fixed left-0 top-0 w-full h-full flex overflow-auto bg-fireck-1 p-12">
       <img alt="" src={Logo} className="absolute left-7 top-5"></img>
       <div className="m-auto py-16 max-w-922px w-full">
-        <div className="w-full md:flex">
+        <div className="w-full md:flex rounded overflow-hidden">
           {adminSdkState === "not connected" ? (
-            <div className="p-12 bg-white md:w-7/12 justify-between items-center">
+            <div className="p-9 bg-white md:w-7/12 justify-between items-center">
               <div className="mb-10 text-center">
                 <div className="flex font-medium text-22px justify-between leading-none">
                   <div>1/2</div>
@@ -61,7 +61,7 @@ const FirebaseSettings: React.FC<PropsFromRedux> = ({
               ></Dropzone>
             </div>
           ) : adminSdkState === "building" ? (
-            <div className="p-12 bg-white max-w-544px justify-between items-center">
+            <div className="p-9 bg-white max-w-544px justify-between items-center">
               <div className="mb-10 text-center">
                 <div className="font-medium text-28px mb-3">App is building...</div>
                 <div className="text-gray-600 text-sm">
@@ -82,11 +82,14 @@ const FirebaseSettings: React.FC<PropsFromRedux> = ({
               ></LinearProgress>
             </div>
           ) : null}
-          <div className="md:w-5/12 bg-fireck-4 flex p-12 flex-wrap">
+          <div className="md:w-5/12 bg-fireck-4 flex p-9 flex-wrap">
             <div className="m-auto">
               <div className="mb-7 flex flex-wrap">
                 {"How to get a service account private keys file?".split(" ").map((x, i) => (
-                  <div className="bg-fireck-5 text-white px-1 py-0.5" key={`text-part-${i}`}>
+                  <div
+                    className="bg-fireck-2 text-white font-medium px-1 py-0.5"
+                    key={`text-part-${i}`}
+                  >
                     {x}
                   </div>
                 ))}

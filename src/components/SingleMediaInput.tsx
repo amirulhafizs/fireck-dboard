@@ -1,6 +1,6 @@
 import React from "react";
-import DeleteRounded from "@material-ui/icons/DeleteOutlineOutlined";
-import ButtonBase from "@material-ui/core/ButtonBase";
+import DeleteRounded from "@mui/icons-material/DeleteOutlineOutlined";
+import ButtonBase from "@mui/material/ButtonBase";
 import { callComponent } from "api/callComponent";
 import SelectMedia, { SelectMediaProps } from "pages/Media/SelectMedia";
 import { ReactComponent as MediaIcon } from "assets/media.svg";

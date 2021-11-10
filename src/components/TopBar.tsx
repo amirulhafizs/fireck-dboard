@@ -1,7 +1,7 @@
-import KeyboardArrowLeftRounded from "@material-ui/icons/KeyboardArrowLeftRounded";
+import KeyboardArrowLeftRounded from "@mui/icons-material/KeyboardArrowLeftRounded";
 import { useHistory, matchPath } from "react-router-dom";
 import store from "store";
-import ButtonBase from "@material-ui/core/ButtonBase";
+import ButtonBase from "@mui/material/ButtonBase";
 
 const TopBar = () => {
   const history = useHistory();

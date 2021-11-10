@@ -11,13 +11,13 @@ import AdminCreation from "pages/AdminCreation";
 import Login from "pages/Login";
 import Loader from "components/Loader";
 import ExpandLessRounded from "@material-ui/icons/ExpandLessRounded";
-import ButtonBase from "@material-ui/core/ButtonBase";
+import ButtonBase from "@mui/material/ButtonBase";
 import { InView } from "react-intersection-observer";
 import { handleAccessToken } from "api/netlify";
 import useConfiguration from "hooks/useConfiguration";
 import FirestoreSettings from "pages/Firestore";
 import useFirebase from "hooks/useFirebase";
-import Modal from "@material-ui/core/Modal";
+import Modal from "@mui/material/Modal";
 import ToDos from "pages/Firestore/ToDos";
 import UpdateAppWidget from "components/UpdateAppWidget";
 import MenuIcon from "@material-ui/icons/Menu";
@@ -86,7 +86,7 @@ const App = (props: PropsFromRedux) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, props.user]);
 
-  const firebase = useFirebase();
+  useFirebase();
 
   const {
     adminSdkState,
@@ -100,6 +100,8 @@ const App = (props: PropsFromRedux) => {
     setFirestoreWorks,
     setAuthWorks,
   } = useConfiguration();
+
+  console.log(adminSdkState);
 
   return (
     <div>

@@ -1,0 +1,7 @@
+/api/payments* /.netlify/functions/payments 200!
+/api/* /.netlify/functions/handle 200!
+/private/* /.netlify/functions/:splat 200!
+/private/*/:func /.netlify/functions/:splat 200!
+/auth/* /.netlify/functions/auth 200!
+/proxy /.netlify/functions/proxy 200!
+/* /index.html 200

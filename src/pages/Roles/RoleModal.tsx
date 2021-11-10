@@ -1,12 +1,12 @@
-import Modal from "@material-ui/core/Modal";
+import Modal from "@mui/material/Modal";
 import Input from "components/Input";
 import { RoleDocument, permissions } from "api/roles";
 import React from "react";
 import { useFormik } from "formik";
-import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "components/Button";
-import CloseRounded from "@material-ui/icons/CloseRounded";
+import CloseRounded from "@mui/icons-material/CloseRounded";
 
 export interface RoleModalProps {
   open: boolean;
