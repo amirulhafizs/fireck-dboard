@@ -166,11 +166,13 @@ class TasksManagerClass {
   }
 
   async checkAdminSdkState() {
-    if (this.state.adminSdkState !== "connected" && this.keys.siteId) {
+    if (
+      (this.state.adminSdkState !== "connected" && this.keys.siteId, this.keys.netlifyAccessToken)
+    ) {
       const currentEnv = await getEnv();
       //get env exposes only PROJECT_ID and some other variables which are not sensitive
       const site = await getSite(this.keys.siteId, this.keys.netlifyAccessToken);
-      const adminCredentialString = site.build_settings.env.FIREBASE_ADMIN_CREDENTIAL;
+      const adminCredentialString = site.build_settings?.env?.FIREBASE_ADMIN_CREDENTIAL;
       const sdkJsonInBuild = adminCredentialString ? JSON.parse(adminCredentialString) : null;
       if (!sdkJsonInBuild) return;
       const newAdminState =
@@ -258,6 +260,7 @@ class TasksManagerClass {
     return isSuperAdminSet().then((res) => {
       if (res.error) return;
       this.updateState("isAdminSet", res);
+      this.updateState("adminSdkState", "connected");
     });
   }
 
