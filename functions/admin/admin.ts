@@ -62,7 +62,7 @@ async function addWebApp(displayName) {
   try {
     const accessToken = await getAccessToken();
     const credentials = JSON.parse(process.env["FIREBASE_ADMIN_CREDENTIAL"]);
-    console.log("credentials", credentials);
+
     if (!accessToken) return;
     const uri =
       "https://firebase.googleapis.com/v1beta1/projects/" + credentials["project_id"] + "/webApps";
@@ -444,7 +444,6 @@ const testFirestore = async () => {
     await db.collection("TestReservedCollection").doc("test").delete();
     return { success: true };
   } catch (error) {
-    console.log("CARCHER BLOCK");
     return error.code && error.code === "app/no-app" ? { success: true } : { error };
   }
 };

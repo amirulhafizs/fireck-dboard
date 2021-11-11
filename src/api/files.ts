@@ -1,48 +1,11 @@
-import {
-  deleteObject,
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-import { getApps } from "firebase/app";
 import { getFileExtension } from "helper";
 import store from "store";
-import shortuuid from "short-uuid";
 import { addDocument, deleteDocument, updateDocument } from "./collections";
-
-export const uploadFileToStorage = (
-  file: File
-): Promise<{ downloadUrl: string; fileName: string } | { error: string }> => {
-  return new Promise((resolve, reject) => {
-    try {
-      const storage = getStorage();
-      const nameParts = file.name.split(".");
-      const fileName = shortuuid.generate() + "." + nameParts[nameParts.length - 1];
-      let fileRef = ref(storage, fileName);
-
-      const uploadTask = uploadBytesResumable(fileRef, file);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {},
-        (error) => {
-          resolve({ error: error.name });
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
-            resolve({ downloadUrl, fileName });
-          });
-        }
-      );
-    } catch (error: any) {
-      resolve({ error });
-    }
-  });
-};
+import { FilesManager } from "facades/FilesManager";
 
 export const uploadFile = async (file: File): Promise<{ error: string } | any> => {
   try {
-    const res = await uploadFileToStorage(file);
+    const res = await FilesManager.upload(file);
 
     if ("error" in res) {
       return res;
@@ -112,9 +75,7 @@ export const getFilesCount = async () => {
 
 export const deleteFile = (docId: string, storagePath: string) => {
   try {
-    const storage = getStorage();
-    deleteObject(ref(storage, storagePath));
-
+    FilesManager.delete(storagePath);
     return deleteDocument("FilesReservedCollection", docId);
   } catch (error) {
     return { error };

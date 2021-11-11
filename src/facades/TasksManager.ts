@@ -83,9 +83,13 @@ class TasksManagerClass {
       this._testFirestore(),
       this._testAuthentication(),
       this.checkIfAdminIsCreated(),
-    ]).then(() => {
-      this.updateState("checkCompleted", true);
-    });
+    ])
+      .then(() => {
+        this.updateState("checkCompleted", true);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   updateState<Key extends keyof ConfigState>(key: Key, value: ConfigState[Key]) {
