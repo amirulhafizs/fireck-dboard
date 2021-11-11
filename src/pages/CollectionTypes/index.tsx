@@ -8,9 +8,6 @@ import CollectionModal from "./CollectionModal";
 import FieldTypes from "components/FieldTypes";
 import { confirm } from "components/Confirm";
 import { useNotify } from "components/NotificationsProvider";
-import SpecifyFieldDetails, { SpecifyFieldDetailsProps } from "./SpecifyFieldDetails";
-import SelectFieldType, { SelectFieldTypeProps } from "./SelectFieldType";
-import { callComponent } from "api/callComponent";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import DragIndicatorRounded from "@material-ui/icons/DragIndicatorRounded";
 import InterfaceModal from "./InterfaceModal";
@@ -18,7 +15,7 @@ import SimpleBar from "simplebar-react";
 import AddRounded from "@material-ui/icons/AddRounded";
 import SettingsPage from "components/SettingsPage";
 import { updateDocument } from "api/collections";
-import { CollectionType, FieldInputType, AnyField } from "api/collectionTypes";
+import { CollectionType } from "api/collectionTypes";
 import { getCollectionField } from "./GetCollectionField";
 
 export interface CollectionsBuilderProps {}
@@ -178,7 +175,7 @@ const CollectionsBuilder: React.FC<CollectionsBuilderProps> = () => {
                                 <div
                                   data-testid={`field-id-${x.id}`}
                                   key={`field-${i}`}
-                                  className="bg-white hover:bg-fireck-4 flex mb-2 items-center px-2 py-0.5"
+                                  className="bg-white hover:bg-fireck-4 flex items-center px-2 py-0.5"
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                 >

@@ -3,10 +3,10 @@ import Logo from "assets/logo.svg";
 import Button from "components/Button";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { login } from "api/adminUsers";
-import store, { RootState } from "store";
+import { RootState } from "store";
 import { useNotify } from "components/NotificationsProvider";
 import { useSelector } from "react-redux";
+import { TasksManager } from "facades/TasksManager";
 
 export interface LoginProps {}
 
@@ -18,13 +18,7 @@ const Login: React.FC<LoginProps> = () => {
 
   const { values, errors, submitCount, handleSubmit, handleChange } = useFormik({
     onSubmit: async (vals) => {
-      const res = await login(vals);
-      if (!res.error) {
-        store.dispatch({ type: "SET_USER", payload: res });
-        store.dispatch({ type: "SET_FIREBASE_USER_TOKEN", payload: res.firebaseToken });
-      } else {
-        notify(res.error, { variant: "error" });
-      }
+      TasksManager._login(vals, notify);
     },
     initialValues: {
       password: "",

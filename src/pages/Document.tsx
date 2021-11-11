@@ -50,7 +50,8 @@ const AddDocument: React.FC<AddDocumentProps> = ({ match }) => {
         if (vals) {
           if (docId != null) {
             const res = await updateDocument(collectionType.id, docId, vals);
-            if (res.erorr) {
+
+            if (res.error) {
               notify(res.error, { variant: "error" });
             } else {
               notify("Document updated!", { variant: "success" });

@@ -5,6 +5,7 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
+import { getApps } from "firebase/app";
 import { getFileExtension } from "helper";
 import store from "store";
 import shortuuid from "short-uuid";
@@ -16,9 +17,7 @@ export const uploadFileToStorage = (
   return new Promise((resolve, reject) => {
     try {
       const storage = getStorage();
-
       const nameParts = file.name.split(".");
-
       const fileName = shortuuid.generate() + "." + nameParts[nameParts.length - 1];
       let fileRef = ref(storage, fileName);
 
@@ -27,7 +26,7 @@ export const uploadFileToStorage = (
         "state_changed",
         (snapshot) => {},
         (error) => {
-          resolve({ error: error.message });
+          resolve({ error: error.name });
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {

@@ -6,11 +6,9 @@ import Button from "components/Button";
 import Modal from "@mui/material/Modal";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import { getAppearance } from "api/adminUsers";
-import { setColors } from "hooks/useConfiguration";
 import PageTitle from "components/PageTitle";
-import { getCollection } from "api/collections";
 import CloseRounded from "@mui/icons-material/CloseRounded";
+import { TasksManager } from "facades/TasksManager";
 
 export interface ImportExportProps {}
 
@@ -63,20 +61,8 @@ const ImportExport: React.FC<ImportExportProps> = () => {
               store.dispatch({ type: "SET_LOADING", payload: false });
               if (!res.error) {
                 notify("Database imported!", { variant: "success" });
-                const res1 = await getCollection({
-                  collectionId: "CollectionTypesReservedCollection",
-                  limit: 1000,
-                });
-                if (!res1.error) {
-                  store.dispatch({ type: "SET_COLLECTION_TYPES", payload: res1 });
-                }
-
-                const res2 = await getAppearance();
-                if (!res2.error) {
-                  store.dispatch({ type: "SET_APPEARANCE", payload: res2 });
-                  store.dispatch({ type: "SET_NEW_APPEARANCE", payload: res2 });
-                  setColors(res2.colors);
-                }
+                TasksManager.fetchCollectionTypes();
+                TasksManager.fetchAppearance();
               }
             };
             reader.readAsText(files[0]);

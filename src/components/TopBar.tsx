@@ -1,12 +1,13 @@
 import KeyboardArrowLeftRounded from "@mui/icons-material/KeyboardArrowLeftRounded";
-import { useHistory, matchPath } from "react-router-dom";
+import { useHistory, matchPath, useLocation } from "react-router-dom";
 import store from "store";
 import ButtonBase from "@mui/material/ButtonBase";
 
 const TopBar = () => {
   const history = useHistory();
+  const location = useLocation();
 
-  const match = matchPath<{ id: string }>(window.location.pathname, {
+  const match = matchPath<{ id: string }>(location.pathname, {
     path: ["/:id", "/collections/:id", "/collections/:id/Add", "/collections/:id/edit/:docId"],
     exact: true,
     strict: false,

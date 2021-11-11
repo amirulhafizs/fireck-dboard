@@ -25,18 +25,15 @@ export const handleAccessToken = (hash: any, setToken: any) => {
   setToken(response.access_token);
 };
 
-export const updateEnvVariables = async (
-  env: { [key: string]: string },
-  siteId: string,
-  accessToken: string
-) => {
-  const site = await getSite(siteId, accessToken);
+export const updateEnvVariables = async (env: { [key: string]: string }) => {
+  const { siteId, netlifyAccessToken } = store.getState().configKeys;
+  const site = await getSite(siteId, netlifyAccessToken);
   const newEnv = { ...site.build_settings.env, ...env };
   const response = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${netlifyAccessToken}`,
     },
     body: JSON.stringify({
       build_settings: {
@@ -52,30 +49,8 @@ export const updateEnvVariables = async (
   return response;
 };
 
-export const setFreezeTime = async () => {
-  const { siteId, netlifyAccessToken } = store.getState();
-  const site = await getSite(siteId, netlifyAccessToken);
-  const newEnv = { ...site.build_settings.env, apiFreezeTime: Date.now() };
-  await fetch(`https://api.netlify.com/api/v1/sites/${siteId}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${netlifyAccessToken}`,
-    },
-    body: JSON.stringify({
-      build_settings: {
-        env: { ...newEnv },
-      },
-    }),
-  })
-    .then((x) => x.json())
-    .catch((error) => {
-      return { error };
-    });
-};
-
-export const buildSite = async (a?: string, b?: string) => {
-  const { siteId, netlifyAccessToken } = store.getState();
+export const buildSite = async () => {
+  const { siteId, netlifyAccessToken } = store.getState().configKeys;
   const response = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/builds`, {
     method: "POST",
     headers: {
@@ -122,17 +97,4 @@ export const getEnv = async () => {
       return { error };
     });
   return response;
-};
-
-export const deployZip = (file: File) => {
-  const { siteId, netlifyAccessToken } = store.getState();
-  if (!netlifyAccessToken) {
-    AuthorizeNetlify();
-    return { error: "Not authorized yet" };
-  }
-  if (!siteId) return { error: "Missing site id" };
-  return fetch(`https://api.netlify.com/api/v1/${siteId}/deploys`, {
-    method: "POST",
-    headers: { "Content-Type": "application/zip", Authorization: `Bearer ${netlifyAccessToken}` },
-  }).then((x) => x.json());
 };

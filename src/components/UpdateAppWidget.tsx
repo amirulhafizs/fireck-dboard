@@ -1,18 +1,19 @@
 import classNames from "classnames";
 import Button from "components/Button";
-import useUpdateAvailable from "hooks/useUpdateAvailable";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "store";
 
 export interface UpdateAppWidgetProps {}
 
 const UpdateAppWidget: React.FC<UpdateAppWidgetProps> = () => {
-  const { updateAvailable, gitName, gitRepo } = useUpdateAvailable();
+  const { available, gitName, gitRepo } = useSelector((state: RootState) => state.update);
   const [show, setShow] = useState(true);
 
   return (
     <div
       className={classNames("flex items-center px-3 h-34px bg-fireck-1 transition-all", {
-        "-mt-34px": !updateAvailable || !show,
+        "-mt-34px": !available || !show,
       })}
     >
       <div className="mr-3 text-white text-sm">New version available</div>

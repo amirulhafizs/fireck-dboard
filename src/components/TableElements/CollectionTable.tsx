@@ -258,15 +258,20 @@ const Table: React.FC<TableProps> = ({
                   </tr>
                 )
               )}
+              <tr>
+                <td colSpan={fields.length + 1}>
+                  <InView
+                    onChange={async (inView) => {
+                      setEndIsInView(inView);
+                    }}
+                  >
+                    <div className="w-full"></div>
+                  </InView>
+                </td>
+              </tr>
             </tbody>
           </table>
-          <InView
-            onChange={async (inView) => {
-              setEndIsInView(inView);
-            }}
-          >
-            <div className="w-full"></div>
-          </InView>
+
           <div></div>
         </SimpleBar>
       </div>

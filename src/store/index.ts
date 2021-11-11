@@ -2,6 +2,14 @@ import { createStore, combineReducers } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
 import { CollectionType } from "api/collectionTypes";
 import { ApperanceItem } from "pages/Appearance";
+import {
+  ConfigKeys,
+  ConfigState,
+  initalConfigState,
+  initialConfigKeys,
+  Update,
+} from "facades/TasksManager";
+import { initialUser } from "facades/TasksManager";
 
 function netlifyAccessTokenReducer(state = "", action: any): string {
   switch (action.type) {
@@ -39,14 +47,13 @@ function firebaseAppApiKeyReducer(state = "", action: any): string {
   }
 }
 
-function userReducer(
-  state = {
-    username: "",
-    token: process.env.NODE_ENV === "development" ? "developing" : "",
-    email: "",
-  },
-  action: any
-): { username: string; token: string; email: string } {
+export interface User {
+  username: string;
+  token: string;
+  email: string;
+}
+
+function userReducer(state = initialUser, action: any): User {
   switch (action.type) {
     case "SET_USER":
       return action.payload;
@@ -128,15 +135,43 @@ function documentChangedReducer(state = false, action: any) {
   }
 }
 
+function configStateReducer(state: ConfigState = initalConfigState, action: any) {
+  switch (action.type) {
+    case "SET_CONFIG_STATE":
+      return { ...state, ...action.payload };
+    default:
+      return state;
+  }
+}
+
+function configKeysReducer(state: ConfigKeys = initialConfigKeys, action: any): ConfigKeys {
+  switch (action.type) {
+    case "SET_CONFIG_KEYS":
+      return { ...state, ...action.payload };
+    default:
+      return state;
+  }
+}
+
+function updateReducer(
+  state: Update = { available: false, gitName: "", gitRepo: "" },
+  action: any
+): Update {
+  switch (action.type) {
+    case "SET_UPDATE":
+      return { ...state, ...action.payload };
+    default:
+      return state;
+  }
+}
+
 const rootReducer = combineReducers({
-  netlifyAccessToken: netlifyAccessTokenReducer,
-  siteId: siteIdReducer,
-  projectId: projectIdReducer,
-  firebaseAppApiKey: firebaseAppApiKeyReducer, // we need initialize firebase app in client app.
+  configState: configStateReducer,
+  configKeys: configKeysReducer,
+  update: updateReducer,
   user: userReducer,
   collectionTypes: collectionTypesReducer,
   loading: loadingReducer,
-  firebaseUserToken: firebaseUserTokenReducer,
   appearance: appearanceReducer,
   documentChanged: documentChangedReducer,
 });

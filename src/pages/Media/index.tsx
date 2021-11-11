@@ -64,8 +64,7 @@ const Media: React.FC<MediaProps> = () => {
                     payload: `${uploaded}/${files.length} uploaded.`,
                   });
                 } else {
-                  alert(JSON.stringify(res));
-                  notify("Permission denied. Try reload the app", { variant: "error" });
+                  notify(res.error + ". Try reload the app", { variant: "error" });
                 }
               }
 

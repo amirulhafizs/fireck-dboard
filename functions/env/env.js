@@ -4,7 +4,7 @@ const handler = async (event) => {
       ? JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIAL)
       : { project_id: undefined };
     const env = {};
-    env.project_id = firebaseAdminCredential.project_id;
+    env.PROJECT_ID = firebaseAdminCredential.project_id;
     env.SITE_ID = process.env.SITE_ID;
     env.STRIPE = process.env.STRIPE_SECRET_KEY ? true : false;
     return {

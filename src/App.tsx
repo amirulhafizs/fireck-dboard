@@ -1,10 +1,9 @@
-import { useLocation, useHistory } from "react-router-dom";
 import Menu from "components/Menu";
 import TopBar from "components/TopBar";
 import "simplebar/dist/simplebar.min.css";
 import { useState, useRef, Suspense, useEffect } from "react";
-import store, { RootState } from "store";
-import { connect, ConnectedProps, useDispatch } from "react-redux";
+import { RootState } from "store";
+import { connect, ConnectedProps, useSelector } from "react-redux";
 import PagesRoot from "pages";
 import FirebaseSettings from "pages/Firebase";
 import AdminCreation from "pages/AdminCreation";
@@ -13,16 +12,13 @@ import Loader from "components/Loader";
 import ExpandLessRounded from "@material-ui/icons/ExpandLessRounded";
 import ButtonBase from "@mui/material/ButtonBase";
 import { InView } from "react-intersection-observer";
-import { handleAccessToken } from "api/netlify";
-import useConfiguration from "hooks/useConfiguration";
 import FirestoreSettings from "pages/Firestore";
-import useFirebase from "hooks/useFirebase";
 import Modal from "@mui/material/Modal";
 import ToDos from "pages/Firestore/ToDos";
 import UpdateAppWidget from "components/UpdateAppWidget";
 import MenuIcon from "@material-ui/icons/Menu";
 import Logo from "assets/logo.svg";
-import { getCollection } from "api/collections";
+import { TasksManager } from "facades/TasksManager";
 
 const PageLoader = ({ loading }: { loading: boolean | string }) => {
   return (
@@ -40,79 +36,23 @@ const PageLoader = ({ loading }: { loading: boolean | string }) => {
 const App = (props: PropsFromRedux) => {
   const pageTopRef = useRef<any>(null);
   const [isTopVisible, setIsTopVisible] = useState(true);
-  const location = useLocation();
-  const history = useHistory();
   const [menuOpened, setMenuOpened] = useState(false);
-
   const [openAdminCreation, setOpenAdminCreation] = useState(false);
-  const dispatch = useDispatch();
-
-  if (location.hash.includes("access_token=")) {
-    handleAccessToken(location.hash, (token: string) => {
-      store.dispatch({ type: "SET_NETLIFY_ACCESS_TOKEN", payload: token });
-      localStorage.setItem("netlify-access-token-for-fireck", token);
-      history.push("/");
-    });
-  }
 
   useEffect(() => {
-    const search = new URLSearchParams(location.search);
-    let token = search.get("user-token");
-    if (token) {
-      dispatch({ type: "SET_USER", payload: { token } });
-    }
+    TasksManager.initTasks();
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        if (props.user.token) {
-          dispatch({ type: "SET_LOADING", payload: true });
-          let res = await getCollection({
-            limit: 1000,
-            collectionId: "CollectionTypesReservedCollection",
-          });
-
-          if (!res.error) {
-            dispatch({
-              type: "SET_COLLECTION_TYPES",
-              payload: res,
-            });
-          }
-          dispatch({ type: "SET_LOADING", payload: false });
-        }
-      } catch (er) {}
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, props.user]);
-
-  useFirebase();
-
-  const {
-    adminSdkState,
-    checkCompleted,
-    isAppCreated,
-    setIsAppCreated,
-    isAdminSet,
-    setIsAdminSet,
-    firestoreWorks,
-    authWorks,
-    setFirestoreWorks,
-    setAuthWorks,
-  } = useConfiguration();
-
-  console.log(adminSdkState);
+  const { adminSdkState, checkCompleted, isAppCreated, isAdminSet, firestoreWorks, authWorks } =
+    useSelector((state: RootState) => state.configState);
 
   return (
     <div>
       {checkCompleted ? (
-        !(adminSdkState === "connected") ? (
+        adminSdkState !== "connected" ? (
           <FirebaseSettings adminSdkState={adminSdkState}></FirebaseSettings>
         ) : !firestoreWorks || !authWorks ? (
-          <FirestoreSettings
-            setFirestoreWorks={setFirestoreWorks}
-            setAuthWorks={setAuthWorks}
-          ></FirestoreSettings>
+          <FirestoreSettings></FirestoreSettings>
         ) : isAdminSet && !props.user.token ? (
           <Login></Login>
         ) : (
@@ -122,7 +62,7 @@ const App = (props: PropsFromRedux) => {
               isAdminSet={isAdminSet}
               isAppCreated={isAppCreated}
               onCreateAdmin={() => setOpenAdminCreation(true)}
-              onCreateApp={() => setIsAppCreated(true)}
+              onCreateApp={() => TasksManager.updateState("isAppCreated", true)}
             ></ToDos>
             <div className="w-full bg-fireck-2 h-34px flex md:hidden justify-between items-center text-white px-5">
               <div>
@@ -169,10 +109,7 @@ const App = (props: PropsFromRedux) => {
         </div>
       )}
       <Modal open={openAdminCreation} onClose={() => setOpenAdminCreation(false)}>
-        <AdminCreation
-          setIsAdminSet={setIsAdminSet}
-          onClose={() => setOpenAdminCreation(false)}
-        ></AdminCreation>
+        <AdminCreation onClose={() => setOpenAdminCreation(false)}></AdminCreation>
       </Modal>
     </div>
   );
@@ -181,8 +118,6 @@ const App = (props: PropsFromRedux) => {
 const connector = connect((state: RootState) => {
   return {
     user: state.user,
-    projectId: state.projectId,
-    firebaseAppApiKey: state.firebaseAppApiKey,
     loading: state.loading,
   };
 });

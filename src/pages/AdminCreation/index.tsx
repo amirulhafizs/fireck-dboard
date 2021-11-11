@@ -2,37 +2,20 @@ import Input from "components/Input";
 import Button from "components/Button";
 import { useFormik } from "formik";
 import * as yup from "yup";
-import { createSuperAdmin } from "api/adminUsers";
-import store from "store";
 import { useNotify } from "components/NotificationsProvider";
 import CloseRounded from "@material-ui/icons/CloseRounded";
+import { TasksManager } from "facades/TasksManager";
 
 export interface AdminCreationProps {
-  setIsAdminSet: (a: boolean) => void;
   onClose: () => void;
 }
 
-const AdminCreation: React.FC<AdminCreationProps> = ({ setIsAdminSet, onClose }) => {
+const AdminCreation: React.FC<AdminCreationProps> = ({ onClose }) => {
   const notify = useNotify();
 
   const { values, errors, submitCount, isSubmitting, handleSubmit, handleChange } = useFormik({
     onSubmit: async (vals) => {
-      const res = await createSuperAdmin(vals);
-      if (!res.error) {
-        store.dispatch({ type: "SET_USER", payload: res });
-        store.dispatch({ type: "SET_FIREBASE_USER_TOKEN", payload: res.firebaseToken });
-        setIsAdminSet(true);
-        notify("Admin successfully created!", { variant: "success" });
-      } else {
-        notify(
-          typeof res.error === "string"
-            ? res.error
-            : (res.error.details || "Erorr occured").toString(),
-          {
-            variant: "error",
-          }
-        );
-      }
+      await TasksManager._createSuperAdmin(vals, notify);
       onClose();
     },
     initialValues: {

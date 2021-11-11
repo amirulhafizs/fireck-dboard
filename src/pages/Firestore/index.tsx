@@ -3,21 +3,19 @@ import { useSelector } from "react-redux";
 import { RootState } from "store";
 import Button from "components/Button";
 import { confirm } from "components/Confirm";
+import { TasksManager } from "facades/TasksManager";
 
-export interface AdminCreationProps {
-  setFirestoreWorks: (a: boolean) => void;
-  setAuthWorks: (a: boolean) => void;
-}
+export interface FirestorePageProps {}
 
-const AdminCreation: React.FC<AdminCreationProps> = ({ setFirestoreWorks, setAuthWorks }) => {
-  const projectId = useSelector((state: RootState) => state.projectId);
+const FirestorePage: React.FC<FirestorePageProps> = () => {
+  const projectId = useSelector((state: RootState) => state.configState.projectId);
 
   return (
     <div className="fixed left-0 top-0 w-full h-full flex overflow-auto p-sm-12 p-7 bg-fireck-1">
       <img alt="" src={Logo} className="absolute left-7 top-5"></img>
       <div className="m-auto max-w-922px w-full md:py-10 py-16">
-        <div className="w-full md:flex ">
-          <div className="p-12 bg-white md:w-7/12 justify-between items-center flex flex-col">
+        <div className="w-full md:flex rounded overflow-hidden">
+          <div className="p-9 bg-white md:w-7/12 justify-between items-center flex flex-col">
             <div className="mb-7 text-center w-full">
               <div className="flex font-medium text-22px justify-between">
                 <div>2/2</div>
@@ -46,8 +44,8 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setFirestoreWorks, setAut
                   });
 
                   if (res) {
-                    setFirestoreWorks(true);
-                    setAuthWorks(true);
+                    TasksManager.updateState("firestoreWorks", true);
+                    TasksManager.updateState("authWorks", true);
                   }
                 }}
               >
@@ -55,11 +53,11 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setFirestoreWorks, setAut
               </Button>
             </div>
           </div>
-          <div className="md:w-5/12 bg-fireck-4 flex p-12 flex-wrap">
+          <div className="md:w-5/12 bg-fireck-4 flex p-9 flex-wrap">
             <div className="m-auto">
               <div className="mb-7 flex flex-wrap">
-                {"How to enable the Firestore and Authentication".split(" ").map((x, i) => (
-                  <div className="bg-fireck-5 text-white px-1 py-0.5">{x}</div>
+                {"How to enable the Firestore and Authentication?".split(" ").map((x, i) => (
+                  <div className="bg-fireck-3 text-white font-medium px-1 py-0.5">{x}</div>
                 ))}
               </div>
               <div className="w-full pt-60% rounded relative">
@@ -80,4 +78,4 @@ const AdminCreation: React.FC<AdminCreationProps> = ({ setFirestoreWorks, setAut
   );
 };
 
-export default AdminCreation;
+export default FirestorePage;

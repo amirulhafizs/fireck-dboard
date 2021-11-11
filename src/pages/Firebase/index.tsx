@@ -2,22 +2,18 @@ import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "store";
 import Logo from "assets/logo.svg";
 import React from "react";
-import { AuthorizeNetlify, updateEnvVariables, buildSite } from "api/netlify";
+import { AuthorizeNetlify } from "api/netlify";
 import { ConnectionState } from "types";
 import Dropzone from "components/Dropzone";
 import { ReactComponent as FolderImage } from "assets/folder.svg";
 import LinearProgress from "@material-ui/core/LinearProgress";
-import cryptoRandomString from "crypto-random-string";
+import { TasksManager } from "facades/TasksManager";
 
-const FirebaseSettings: React.FC<PropsFromRedux> = ({
-  siteId,
-  netlifyAccessToken,
-  adminSdkState,
-}) => {
+const FirebaseSettings: React.FC<PropsFromRedux> = ({ configState, configKeys }) => {
   const [serviceAccountFile, setServiceAccountFile] = React.useState<File>();
 
   const handleFiles = (files: File[]) => {
-    if (!netlifyAccessToken) {
+    if (!configKeys.netlifyAccessToken) {
       AuthorizeNetlify();
       return;
     }
@@ -25,17 +21,8 @@ const FirebaseSettings: React.FC<PropsFromRedux> = ({
       var reader = new FileReader();
       reader.onload = async function () {
         const json = JSON.parse(reader.result as string);
-
-        await updateEnvVariables(
-          {
-            FIREBASE_ADMIN_CREDENTIAL: JSON.stringify(json),
-            APP_SECRET: cryptoRandomString({ length: 100 }),
-          },
-          siteId,
-          netlifyAccessToken
-        );
-        await buildSite(siteId, netlifyAccessToken);
         setServiceAccountFile(files[0]);
+        TasksManager.connectAdminSdk(json);
       };
       reader.readAsText(files[0]);
     }
@@ -46,7 +33,7 @@ const FirebaseSettings: React.FC<PropsFromRedux> = ({
       <img alt="" src={Logo} className="absolute left-7 top-5"></img>
       <div className="m-auto py-16 max-w-922px w-full">
         <div className="w-full md:flex rounded overflow-hidden">
-          {adminSdkState === "not connected" ? (
+          {configState.adminSdkState === "not connected" ? (
             <div className="p-9 bg-white md:w-7/12 justify-between items-center">
               <div className="mb-10 text-center">
                 <div className="flex font-medium text-22px justify-between leading-none">
@@ -56,11 +43,11 @@ const FirebaseSettings: React.FC<PropsFromRedux> = ({
               </div>
               <Dropzone
                 onFiles={handleFiles}
-                onClick={!netlifyAccessToken ? () => AuthorizeNetlify() : () => {}}
-                disabled={!netlifyAccessToken}
+                onClick={!configKeys.netlifyAccessToken ? () => AuthorizeNetlify() : () => {}}
+                disabled={!configKeys.netlifyAccessToken}
               ></Dropzone>
             </div>
-          ) : adminSdkState === "building" ? (
+          ) : configState.adminSdkState === "building" ? (
             <div className="p-9 bg-white max-w-544px justify-between items-center">
               <div className="mb-10 text-center">
                 <div className="font-medium text-28px mb-3">App is building...</div>
@@ -75,8 +62,8 @@ const FirebaseSettings: React.FC<PropsFromRedux> = ({
               </div>
               <LinearProgress
                 classes={{
-                  colorPrimary: "bg-blue-200",
-                  barColorPrimary: "bg-blue-300",
+                  colorPrimary: "bg-gray-400",
+                  barColorPrimary: "bg-fireck-3",
                 }}
                 color="primary"
               ></LinearProgress>
@@ -112,15 +99,10 @@ const FirebaseSettings: React.FC<PropsFromRedux> = ({
   );
 };
 
-const mapState = (
-  state: RootState,
-  ownProps: { [index: string]: any; adminSdkState: ConnectionState }
-) => {
+const mapState = (state: RootState, ownProps: { [index: string]: any }) => {
   return {
-    siteId: state.siteId,
-    netlifyAccessToken: state.netlifyAccessToken,
-    projectId: state.projectId,
-    firebaseAppApiKey: state.firebaseAppApiKey,
+    configState: state.configState,
+    configKeys: state.configKeys,
     ...ownProps,
   };
 };

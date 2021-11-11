@@ -1,6 +1,6 @@
 import Button from "components/Button";
 import ColorPicker from "components/ColorPicker";
-import { setColors } from "hooks/useConfiguration";
+import { TasksManager } from "facades/TasksManager";
 import { useEffect } from "react";
 
 export interface ColorsItem {
@@ -43,9 +43,7 @@ const Colors: React.FC<ColorsProps> = ({ value, onValue }) => {
   ];
 
   useEffect(() => {
-    if (value.length === COLORS_AMOUNT * 2) {
-      setColors(value);
-    }
+    TasksManager.setColors(value);
   }, [value]);
 
   return (
